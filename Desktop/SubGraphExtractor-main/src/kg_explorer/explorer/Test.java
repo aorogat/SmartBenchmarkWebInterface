@@ -5,21 +5,31 @@
  */
 package kg_explorer.explorer;
 
-import java.util.ArrayList;
 import kg_explorer.model.ListOfPredicates;
-import kg_explorer.model.Predicate;
-import kg_extractor.knowledgegraph.DBpedia;
 
 /**
  *
  * @author aorogat
  */
 public class Test {
+
     public static void main(String[] args) {
         String dbpediaURL = "https://dbpedia.org/sparql";
         DBpediaExplorer dBpediaExplorer = DBpediaExplorer.getInstance(dbpediaURL);
         
-        ListOfPredicates predicats =  dBpediaExplorer.explore();
-        predicats.print();
+        ListOfPredicates predicats;
+        int offset = 10;
+        int from = 0;
+        boolean firstIteration = true;
+        do {
+            predicats = dBpediaExplorer.explore(from, offset);
+            if (firstIteration) {
+                predicats.printHeader();
+            }
+            predicats.print();
+            from += offset;
+            firstIteration = false;
+            System.gc(); //force Java garbage collection 
+        } while (predicats.getPredicates().size() > 0);
     }
 }

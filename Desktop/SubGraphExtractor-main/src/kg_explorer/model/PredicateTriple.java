@@ -2,6 +2,7 @@ package kg_explorer.model;
 
 import java.util.ArrayList;
 import kg_explorer.explorer.Explorer;
+import scrapping.wikipedia.NLP;
 import scrapping.wikipedia.Wikipedia;
 
 /**
@@ -16,6 +17,7 @@ public class PredicateTriple {
     private String objectURI;
     private String predicateLabel;
     private ArrayList<String> nlsSuggestions = new ArrayList<>();
+    private ArrayList<NlsSuggestion> nlsSuggestionsObjects = new ArrayList<>();
     private Explorer explorer;
 
     public PredicateTriple(String subjectURI, String objectURI, String subject, String object, String predicateLabel, Explorer explorer) {
@@ -31,9 +33,10 @@ public class PredicateTriple {
         } catch (Exception e) {
             nlsSuggestions.add("UNKNOWN");
         }
-
     }
 
+    
+    
     public String getSubject() {
         return subject;
     }
@@ -58,10 +61,7 @@ public class PredicateTriple {
         return explorer.removePrefix(object);
     }
 
-    public ArrayList<String> getNlsSuggestions() {
-        nlsSuggestions.sort((s1, s2) -> Math.abs(s1.length()) - Math.abs(s2.length()));
-        return nlsSuggestions;
-    }
+    
 
     public void setNlsSuggestions(ArrayList<String> nlsSuggestions) {
         this.nlsSuggestions = nlsSuggestions;
@@ -98,15 +98,48 @@ public class PredicateTriple {
     public void setExplorer(Explorer explorer) {
         this.explorer = explorer;
     }
+
+    public ArrayList<NlsSuggestion> getNlsSuggestionsObjects() {
+        nlsSuggestionsObjects.clear();
+        
+        for (String nlsSuggestion : nlsSuggestions) {
+            String pattern = "";
+            String sub = subject.toLowerCase();
+            String obj = object.toLowerCase();
+            String sType = "[s{"+Entity.getType(explorer, subjectURI)+"}]";
+            String oType = "[o{"+Entity.getType(explorer, objectURI)+"}]";
+            
+            if(sub.contains(obj))
+            {
+                pattern = nlsSuggestion.replaceAll(sub, sType).replaceAll(obj, oType);
+            }
+            else if(obj.contains(sub))
+            {
+                pattern = nlsSuggestion.replaceAll(obj, oType).replaceAll(sub, sType);
+            }
+            else
+                pattern = nlsSuggestion.replaceAll(sub, sType).replaceAll(obj, oType);
+            
+            String reducedPattern = NLP.summarySentence(pattern);
+            nlsSuggestionsObjects.add(new NlsSuggestion(nlsSuggestion, pattern, reducedPattern, predicateLabel, sType, oType));
+        }
+        return nlsSuggestionsObjects;
+    }
+
+    public void sortNlsSuggestionsObjects() {
+        nlsSuggestionsObjects.sort((s1, s2) -> (Math.abs(s1.getReducedPattern().replace(s1.getsType(), "").replace(s1.getoType(), "").length() - predicateLabel.length()) - 
+                                                Math.abs(s2.getReducedPattern().replace(s2.getsType(), "").replace(s2.getoType(), "").length() - predicateLabel.length())));
+    }
     
     
 
     public String toString() {
+        //order nlsSuggestions
+        sortNlsSuggestionsObjects();
         String s = subject + "___" + predicateLabel + "___" + object + "\t";
-        for (String nlsSuggestion : nlsSuggestions) {
-            s += "(((((" + nlsSuggestion + ")))))" +"  ["
-                    +"\t"+nlsSuggestion.replaceAll(subject.toLowerCase(), "[s("+Entity.getType(explorer, subjectURI)+")]") 
-                                  .replaceAll(object.toLowerCase(), "[o("+Entity.getType(explorer, objectURI)+")]") + "\t";
+        for (NlsSuggestion nlsSuggestion : nlsSuggestionsObjects) {
+            s += "Sentence: " + nlsSuggestion.getSentence() +
+                    "\tPattern: "+ nlsSuggestion.getPattern() + "\tReduced Pattern: " + nlsSuggestion.getReducedPattern() + "\t";
         }
         return s;
     }

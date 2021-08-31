@@ -109,17 +109,17 @@ public class DBpedia extends KnowledgeGraph {
                     }
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             } catch (Exception ee) {
-                ee.printStackTrace();
+                //ee.printStackTrace();
             }
             try {
             } catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         } catch (UnsupportedEncodingException ex) {
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
         return queryResult;
     }

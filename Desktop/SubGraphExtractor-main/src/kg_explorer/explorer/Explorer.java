@@ -21,8 +21,9 @@ public abstract class Explorer
     public static ArrayList<VariableSet> predicates;
     public static ArrayList<VariableSet> predicatesTriples;
     public static ArrayList<Graph> result = new ArrayList<>();
+    protected ArrayList<Predicate> predicateList = new ArrayList<>();
     
-    public abstract ListOfPredicates explore();
+    public abstract ListOfPredicates explore(int from, int length);
     
     public abstract String removePrefix(String node);
 }
