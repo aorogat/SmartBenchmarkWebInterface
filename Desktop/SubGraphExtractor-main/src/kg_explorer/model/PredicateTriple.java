@@ -133,10 +133,17 @@ public class PredicateTriple {
     
     
 
+    @Override
     public String toString() {
+        String s = "";
+        //ignore triple example without NLSs
+        if(nlsSuggestions.size()==0)
+            return s;
+        //NLSs from strings to objects
+        getNlsSuggestionsObjects();
         //order nlsSuggestions
         sortNlsSuggestionsObjects();
-        String s = subject + "___" + predicateLabel + "___" + object + "\t";
+        s = subject + "___" + predicateLabel + "___" + object + "\t";
         for (NlsSuggestion nlsSuggestion : nlsSuggestionsObjects) {
             s += "Sentence: " + nlsSuggestion.getSentence() +
                     "\tPattern: "+ nlsSuggestion.getPattern() + "\tReduced Pattern: " + nlsSuggestion.getReducedPattern() + "\t";
