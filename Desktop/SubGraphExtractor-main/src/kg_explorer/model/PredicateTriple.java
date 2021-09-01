@@ -137,8 +137,8 @@ public class PredicateTriple {
     public String toString() {
         String s = "";
         //ignore triple example without NLSs
-        if(nlsSuggestions.size()==0)
-            return s;
+//        if(nlsSuggestions.size()==0)
+//            return s;
         //NLSs from strings to objects
         getNlsSuggestionsObjects();
         //order nlsSuggestions

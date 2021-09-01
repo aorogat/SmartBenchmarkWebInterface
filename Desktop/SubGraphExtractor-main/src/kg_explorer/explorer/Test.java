@@ -18,7 +18,7 @@ public class Test {
         DBpediaExplorer dBpediaExplorer = DBpediaExplorer.getInstance(dbpediaURL);
         
         ListOfPredicates predicats;
-        int offset = 10;
+        int offset = 20;
         int from = 0;
         boolean firstIteration = true;
         do {

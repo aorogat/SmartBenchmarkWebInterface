@@ -41,7 +41,7 @@ public class DBpediaExplorer extends Explorer {
             predicateObject.setPredicate(removePrefix(predicate.toString().trim()));
             predicateObject.setLabel(getPredicateLabel(predicate.toString().trim()));
             predicateObject.setWeight(getPredicateWeight(predicate.toString().trim()));
-            predicateObject.setTripleExamples(getOneTripleExample(predicate.toString().trim(), predicateObject.getLabel(),6));
+            predicateObject.setTripleExamples(getOneTripleExample(predicate.toString().trim(), predicateObject.getLabel(),10));
             predicateList.add(predicateObject);
         }
         ListOfPredicates predicaes = new ListOfPredicates(predicateList);
@@ -77,7 +77,7 @@ public class DBpediaExplorer extends Explorer {
             predicatesTriples = kg.runQuery(query);
             return predicatesTriples.get(0).getVariables().get(0).toString();
         } catch (Exception e) {
-            return "-";
+            return (predicate.trim());
         }
     }
 
@@ -93,11 +93,13 @@ public class DBpediaExplorer extends Explorer {
         }
     }
 
+    @SuppressWarnings("empty-statement")
     private ArrayList<PredicateTriple> getOneTripleExample(String predicate, String lable, int noOfExamples) {
         String query = "";
-        ArrayList<PredicateTriple> predicateTriples = predicateTriples = new ArrayList<>();;
+        ArrayList<PredicateTriple> predicateTriples = predicateTriples = new ArrayList<>();
         try {
             query = "SELECT DISTINCT ?s ?o WHERE { ?s <" + predicate.trim() + "> ?o . ?o ?t ?l. } LIMIT " + (noOfExamples-1); //only those with entity object
+            //query = "SELECT DISTINCT ?s ?o WHERE { ?s <" + predicate.trim() + "> ?o .} LIMIT " + (noOfExamples-1);
             predicatesTriples = kg.runQuery(query);
             for (VariableSet predicate1 : predicatesTriples) {
                 String s = predicate1.getVariables().get(0).toString();
@@ -130,7 +132,8 @@ public class DBpediaExplorer extends Explorer {
                 .replace("http://purl.org/dc/elements/1.1/", "")
                 .replace("http://www.w3.org/2003/01/geo/wgs84 pos", "")
                 .replace("http://en.wikipedia.org/", "")
-                //                .replace("", "")
+                .replace("http://purl.org/linguistics/gold/", "")
+                //.replace("","")
                 .replace(">", "")
                 .trim().replace('_', ' ');
         return node;

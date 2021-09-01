@@ -28,8 +28,9 @@ public class Wikipedia {
             //https://stackoverflow.com/questions/2687012/split-string-into-sentences
             //https://unicode-org.github.io/icu-docs/#/icu4j/com/ibm/icu/text/BreakIterator.html
             
-            String docString = doc.getElementsByTag("p").text(); //Out of memory exception
-            //String docString = doc.text();
+            String docString = doc.getElementsByTag("p").text();
+            //docString += doc.getElementsByClass("infobox").text();
+            //String docString = doc.text(); //Out of memory exception and not working well
             String nls = ".";
             
             //Get sentences contains both start and end
@@ -41,17 +42,20 @@ public class Wikipedia {
                 start = end, end = iterator.next()) {
                 String s = docString.toLowerCase().substring(start,end);
                 
-                if(startString.contains(endString)){
-                    if(s.contains(startString) && s.replace(startString, "").contains(endString))
-                        sentences.add(s);
-                }
-                else if(endString.contains(startString))
-                {
-                    if(s.contains(endString) && s.replace(endString, "").contains(startString))
-                        sentences.add(s);    
-                }
-                else if(s.contains(startString) && s.contains(endString))
+                if(s.contains(startString) && s.contains(endString))
                     sentences.add(s);
+                    
+//                if(startString.contains(endString)){
+//                    if(s.contains(startString) && s.replace(startString, "").contains(endString))
+//                        sentences.add(s);
+//                }
+//                else if(endString.contains(startString))
+//                {
+//                    if(s.contains(endString) && s.replace(endString, "").contains(startString))
+//                        sentences.add(s);    
+//                }
+//                else if(s.contains(startString) && s.contains(endString))
+//                    sentences.add(s);
             }
             
             //Get senteces start by subject and ends by object

@@ -50,21 +50,31 @@ public class DBpedia extends KnowledgeGraph {
     public String[] getUnwantedProperties() {
         unwantedProperties = new String[]{
             "rdfs:label",
-            "dbo:abstract",
-            "dbo:wikiPageWikiLink",
-            "dbp:image",
-            "dbp:wikiPageUsesTemplate",
+            "rdfs:subPropertyOf",
             "rdfs:comment",
             "rdfs:label",
             "rdfs:seeAlso",
-            "owl:sameAs",
+            
+            "dbo:abstract",
+            "dbo:wikiPageWikiLink",
             "dbo:wikiPageExternalLink",
             "dbo:wikiPageID",
             "dbo:wikiPageLength",
             "dbo:wikiPageRevisionID",
+            "dbo:wikiPageRedirects",
+            "dbo:wikiPageDisambiguates",
+            
+            "dbp:image",
+            "dbp:wikiPageUsesTemplate",
             "dbp:image",
             "dbp:name",
-            "foaf:name"};
+            
+            "owl:sameAs",
+            "owl:equivalentProperty",
+            "owl:differentFrom",
+            
+            "foaf:name",
+            "foaf:primaryTopic"};
         return unwantedProperties;
     }
 
