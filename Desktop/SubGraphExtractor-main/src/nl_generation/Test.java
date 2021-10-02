@@ -34,15 +34,23 @@ public class Test {
         
         
         //test single edge
+        
+        System.out.println("Testing Single-Edge Questions");
+        System.out.println("===========================");
         testSingleEdge(t0);
         testSingleEdge(t2);
         
         //test chain
+        System.out.println("Testing Chain Questions: L=2");
+        System.out.println("===========================");
         ArrayList<TriplePattern> chainTriples = new ArrayList<>();
         chainTriples.add(t0);
         chainTriples.add(t1);
         testChain(chainTriples);
         
+        
+        System.out.println("Testing Chain Questions: L=3");
+        System.out.println("===========================");
         chainTriples.add(t11);
         testChain(chainTriples);
         
