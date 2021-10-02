@@ -12,7 +12,7 @@ public class chainQuestion {
     {
         String S0 = g.getChain().get(0).getSource().getValue(); //seed
         String P0 = g.getChain().get(0).getLabel().getValue();
-        String O0 = g.getChain().get(0).getLabel().getValue();
+        String O0 = g.getChain().get(0).getDestination().getValue();
         String O_Final = g.getChain().get(g.getChain().size()-1).getDestination().getValue(); //last object in the chain
         
         //Questions will be as single edge except that we replace the object by P`_0 ... P`_n O_n

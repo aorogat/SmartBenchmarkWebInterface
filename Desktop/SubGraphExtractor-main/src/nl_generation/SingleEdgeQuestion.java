@@ -13,6 +13,10 @@ public class SingleEdgeQuestion {
         String o = g.getTriplePattern().getDestination().getValue();
         String p = g.getTriplePattern().getLabel().getValue();
         
+//        System.out.println("s: " + s);
+//        System.out.println("o: " + o);
+//        System.out.println("p: " + p);
+        
         ArrayList<String> questions = new ArrayList<>();
         PredicateNLRepresentation predicateNL = PredicatesLexicon.getPredicateNL(p,KGOntology.getType(s),KGOntology.getType(o));
         
@@ -22,7 +26,7 @@ public class SingleEdgeQuestion {
             questions.add("What is the " + predicateNL.getPredicate_s_O_NP() + " of " + o + "?");
             questions.add("Where " + o + " " + predicateNL.getPredicate_o_s_VP()+ "?");
             //ignore this as it is used to ask about o instead of s
-            questions.add("What is the " + predicateNL.getPredicate_o_s_NP() + " of " + s + "?");
+            //questions.add("What is the " + predicateNL.getPredicate_o_s_NP() + " of " + s + "?");
         }
         else if(KGOntology.isSubtypeOf(predicateNL.getSubject_type(), "person"))
         {
