@@ -24,9 +24,14 @@ public class Test {
                                              new Variable("o", "Sweden", "country"),
                                              new Variable("l", "mainRiver", "place"));
         
+        TriplePattern t11 = new TriplePattern(new Variable("s", "Sweden", "country"),
+                                             new Variable("o", "Northern Europe", "place"),
+                                             new Variable("l", "largestCountry", "_"));
+        
         TriplePattern t2 = new TriplePattern(new Variable("s", "Barack Obama", "a"),
                                              new Variable("o", "United States", "a"),
                                              new Variable("l", "lead", "a"));
+        
         
         //test single edge
         testSingleEdge(t0);
@@ -37,6 +42,10 @@ public class Test {
         chainTriples.add(t0);
         chainTriples.add(t1);
         testChain(chainTriples);
+        
+        chainTriples.add(t11);
+        testChain(chainTriples);
+        
         
     }
     

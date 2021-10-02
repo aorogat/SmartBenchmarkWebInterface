@@ -22,7 +22,10 @@ public class KGOntology
             return "place";
         else if(node.equals("Sweden"))
             return "country";
-        return "";
+        else if(node.equals("Northern Europe"))
+            return "place";
+        
+        return "OntologyUnknownType";
     }
     
     public static boolean isSubtypeOf(String child, String parent)

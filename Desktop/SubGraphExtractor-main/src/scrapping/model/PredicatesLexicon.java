@@ -22,6 +22,9 @@ public class PredicatesLexicon {
         predicatesNL.add(new PredicateNLRepresentation("mainRiver", "river", "country", 
                     "main river", "run through",
                     "", "country of"));
+        predicatesNL.add(new PredicateNLRepresentation("largestCountry", "country", "place", 
+                    "largest country", "located in",
+                    "", ""));
         
         // S is the president of O
         // O leaded by S
