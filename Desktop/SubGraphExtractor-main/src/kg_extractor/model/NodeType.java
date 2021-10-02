@@ -12,4 +12,7 @@ public class NodeType {
     public static int DATE   = 4;
     public static int LITERAL   = 5;
     public static int IRI   = 6;
+    public static int PERSON = 7;
+    public static int PLACE = 8;
+    
 }

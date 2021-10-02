@@ -192,6 +192,12 @@ public class SingleEdgeGraph extends Graph {
         return result;
     }
 
+    public TriplePattern getTriplePattern() {
+        return triplePattern;
+    }
+
+    
+    
     public String toString() {
         String s = triplePattern.toString();
         return s;

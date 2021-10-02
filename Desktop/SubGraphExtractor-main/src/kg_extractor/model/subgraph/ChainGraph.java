@@ -1,11 +1,9 @@
 package kg_extractor.model.subgraph;
 
 import java.util.ArrayList;
-import kg_extractor.knowledgegraph.DBpedia;
 import kg_extractor.knowledgegraph.KnowledgeGraph;
 import kg_extractor.model.NodeType;
 import kg_extractor.model.TriplePattern;
-import kg_extractor.model.Variable;
 import kg_extractor.model.VariableSet;
 
 /**
@@ -177,4 +175,14 @@ public class ChainGraph extends Graph {
         }
         return s;
     }
+
+    public ArrayList<TriplePattern> getChain() {
+        return chain;
+    }
+
+    public void setChain(ArrayList<TriplePattern> chain) {
+        this.chain = chain;
+    }
+    
+    
 }

@@ -28,9 +28,9 @@ public class Test {
 //        String seed = "<http://dbpedia.org/resource/Galileo_Galilei> ";
         String seed = "<http://dbpedia.org/resource/Berlin> ";
 
-//        testSingleEdge(dbpedia, seed);
-//        testChain(dbpedia, seed);
-        testStar(dbpedia, seed);
+        testSingleEdge(dbpedia, seed);
+////        testChain(dbpedia, seed);
+//        testStar(dbpedia, seed);
         
         
         
@@ -40,7 +40,7 @@ public class Test {
     {
         SingleEdgeGraph singleEdgeGraph = new SingleEdgeGraph();
         //Test Single Edge //////////////////////////////////////
-        ArrayList<Graph> single_graphs = singleEdgeGraph.generate(kg, seed, NodeType.SUBJECT_ENTITY,NodeType.NUMBER, true, true);
+        ArrayList<Graph> single_graphs = singleEdgeGraph.generate(kg, seed, NodeType.SUBJECT_ENTITY,NodeType.ANY, true, true);
         //Print the result
         System.out.println("Size: "+single_graphs.size());
         for (Graph graph : single_graphs) {
