@@ -26,5 +26,11 @@ public abstract class Explorer
     public abstract ListOfPredicates explore(int from, int length);
     
     public abstract String removePrefix(String node);
+
+    public Explorer() {
+        predicates = new ArrayList<>();
+    }
      
+    
+    
 }

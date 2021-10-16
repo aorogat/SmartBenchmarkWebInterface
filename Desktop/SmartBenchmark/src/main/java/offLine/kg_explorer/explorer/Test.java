@@ -16,15 +16,20 @@ public class Test {
     public static void main(String[] args) {
         String dbpediaURL = "https://dbpedia.org/sparql";
         DBpediaExplorer dBpediaExplorer = DBpediaExplorer.getInstance(dbpediaURL);
-        
-        
+
         ListOfPredicates predicats;
-        int offset = 50;
+        int offset = 10000;
         int from = 0;
         boolean firstIteration = true;
-        
-        dBpediaExplorer.getPredicatesContext("dbo:riverMouth");
-        
+//        System.out.println("RiverMouth Context");
+//        System.out.println("=========================\n\n\n\n");
+//        dBpediaExplorer.getPredicatesContext("dbo:riverMouth");
+//        System.out.println("=========================\n\n\n\n");
+
+        predicats = dBpediaExplorer.explore(from, offset);
+        predicats.printHeader();
+        predicats.print();
+
 //        do {
 //            predicats = dBpediaExplorer.explore(from, offset);
 //            if (firstIteration) {

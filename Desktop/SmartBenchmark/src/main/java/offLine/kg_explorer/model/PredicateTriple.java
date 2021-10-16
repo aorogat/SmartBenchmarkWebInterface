@@ -31,7 +31,7 @@ public class PredicateTriple {
             nlsSuggestions.addAll(Wikipedia.getNLSentences(subject, object, true)); // add sentences from subject page
             nlsSuggestions.addAll(Wikipedia.getNLSentences(subject, object, false)); // add sentences from object page
         } catch (Exception e) {
-            nlsSuggestions.add("UNKNOWN");
+            
         }
     }
 
@@ -151,4 +151,10 @@ public class PredicateTriple {
         return s;
     }
 
+    public ArrayList<String> getNlsSuggestions() {
+        return nlsSuggestions;
+    }
+
+    
+    
 }

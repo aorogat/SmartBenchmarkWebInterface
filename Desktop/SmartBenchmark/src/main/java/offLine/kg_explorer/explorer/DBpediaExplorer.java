@@ -14,6 +14,7 @@ import online.kg_extractor.model.VariableSet;
 public class DBpediaExplorer extends Explorer {
 
     private DBpediaExplorer(String url) {
+        super();
         kg = DBpedia.getInstance(url);
         endpoint = kg.getEndpoint();
     }
@@ -31,8 +32,21 @@ public class DBpediaExplorer extends Explorer {
     public ListOfPredicates explore(int from, int length) {
         predicateList.clear();
 
-        getPredicateList(from, length);
+        int predicatesSizeOld = 0;
+        int predicatesSizeNew = 1;
 
+        while (predicatesSizeNew > predicatesSizeOld) {
+            predicatesSizeOld = predicates.size();
+            getPredicateList(from, length);
+            predicatesSizeNew = predicates.size();
+            from += length;
+//            System.out.println("Predicates size = " + predicatesSizeNew);
+//            System.out.println(predicates.toString());
+        }
+        System.out.println("Predicates size = " + predicatesSizeNew);
+        System.out.println(predicates.toString());
+
+        int i = 0;
         for (VariableSet predicate : predicates) {
             Predicate predicateObject = new Predicate(this);
             predicateObject.setPredicateURI(predicate.toString().trim());
@@ -41,6 +55,11 @@ public class DBpediaExplorer extends Explorer {
             predicateObject.setWeight(getPredicateWeight(predicate.toString().trim()));
             predicateObject.setTripleExamples(getOneTripleExample(predicate.toString().trim(), predicateObject.getLabel(), 3));
             predicateList.add(predicateObject);
+            if(i++%10==0)
+            {
+                ListOfPredicates predicaes = new ListOfPredicates(predicateList);
+                predicaes.print();
+            }
         }
         ListOfPredicates predicaes = new ListOfPredicates(predicateList);
         return predicaes;
@@ -50,10 +69,11 @@ public class DBpediaExplorer extends Explorer {
         //get predicates where the object is entity
         String unwantedPropertiesString = kg.getUnwantedPropertiesString();
         String query = "SELECT DISTINCT ?p WHERE { "
-                + "?s ?p ?o. ?o ?t ?l. " //Get only if ?o is entity
+//                + "?s ?p ?o. ?o ?t ?l. " //Get only if ?o is entity
+                + "?s ?p ?o. "
                 + " FILTER (?p NOT IN(" + unwantedPropertiesString + ")). "
                 + "} LIMIT " + length + " OFFSET " + from;
-        predicates = kg.runQuery(query);
+        predicates.addAll(kg.runQuery(query));
 
         //get predicates where the object is number
         //get predicates where the object is date
@@ -92,8 +112,8 @@ public class DBpediaExplorer extends Explorer {
         String query = "";
         ArrayList<PredicateTriple> predicateTriples = predicateTriples = new ArrayList<>();
         try {
-            query = "SELECT DISTINCT ?s ?o WHERE { ?s <" + predicate.trim() + "> ?o . ?o ?t ?l. } LIMIT " + (noOfExamples - 1); //only those with entity object
-            //query = "SELECT DISTINCT ?s ?o WHERE { ?s <" + predicate.trim() + "> ?o .} LIMIT " + (noOfExamples-1);
+//            query = "SELECT DISTINCT ?s ?o WHERE { ?s <" + predicate.trim() + "> ?o . ?o ?t ?l. } LIMIT " + (noOfExamples - 1); //only those with entity object
+            query = "SELECT DISTINCT ?s ?o WHERE { ?s <" + predicate.trim() + "> ?o .} LIMIT " + noOfExamples;
             predicatesTriples = kg.runQuery(query);
             for (VariableSet predicate1 : predicatesTriples) {
                 String s = predicate1.getVariables().get(0).toString();
@@ -112,6 +132,7 @@ public class DBpediaExplorer extends Explorer {
         String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
                 + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
                 + "PREFIX owl: <http://www.w3.org/2002/07/owl#> \n"
+                + "PREFIX schema: <http://schema.org/> \n"
                 + " \n"
                 + "SELECT DISTINCT SAMPLE(?s) SAMPLE(?o) ?s_type    ?o_type \n"
                 + "WHERE{\n"
@@ -126,8 +147,8 @@ public class DBpediaExplorer extends Explorer {
                 + "    }.\n"
                 + "    FILTER EXISTS {\n"
                 + "      ?s_type rdfs:subClassOf ?superType1 .\n"
+                + "      ?s rdf:type ?superType1 .\n"
                 + "    }.\n"
-                + "  FILTER strstarts(str(?s_type ), str(dbo:)).\n"
                 + "\n"
                 + "   ?o      rdf:type              ?o_type.\n"
                 + "    FILTER NOT EXISTS {\n"
@@ -139,6 +160,7 @@ public class DBpediaExplorer extends Explorer {
                 + "    }.\n"
                 + "    FILTER EXISTS {\n"
                 + "      ?o_type rdfs:subClassOf ?superType2 .\n"
+                + "      ?o rdf:type ?superType2 .\n"
                 + "    }.\n"
                 + "  FILTER strstarts(str(?s_type ), str(dbo:)).\n"
                 + "  FILTER strstarts(str(?o_type ), str(dbo:)).\n"
