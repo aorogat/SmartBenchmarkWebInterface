@@ -37,21 +37,22 @@ public class DBpediaExplorer extends Explorer {
         int predicatesSizeNew = 1;
 
 //        do {
-            predicatesSizeOld = predicates.size();
+            predicatesSizeOld = predicatesVariableSet.size();
             getPredicateList(from, length);
-            predicatesSizeNew = predicates.size();
+            predicatesSizeNew = predicatesVariableSet.size();
             from += length;
             System.out.println("Predicates size = " + predicatesSizeNew);
-            System.out.println(predicates.toString());
+            System.out.println(predicatesVariableSet.toString());
 //        } while (predicatesSizeNew > predicatesSizeOld);
         System.out.println("Predicates size = " + predicatesSizeNew);
-        System.out.println(predicates.toString());
+        System.out.println(predicatesVariableSet.toString());
 
         int i = 0;
         Predicate predicateObject = new Predicate(this);
         ArrayList<PredicateContext> contexts;
+        ListOfPredicates predicates = new ListOfPredicates(predicateList);
 
-        for (VariableSet predicate : predicates) {
+        for (VariableSet predicate : predicatesVariableSet) {
             predicateObject.setPredicateURI(predicate.toString().trim());
             predicateObject.setPredicate(removePrefix(predicate.toString().trim()));
             predicateObject.setLabel(getPredicateLabel(predicate.toString().trim()));
@@ -60,16 +61,15 @@ public class DBpediaExplorer extends Explorer {
             for (PredicateContext context : contexts) {
                 predicateObject.setTripleExamples(getOneTripleExample(predicate.toString().trim(), context.getSubjectType(), context.getObjectType(), predicateObject.getLabel(), 10));
                 predicateObject.setPredicateContext(context);
-                predicateList.add(predicateObject);
+                predicates.getPredicates().add(predicateObject);
                 if (i++ % 10 == 0) {
-                    ListOfPredicates predicaes = new ListOfPredicates(predicateList);
-                    predicaes.print();
+                    predicates.printLast10();
                 }
             }
 
         }
-        ListOfPredicates predicaes = new ListOfPredicates(predicateList);
-        return predicaes;
+        predicates.setPredicates(predicateList);
+        return predicates;
     }
 
     private void getPredicateList(int from, int length) {
@@ -81,7 +81,7 @@ public class DBpediaExplorer extends Explorer {
                 + " FILTER (?p NOT IN(" + unwantedPropertiesString + "))."
                 //                + " FILTER strstarts(str(?p ), str(dbo:)). "  //NOT working, system return nothing
                 + "} LIMIT " + length + " OFFSET " + from;
-        predicates.addAll(kg.runQuery(query));
+        predicatesVariableSet.addAll(kg.runQuery(query));
 
         //get predicates where the object is number
         //get predicates where the object is date

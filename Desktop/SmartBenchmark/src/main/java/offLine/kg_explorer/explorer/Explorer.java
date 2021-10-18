@@ -18,7 +18,7 @@ public abstract class Explorer
     public static KnowledgeGraph kg;
     protected static Explorer instance = null;
     public static String endpoint;
-    public static ArrayList<VariableSet> predicates;
+    public static ArrayList<VariableSet> predicatesVariableSet;
     public static ArrayList<VariableSet> predicatesTriples;
     public static ArrayList<Graph> result = new ArrayList<>();
     protected ArrayList<Predicate> predicateList = new ArrayList<>();
@@ -28,7 +28,7 @@ public abstract class Explorer
     public abstract String removePrefix(String node);
 
     public Explorer() {
-        predicates = new ArrayList<>();
+        predicatesVariableSet = new ArrayList<>();
     }
      
     
