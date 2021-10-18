@@ -3,7 +3,8 @@ package offLine.kg_explorer.explorer;
 import java.util.ArrayList;
 import offLine.kg_explorer.model.ListOfPredicates;
 import offLine.kg_explorer.model.Predicate;
-import offLine.kg_explorer.model.PredicateTriple;
+import offLine.kg_explorer.model.PredicateContext;
+import offLine.kg_explorer.model.PredicateTripleExample;
 import online.kg_extractor.knowledgegraph.DBpedia;
 import online.kg_extractor.model.VariableSet;
 
@@ -35,31 +36,37 @@ public class DBpediaExplorer extends Explorer {
         int predicatesSizeOld = 0;
         int predicatesSizeNew = 1;
 
-        while (predicatesSizeNew > predicatesSizeOld) {
+//        do {
             predicatesSizeOld = predicates.size();
             getPredicateList(from, length);
             predicatesSizeNew = predicates.size();
             from += length;
-//            System.out.println("Predicates size = " + predicatesSizeNew);
-//            System.out.println(predicates.toString());
-        }
+            System.out.println("Predicates size = " + predicatesSizeNew);
+            System.out.println(predicates.toString());
+//        } while (predicatesSizeNew > predicatesSizeOld);
         System.out.println("Predicates size = " + predicatesSizeNew);
         System.out.println(predicates.toString());
 
         int i = 0;
+        Predicate predicateObject = new Predicate(this);
+        ArrayList<PredicateContext> contexts;
+
         for (VariableSet predicate : predicates) {
-            Predicate predicateObject = new Predicate(this);
             predicateObject.setPredicateURI(predicate.toString().trim());
             predicateObject.setPredicate(removePrefix(predicate.toString().trim()));
             predicateObject.setLabel(getPredicateLabel(predicate.toString().trim()));
             predicateObject.setWeight(getPredicateWeight(predicate.toString().trim()));
-            predicateObject.setTripleExamples(getOneTripleExample(predicate.toString().trim(), predicateObject.getLabel(), 3));
-            predicateList.add(predicateObject);
-            if(i++%10==0)
-            {
-                ListOfPredicates predicaes = new ListOfPredicates(predicateList);
-                predicaes.print();
+            contexts = getPredicatesContext("<"+predicate.toString().trim()+">");
+            for (PredicateContext context : contexts) {
+                predicateObject.setTripleExamples(getOneTripleExample(predicate.toString().trim(), context.getSubjectType(), context.getObjectType(), predicateObject.getLabel(), 10));
+                predicateObject.setPredicateContext(context);
+                predicateList.add(predicateObject);
+                if (i++ % 10 == 0) {
+                    ListOfPredicates predicaes = new ListOfPredicates(predicateList);
+                    predicaes.print();
+                }
             }
+
         }
         ListOfPredicates predicaes = new ListOfPredicates(predicateList);
         return predicaes;
@@ -69,9 +76,10 @@ public class DBpediaExplorer extends Explorer {
         //get predicates where the object is entity
         String unwantedPropertiesString = kg.getUnwantedPropertiesString();
         String query = "SELECT DISTINCT ?p WHERE { "
-//                + "?s ?p ?o. ?o ?t ?l. " //Get only if ?o is entity
-                + "?s ?p ?o. "
-                + " FILTER (?p NOT IN(" + unwantedPropertiesString + ")). "
+                + "?s ?p ?o. ?o ?t ?l. " //Get only if ?o is entity
+                //                + "?s ?p ?o. "
+                + " FILTER (?p NOT IN(" + unwantedPropertiesString + "))."
+                //                + " FILTER strstarts(str(?p ), str(dbo:)). "  //NOT working, system return nothing
                 + "} LIMIT " + length + " OFFSET " + from;
         predicates.addAll(kg.runQuery(query));
 
@@ -107,18 +115,19 @@ public class DBpediaExplorer extends Explorer {
         }
     }
 
-    @SuppressWarnings("empty-statement")
-    private ArrayList<PredicateTriple> getOneTripleExample(String predicate, String lable, int noOfExamples) {
+    private ArrayList<PredicateTripleExample> getOneTripleExample(String predicate, String sType, String oType, String lable, int noOfExamples) {
         String query = "";
-        ArrayList<PredicateTriple> predicateTriples = predicateTriples = new ArrayList<>();
+        ArrayList<PredicateTripleExample> predicateTriples = predicateTriples = new ArrayList<>();
         try {
 //            query = "SELECT DISTINCT ?s ?o WHERE { ?s <" + predicate.trim() + "> ?o . ?o ?t ?l. } LIMIT " + (noOfExamples - 1); //only those with entity object
-            query = "SELECT DISTINCT ?s ?o WHERE { ?s <" + predicate.trim() + "> ?o .} LIMIT " + noOfExamples;
+            query = "SELECT DISTINCT ?s ?o WHERE { ?s <" + predicate.trim() + "> ?o ."
+                    + "?s rdf:type <" + sType + ">. "
+                    + "?o rdf:type <" + oType + ">. } LIMIT " + noOfExamples;
             predicatesTriples = kg.runQuery(query);
             for (VariableSet predicate1 : predicatesTriples) {
                 String s = predicate1.getVariables().get(0).toString();
                 String o = predicate1.getVariables().get(1).toString();
-                PredicateTriple predicateTriple = new PredicateTriple("<" + s + ">", "<" + o + ">", removePrefix(s), removePrefix(o), lable, this);
+                PredicateTripleExample predicateTriple = new PredicateTripleExample("<" + s + ">", "<" + o + ">", removePrefix(s), removePrefix(o), lable, this);
                 predicateTriples.add(predicateTriple);
             }
             return predicateTriples;
@@ -127,14 +136,15 @@ public class DBpediaExplorer extends Explorer {
         }
     }
 
-    public void getPredicatesContext(String predicateURI) {
+    public ArrayList<PredicateContext> getPredicatesContext(String predicateURI) {
         String unwantedPropertiesString = kg.getUnwantedPropertiesString();
         String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
                 + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
                 + "PREFIX owl: <http://www.w3.org/2002/07/owl#> \n"
                 + "PREFIX schema: <http://schema.org/> \n"
                 + " \n"
-                + "SELECT DISTINCT SAMPLE(?s) SAMPLE(?o) ?s_type    ?o_type \n"
+                + "SELECT DISTINCT ?s_type    ?o_type \n"
+                //                + "SELECT DISTINCT SAMPLE(?s) SAMPLE(?o) ?s_type    ?o_type \n"
                 + "WHERE{\n"
                 + "?s      " + predicateURI + "      ?o.\n"
                 + "?s      rdf:type              ?s_type.\n"
@@ -166,9 +176,15 @@ public class DBpediaExplorer extends Explorer {
                 + "  FILTER strstarts(str(?o_type ), str(dbo:)).\n"
                 + "} ORDER By (str(?s_type))\n";
         predicatesTriples = kg.runQuery(query);
+        ArrayList<PredicateContext> predicateContexts = new ArrayList<>();
         for (VariableSet predicate : predicatesTriples) {
-            System.out.println(predicate.toString());
+            String stype = predicate.getVariables().get(0).getValueWithPrefix();
+            String otype = predicate.getVariables().get(1).getValueWithPrefix();
+//            System.out.println("stype:" + stype + ",  " + "otype:" + otype);
+            predicateContexts.add(new PredicateContext(stype, otype));
+//            System.out.println(predicate.toString());
         }
+        return predicateContexts;
 
     }
 

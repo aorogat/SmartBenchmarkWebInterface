@@ -54,6 +54,10 @@ public class DBpedia extends KnowledgeGraph {
             "rdfs:comment",
             "rdfs:label",
             "rdfs:seeAlso",
+            "rdf:type",
+            "rdfs:subClassOf",
+            "rdfs:range",
+            "rdfs:domain",
             
             "dbo:abstract",
             "dbo:wikiPageWikiLink",
@@ -72,6 +76,9 @@ public class DBpedia extends KnowledgeGraph {
             "owl:sameAs",
             "owl:equivalentProperty",
             "owl:differentFrom",
+            "owl:versionInfo",
+            "owl:disjointWith",
+            "owl:equivalentClass",
             
             "foaf:name",
             "foaf:primaryTopic"};
