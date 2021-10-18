@@ -49,6 +49,13 @@ public class DBpedia extends KnowledgeGraph {
     @Override
     public String[] getUnwantedProperties() {
         unwantedProperties = new String[]{
+            "dbo:deathPlace",
+            "dbr:deathPlace",
+            "dbp:deathPlace",
+            "dbo:birthPlace",
+            "dbr:birthPlace",
+            "dbp:birthPlace",
+            
             "rdfs:label",
             "rdfs:subPropertyOf",
             "rdfs:comment",

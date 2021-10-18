@@ -12,7 +12,7 @@ public class Test {
         //Send Subject and Object
         ArrayList<String> sentences = Wikipedia.getNLSentences("Balornock", "GLASGOW",true);
         for (String sentence : sentences) {
-            System.out.println(sentence + "\t\t" + NLP.summarySentence(sentence));
+            System.out.println(sentence + "\t\t" + NLP.summarySentence(sentence,"",""));
         }
     }
 }

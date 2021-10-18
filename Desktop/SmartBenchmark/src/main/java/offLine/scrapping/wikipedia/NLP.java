@@ -9,14 +9,18 @@ public class NLP {
    
     
     
-    public static String summarySentence(String sentence) throws IOException {
+    public static String summarySentence(String sentence, String sType, String oType) throws IOException {
         if(chunkerExample==null)
             chunkerExample = new Test_OpenNLPChunkerExample();
-        return chunkerExample.last_VP_PP(removeBeforeSubjectAfterObject(
-//                    removeBetweenCommas(
-                        removeRefrence(
-                            removeParenthesesPhrases(
-                                removeHyphenedPhrases(sentence)))));
+        sentence = removeHyphenedPhrases(sentence);
+        sentence = removeParenthesesPhrases(sentence);
+        sentence = removeRefrence(sentence);
+        sentence = removeBeforeSubjectAfterObject(sentence);
+        
+        sentence = sentence.replace(sType, "sssss");
+        sentence = sentence.replace(oType, "ooooo");
+        sentence = chunkerExample.last_VP_PP(sentence);
+        return sentence;
     }
 
     public static String removeHyphenedPhrases(String sentence) {

@@ -10,6 +10,8 @@ import opennlp.tools.util.Span;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Test_OpenNLPChunkerExample {
 
@@ -67,31 +69,35 @@ public class Test_OpenNLPChunkerExample {
         double[] probs = getChunker().probs();
 
         Span[] chunks = groupChunks(tokens, chunker_tags);
-        String lastVP = "";
-        String lastPP = "";
-        for (Span chunk : chunks) {
-            if (chunk.getType().equals("VP")) {
-                lastVP = "";
-                for (int j = chunk.getStart(); j <= chunk.getEnd(); ++j) {
-                    lastVP += tokens[j] + " ";
-                }
-                lastPP = "";
-            }
-            if (chunk.getType().equals("PP")) {
-                for (int j = chunk.getStart(); j <= chunk.getEnd(); ++j) {
-                    lastPP += tokens[j] + " ";
-                }
-            }
-            
-        }
-        return (lastVP.trim() + " " + lastPP.trim()).trim();
+        
+        Map<String, String> phrases = combineSimplePhrases(tokens, chunker_tags);
+        return phrases.get("VP");
+        
+//        String lastVP = "";
+//        String lastPP = "";
+//        for (Span chunk : chunks) {
+//            if (chunk.getType().equals("VP")) {
+//                lastVP = "";
+//                for (int j = chunk.getStart(); j <= chunk.getEnd(); ++j) {
+//                    lastVP += tokens[j] + " ";
+//                }
+//                lastPP = "";
+//            }
+//            if (chunk.getType().equals("PP")) {
+//                for (int j = chunk.getStart(); j <= chunk.getEnd(); ++j) {
+//                    lastPP += tokens[j] + " ";
+//                }
+//            }
+//
+//        }
+//        return (lastVP.trim() + " " + lastPP.trim()).trim();
     }
 
     public static void main(String[] args) throws IOException {
         Test_OpenNLPChunkerExample example = new Test_OpenNLPChunkerExample();
 //         final String sentence = "The pretty cat chased the ugly rat.";
 //        final String sentence = "It is very beautiful.";
-        final String sentence = "sssss died of cancer in a hospital in ooooooo";
+        final String sentence = "[sssss eventually flows into the ooooo";
         String tokens[] = example.getTokens(sentence);
         String pos_tags[] = example.getPOS(tokens);
         String chunker_tags[] = example.getChunker().chunk(tokens, pos_tags);
@@ -103,12 +109,73 @@ public class Test_OpenNLPChunkerExample {
 
         System.out.println("================= Chunks ===================");
         Span[] chunks = groupChunks(tokens, chunker_tags);
-        for (Span chunk : chunks) {
-            System.out.print(chunk.getType() + " => ");
-            for (int j = chunk.getStart(); j <= chunk.getEnd(); ++j) {
-                System.out.print(tokens[j] + " ");
+        Map<String, String> phrases = new HashMap<>();
+        String s = "";
+        for (int i = 0; i < chunks.length; i++) {
+            s = "";
+            if (chunks[i].getType().equals("NP")) {
+                for (int j = chunks[i].getStart(); j <= chunks[i].getEnd(); ++j) {
+                    s += tokens[j] + " ";
+                }
+                phrases.put("NP", s);
+            } else if (chunks[i].getType().equals("VP")) {
+                //Combine ADVP, VP, PP
+                int t = i - 1 >= 0 ? i - 1 : 0; //to avoid -ve index problem
+                if (chunks[t].getType().equals("ADVP")) {
+                    for (int j = chunks[t].getStart(); j <= chunks[t].getEnd(); ++j) {
+                        s += tokens[j] + " ";
+                    }
+                }
+                for (int j = chunks[i].getStart(); j <= chunks[i].getEnd(); ++j) {
+                    s += tokens[j] + " ";
+                }
+                t = i + 1 >= chunks.length-1 ? chunks.length-1 : i+1; //to avoid out of bound index problem
+                if (chunks[t].getType().equals("PP")) {
+                    for (int j = chunks[t].getStart(); j <= chunks[t].getEnd(); ++j) {
+                        s += tokens[j] + " ";
+                    }
+                }
+                phrases.put("VP", s);
             }
-            System.out.println();
+
         }
+        System.out.println(phrases.toString());
+    }
+    
+    
+    private static Map<String, String> combineSimplePhrases(String[] tokens, String[] chunker_tags)
+    {
+        Span[] chunks = groupChunks(tokens, chunker_tags);
+        Map<String, String> phrases = new HashMap<>();
+        String s = "";
+        for (int i = 0; i < chunks.length; i++) {
+            s = "";
+            if (chunks[i].getType().equals("NP")) {
+                for (int j = chunks[i].getStart(); j <= chunks[i].getEnd(); ++j) {
+                    s += tokens[j] + " ";
+                }
+                phrases.put("NP", s);
+            } else if (chunks[i].getType().equals("VP")) {
+                //Combine ADVP, VP, PP
+                int t = i - 1 >= 0 ? i - 1 : 0; //to avoid -ve index problem
+                if (chunks[t].getType().equals("ADVP")) {
+                    for (int j = chunks[t].getStart(); j <= chunks[t].getEnd(); ++j) {
+                        s += tokens[j] + " ";
+                    }
+                }
+                for (int j = chunks[i].getStart(); j <= chunks[i].getEnd(); ++j) {
+                    s += tokens[j] + " ";
+                }
+                t = i + 1 >= chunks.length-1 ? chunks.length-1 : i+1; //to avoid out of bound index problem
+                if (chunks[t].getType().equals("PP")) {
+                    for (int j = chunks[t].getStart(); j <= chunks[t].getEnd(); ++j) {
+                        s += tokens[j] + " ";
+                    }
+                }
+                phrases.put("VP", s);
+            }
+
+        }
+        return phrases;
     }
 }

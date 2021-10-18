@@ -1,6 +1,9 @@
 package offLine.kg_explorer.model;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import offLine.kg_explorer.explorer.Explorer;
 import offLine.scrapping.wikipedia.NLP;
 import offLine.scrapping.wikipedia.Wikipedia;
@@ -31,12 +34,10 @@ public class PredicateTripleExample {
             nlsSuggestions.addAll(Wikipedia.getNLSentences(subject, object, true)); // add sentences from subject page
             nlsSuggestions.addAll(Wikipedia.getNLSentences(subject, object, false)); // add sentences from object page
         } catch (Exception e) {
-            
+
         }
     }
 
-    
-    
     public String getSubject() {
         return subject;
     }
@@ -60,8 +61,6 @@ public class PredicateTripleExample {
     public String getObjectWithoutPrefix() {
         return explorer.removePrefix(object);
     }
-
-    
 
     public void setNlsSuggestions(ArrayList<String> nlsSuggestions) {
         this.nlsSuggestions = nlsSuggestions;
@@ -99,54 +98,58 @@ public class PredicateTripleExample {
         this.explorer = explorer;
     }
 
-    public ArrayList<NlsSuggestion> getNlsSuggestionsObjects() {
+    public ArrayList<NlsSuggestion> getNlsSuggestionsObjects() throws IOException {
         nlsSuggestionsObjects.clear();
-        
+
         for (String nlsSuggestion : nlsSuggestions) {
             String pattern = "";
             String sub = subject.toLowerCase();
             String obj = object.toLowerCase();
-            String sType = "[s{"+Entity.getDirectType(explorer, subjectURI)+"}]";
-            String oType = "[o{"+Entity.getDirectType(explorer, objectURI)+"}]";
-            
-            if(sub.contains(obj))
-            {
+            String sType = "[s{" + Entity.getDirectType(explorer, subjectURI) + "}]";
+            String oType = "[o{" + Entity.getDirectType(explorer, objectURI) + "}]";
+
+            if (sub.contains(obj)) {
                 pattern = nlsSuggestion.replaceAll(sub, sType).replaceAll(obj, oType);
-            }
-            else if(obj.contains(sub))
-            {
+            } else if (obj.contains(sub)) {
                 pattern = nlsSuggestion.replaceAll(obj, oType).replaceAll(sub, sType);
-            }
-            else
+            } else {
                 pattern = nlsSuggestion.replaceAll(sub, sType).replaceAll(obj, oType);
-            
-            String reducedPattern = NLP.summarySentence(pattern);
+            }
+            if(!(pattern.contains(sType)&&pattern.contains(oType)))
+                continue;
+
+            String reducedPattern = NLP.summarySentence(pattern, sType, oType);
             nlsSuggestionsObjects.add(new NlsSuggestion(nlsSuggestion, pattern, reducedPattern, predicateLabel, sType, oType));
         }
         return nlsSuggestionsObjects;
     }
 
     public void sortNlsSuggestionsObjects() {
-        nlsSuggestionsObjects.sort((s1, s2) -> (Math.abs(s1.getReducedPattern().replace(s1.getsType(), "").replace(s1.getoType(), "").length() - predicateLabel.length()) - 
-                                                Math.abs(s2.getReducedPattern().replace(s2.getsType(), "").replace(s2.getoType(), "").length() - predicateLabel.length())));
+        try {
+            nlsSuggestionsObjects.sort((s1, s2) -> (Math.abs(s1.getReducedPattern().replace(s1.getsType(), "").replace(s1.getoType(), "").length() - predicateLabel.length())
+                    - Math.abs(s2.getReducedPattern().replace(s2.getsType(), "").replace(s2.getoType(), "").length() - predicateLabel.length())));
+        } catch (Exception e) {
+        }
     }
-    
-    
 
     @Override
     public String toString() {
         String s = "";
-        //ignore triple example without NLSs
+        try {
+            //ignore triple example without NLSs
 //        if(nlsSuggestions.size()==0)
 //            return s;
-        //NLSs from strings to objects
-        getNlsSuggestionsObjects();
+//NLSs from strings to objects
+            getNlsSuggestionsObjects();
+        } catch (IOException ex) {
+            Logger.getLogger(PredicateTripleExample.class.getName()).log(Level.SEVERE, null, ex);
+        }
         //order nlsSuggestions
         sortNlsSuggestionsObjects();
         s = subject + "___" + predicateLabel + "___" + object + "\t";
         for (NlsSuggestion nlsSuggestion : nlsSuggestionsObjects) {
-            s += "Sentence: " + nlsSuggestion.getSentence() +
-                    "\tPattern: "+ nlsSuggestion.getPattern() + "\tReduced Pattern: " + nlsSuggestion.getReducedPattern() + "\t";
+            s += "Sentence: " + nlsSuggestion.getSentence()
+                    + "\tPattern: " + nlsSuggestion.getPattern() + "\tReduced Pattern: " + nlsSuggestion.getReducedPattern() + "\t";
         }
         return s;
     }
@@ -155,6 +158,4 @@ public class PredicateTripleExample {
         return nlsSuggestions;
     }
 
-    
-    
 }
