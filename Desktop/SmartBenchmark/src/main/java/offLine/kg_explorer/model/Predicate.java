@@ -78,7 +78,14 @@ public class Predicate {
     }
 
     
-    
+    public void print()
+    {
+        String format = "%-10s%-25s%-35s%-35s%-35s%-100s%n";
+            System.out.format(format, "\t"+getWeight(), "\t"+getPredicate(), 
+                    "\t"+getLabel(), "\t"+getPredicateContext().getSubjectType(),"\t"+getPredicateContext().getObjectType(),
+                    "\t"+getTripleExamples().toString());
+        
+    }
     
     
 }

@@ -61,10 +61,8 @@ public class DBpediaExplorer extends Explorer {
             for (PredicateContext context : contexts) {
                 predicateObject.setTripleExamples(getOneTripleExample(predicate.toString().trim(), context.getSubjectType(), context.getObjectType(), predicateObject.getLabel(), 10));
                 predicateObject.setPredicateContext(context);
+                predicateObject.print();
                 predicates.getPredicates().add(predicateObject);
-                if (i++ % 10 == 0) {
-                    predicates.printLast10();
-                }
             }
 
         }
