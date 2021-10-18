@@ -53,12 +53,12 @@ public class DBpediaExplorer extends Explorer {
         ListOfPredicates predicates = new ListOfPredicates(predicateList);
 
         for (VariableSet predicate : predicatesVariableSet) {
+            System.out.println("=============================== New Predicate ============================= ");
             predicateObject.setPredicateURI(predicate.toString().trim());
             predicateObject.setPredicate(removePrefix(predicate.toString().trim()));
             predicateObject.setLabel(getPredicateLabel(predicate.toString().trim()));
             contexts = getPredicatesContext("<" + predicate.toString().trim() + ">");
             for (PredicateContext context : contexts) {
-                predicateObject.setWeight(getPredicateWeight(predicate.toString().trim(), context.getSubjectType(), context.getObjectType()));
                 predicateObject.setTripleExamples(getOneTripleExample(predicate.toString().trim(), context.getSubjectType(), context.getObjectType(), predicateObject.getLabel(), 10));
                 predicateObject.setPredicateContext(context);
                 predicateObject.print();
@@ -108,7 +108,36 @@ public class DBpediaExplorer extends Explorer {
             query = "SELECT (count(?p) as ?count) WHERE { ?s ?p ?o . "
                     + "?s rdf:type <" + sType + ">. "
                     + "?o rdf:type <" + oType + ">. "
-                    + "FILTER(?p=<" + predicate.trim() + ">)}";
+                    + "FILTER(?p=<" + predicate.trim() + ">)."
+                    + ""
+                    + "    FILTER NOT EXISTS {\n"
+                    + "      ?s rdf:type ?type1 .\n"
+                    + "      ?type1 rdfs:subClassOf <" + sType + ">.\n"
+                    + "      FILTER NOT EXISTS {\n"
+                    + "         ?type1 owl:equivalentClass <" + sType + ">.\n"
+                    + "      }\n"
+                    + "    }.\n"
+                    + "    FILTER EXISTS {\n"
+                    + "      <" + sType + "> rdfs:subClassOf ?superType1 .\n"
+                    + "      ?s rdf:type ?superType1 .\n"
+                    + "    }.\n"
+                    + "\n"
+                    + "   ?o      rdf:type              <" + oType + ">.\n"
+                    + "    FILTER NOT EXISTS {\n"
+                    + "      ?o rdf:type ?type2 .\n"
+                    + "      ?type2 rdfs:subClassOf <" + oType + ">.\n"
+                    + "      FILTER NOT EXISTS {\n"
+                    + "         ?type2 owl:equivalentClass <" + oType + ">.\n"
+                    + "      }\n"
+                    + "    }.\n"
+                    + "    FILTER EXISTS {\n"
+                    + "      <" + oType + "> rdfs:subClassOf ?superType2 .\n"
+                    + "      ?o rdf:type ?superType2 .\n"
+                    + "    }.\n"
+                    + "  FILTER strstarts(str(<" + sType + ">  ), str(dbo:)).\n"
+                    + "  FILTER strstarts(str(<" + oType + "> ), str(dbo:)).\n"
+                    + ""
+                    + "}";
             predicatesTriples = kg.runQuery(query);
             return Long.valueOf(predicatesTriples.get(0).getVariables().get(0).toString());
         } catch (Exception e) {
@@ -139,12 +168,13 @@ public class DBpediaExplorer extends Explorer {
 
     public ArrayList<PredicateContext> getPredicatesContext(String predicateURI) {
         String unwantedPropertiesString = kg.getUnwantedPropertiesString();
+        long weight = 0;
         String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
                 + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
                 + "PREFIX owl: <http://www.w3.org/2002/07/owl#> \n"
                 + "PREFIX schema: <http://schema.org/> \n"
                 + " \n"
-                + "SELECT DISTINCT ?s_type    ?o_type \n"
+                + "SELECT DISTINCT ?s_type  ?o_type  (count(?s) as ?count)\n"
                 //                + "SELECT DISTINCT SAMPLE(?s) SAMPLE(?o) ?s_type    ?o_type \n"
                 + "WHERE{\n"
                 + "?s      " + predicateURI + "      ?o.\n"
@@ -175,18 +205,43 @@ public class DBpediaExplorer extends Explorer {
                 + "    }.\n"
                 + "  FILTER strstarts(str(?s_type ), str(dbo:)).\n"
                 + "  FILTER strstarts(str(?o_type ), str(dbo:)).\n"
-                + "} ORDER By (str(?s_type))\n";
+                + "} GROUP BY ?s_type  ?o_type "
+                + "  ORDER By (str(?s_type))\n";
         predicatesTriples = kg.runQuery(query);
         ArrayList<PredicateContext> predicateContexts = new ArrayList<>();
         for (VariableSet predicate : predicatesTriples) {
             String stype = predicate.getVariables().get(0).getValueWithPrefix();
             String otype = predicate.getVariables().get(1).getValueWithPrefix();
+            String weightString = predicate.getVariables().get(2).getValueWithPrefix();
 //            System.out.println("stype:" + stype + ",  " + "otype:" + otype);
-            predicateContexts.add(new PredicateContext(stype, otype));
+//            weight = getPredicateWeight(predicateURI.replace("<", "").replace(">", ""), stype, otype);
+            weight = Long.parseLong(weightString);
+            predicateContexts.add(new PredicateContext(stype, otype, weight));
 //            System.out.println(predicate.toString());
         }
+        System.out.println("Predicate Context list size before filteration: " + predicateContexts.size());
+        predicateContexts = filterOutNoisyContexts(predicateContexts);
+        System.out.println("Predicate Context list size after filteration: " + predicateContexts.size());
         return predicateContexts;
 
+    }
+
+    private ArrayList<PredicateContext> filterOutNoisyContexts(ArrayList<PredicateContext> contexts) {
+        ArrayList<PredicateContext> newContexts = new ArrayList<>();
+        double mean = 0;
+        double sum = 0;
+
+        for (PredicateContext context : contexts) {
+            sum += context.getWeight();
+        }
+        mean = sum / (double) contexts.size();
+
+        for (PredicateContext context : contexts) {
+            if (context.getWeight() >= mean) {
+                newContexts.add(context);
+            }
+        }
+        return newContexts;
     }
 
     @Override

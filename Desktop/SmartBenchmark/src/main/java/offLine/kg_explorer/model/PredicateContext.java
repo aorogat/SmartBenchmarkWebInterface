@@ -5,14 +5,28 @@ public class PredicateContext {
         //Predicate Context
     private String subjectType;
     private String objectType;
+    private long weight;
 
     public PredicateContext() {
     }
-    
-    public PredicateContext(String subjectType, String objectType) {
+
+    public PredicateContext(String subjectType, String objectType, long weight) {
         this.subjectType = subjectType;
         this.objectType = objectType;
+        this.weight = weight;
     }
+    
+    
+
+    public long getWeight() {
+        return weight;
+    }
+
+    public void setWeight(long weight) {
+        this.weight = weight;
+    }
+    
+    
     
     
 
@@ -31,6 +45,7 @@ public class PredicateContext {
     public void setObjectType(String objectType) {
         this.objectType = objectType;
     }
+    
     
     
 }

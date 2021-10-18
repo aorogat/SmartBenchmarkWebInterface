@@ -31,7 +31,7 @@ public class ListOfPredicates {
     {
         String format = "%-10s%-25s%-35s%-35s%-35s%-100s%n";
         for (Predicate predicate : predicates) {
-            System.out.format(format, "\t"+predicate.getWeight(), "\t"+predicate.getPredicate(), 
+            System.out.format(format, "\t"+predicate.getPredicateContext().getWeight(), "\t"+predicate.getPredicate(), 
                     "\t"+predicate.getLabel(), "\t"+predicate.getPredicateContext().getSubjectType(),"\t"+predicate.getPredicateContext().getObjectType(), "\t"+predicate.getTripleExamples().toString());
         }
     }
@@ -44,7 +44,7 @@ public class ListOfPredicates {
         String format = "%-10s%-25s%-35s%-35s%-35s%-100s%n";
         for (int i=start; i<predicates.size(); i++) {
         Predicate predicate = predicates.get(i);
-            System.out.format(format, "\t"+predicate.getWeight(), "\t"+predicate.getPredicate(), 
+            System.out.format(format, "\t"+predicate.getPredicateContext().getWeight(), "\t"+predicate.getPredicate(), 
                     "\t"+predicate.getLabel(), "\t"+predicate.getPredicateContext().getSubjectType(),"\t"+predicate.getPredicateContext().getObjectType(), "\t"+predicate.getTripleExamples().toString());
         }
     }
