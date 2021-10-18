@@ -37,12 +37,12 @@ public class DBpediaExplorer extends Explorer {
         int predicatesSizeNew = 1;
 
 //        do {
-            predicatesSizeOld = predicatesVariableSet.size();
-            getPredicateList(from, length);
-            predicatesSizeNew = predicatesVariableSet.size();
-            from += length;
-            System.out.println("Predicates size = " + predicatesSizeNew);
-            System.out.println(predicatesVariableSet.toString());
+        predicatesSizeOld = predicatesVariableSet.size();
+        getPredicateList(from, length);
+        predicatesSizeNew = predicatesVariableSet.size();
+        from += length;
+        System.out.println("Predicates size = " + predicatesSizeNew);
+        System.out.println(predicatesVariableSet.toString());
 //        } while (predicatesSizeNew > predicatesSizeOld);
         System.out.println("Predicates size = " + predicatesSizeNew);
         System.out.println(predicatesVariableSet.toString());
@@ -56,9 +56,9 @@ public class DBpediaExplorer extends Explorer {
             predicateObject.setPredicateURI(predicate.toString().trim());
             predicateObject.setPredicate(removePrefix(predicate.toString().trim()));
             predicateObject.setLabel(getPredicateLabel(predicate.toString().trim()));
-            predicateObject.setWeight(getPredicateWeight(predicate.toString().trim()));
-            contexts = getPredicatesContext("<"+predicate.toString().trim()+">");
+            contexts = getPredicatesContext("<" + predicate.toString().trim() + ">");
             for (PredicateContext context : contexts) {
+                predicateObject.setWeight(getPredicateWeight(predicate.toString().trim(), context.getSubjectType(), context.getObjectType()));
                 predicateObject.setTripleExamples(getOneTripleExample(predicate.toString().trim(), context.getSubjectType(), context.getObjectType(), predicateObject.getLabel(), 10));
                 predicateObject.setPredicateContext(context);
                 predicateObject.print();
@@ -101,11 +101,14 @@ public class DBpediaExplorer extends Explorer {
         }
     }
 
-    private long getPredicateWeight(String predicate) {
+    private long getPredicateWeight(String predicate, String sType, String oType) {
         String query = "";
         //get weights
         try {
-            query = "SELECT (count(?p) as ?count) WHERE { ?s ?p ?o . FILTER(?p=<" + predicate.trim() + ">)}";
+            query = "SELECT (count(?p) as ?count) WHERE { ?s ?p ?o . "
+                    + "?s rdf:type <" + sType + ">. "
+                    + "?o rdf:type <" + oType + ">. "
+                    + "FILTER(?p=<" + predicate.trim() + ">)}";
             predicatesTriples = kg.runQuery(query);
             return Long.valueOf(predicatesTriples.get(0).getVariables().get(0).toString());
         } catch (Exception e) {
