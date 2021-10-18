@@ -1,10 +1,19 @@
 package offLine.scrapping.wikipedia;
 
+import java.io.IOException;
+import online.nl_generation.Test_OpenNLPChunkerExample;
+
 public class NLP {
 
-    public static String summarySentence(String sentence) {
-        return removeBeforeSubjectAfterObject(
-                    removeBetweenCommas(
+    static Test_OpenNLPChunkerExample chunkerExample;
+   
+    
+    
+    public static String summarySentence(String sentence) throws IOException {
+        if(chunkerExample==null)
+            chunkerExample = new Test_OpenNLPChunkerExample();
+        return chunkerExample.last_VP_PP(removeBeforeSubjectAfterObject(
+//                    removeBetweenCommas(
                         removeRefrence(
                             removeParenthesesPhrases(
                                 removeHyphenedPhrases(sentence)))));
@@ -60,4 +69,6 @@ public class NLP {
         }
         return resultString.trim();
     }
+
+    
 }
