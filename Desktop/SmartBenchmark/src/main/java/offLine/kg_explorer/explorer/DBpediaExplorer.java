@@ -94,8 +94,8 @@ public class DBpediaExplorer extends Explorer {
                     + "FILTER(?p=<" + predicate.trim() + ">). "
                     + "FILTER langMatches( lang(?l), \"EN\" )."
                     + "}";
-            predicatesTriples = kg.runQuery(query);
-            return predicatesTriples.get(0).getVariables().get(0).toString();
+            predicatesTriplesVarSets = kg.runQuery(query);
+            return predicatesTriplesVarSets.get(0).getVariables().get(0).toString();
         } catch (Exception e) {
             return (predicate.trim());
         }
@@ -138,8 +138,8 @@ public class DBpediaExplorer extends Explorer {
                     + "  FILTER strstarts(str(<" + oType + "> ), str(dbo:)).\n"
                     + ""
                     + "}";
-            predicatesTriples = kg.runQuery(query);
-            return Long.valueOf(predicatesTriples.get(0).getVariables().get(0).toString());
+            predicatesTriplesVarSets = kg.runQuery(query);
+            return Long.valueOf(predicatesTriplesVarSets.get(0).getVariables().get(0).toString());
         } catch (Exception e) {
             return -1;
         }
@@ -152,9 +152,42 @@ public class DBpediaExplorer extends Explorer {
 //            query = "SELECT DISTINCT ?s ?o WHERE { ?s <" + predicate.trim() + "> ?o . ?o ?t ?l. } LIMIT " + (noOfExamples - 1); //only those with entity object
             query = "SELECT DISTINCT ?s ?o WHERE { ?s <" + predicate.trim() + "> ?o ."
                     + "?s rdf:type <" + sType + ">. "
-                    + "?o rdf:type <" + oType + ">. } LIMIT " + noOfExamples;
-            predicatesTriples = kg.runQuery(query);
-            for (VariableSet predicate1 : predicatesTriples) {
+                    + "?o rdf:type <" + oType + ">. "
+                    + ""
+                    + ""
+                    + "    FILTER NOT EXISTS {\n"
+                    + "      ?s rdf:type ?type1 .\n"
+                    + "      ?type1 rdfs:subClassOf <" + sType + ">.\n"
+                    + "      FILTER NOT EXISTS {\n"
+                    + "         ?type1 owl:equivalentClass <" + sType + ">.\n"
+                    + "      }\n"
+                    + "    }.\n"
+                    + "    FILTER EXISTS {\n"
+                    + "      <" + sType + "> rdfs:subClassOf ?superType1 .\n"
+                    + "      ?s rdf:type ?superType1 .\n"
+                    + "    }.\n"
+                    + "\n"
+                    + "   ?o      rdf:type              <" + oType + ">.\n"
+                    + "    FILTER NOT EXISTS {\n"
+                    + "      ?o rdf:type ?type2 .\n"
+                    + "      ?type2 rdfs:subClassOf <" + oType + ">.\n"
+                    + "      FILTER NOT EXISTS {\n"
+                    + "         ?type2 owl:equivalentClass <" + oType + ">.\n"
+                    + "      }\n"
+                    + "    }.\n"
+                    + "    FILTER EXISTS {\n"
+                    + "      <" + oType + "> rdfs:subClassOf ?superType2 .\n"
+                    + "      ?o rdf:type ?superType2 .\n"
+                    + "    }.\n"
+                    + "  FILTER strstarts(str(<" + sType + ">  ), str(dbo:)).\n"
+                    + "  FILTER strstarts(str(<" + oType + "> ), str(dbo:)).\n"
+                    + ""
+                    + ""
+                    + "} LIMIT " + noOfExamples;
+            predicatesTriplesVarSets = kg.runQuery(query);
+            if(predicatesTriplesVarSets.size()>noOfExamples)
+                predicatesTriplesVarSets = new ArrayList<>(predicatesTriplesVarSets.subList(0, noOfExamples));
+            for (VariableSet predicate1 : predicatesTriplesVarSets) {
                 String s = predicate1.getVariables().get(0).toString();
                 String o = predicate1.getVariables().get(1).toString();
                 PredicateTripleExample predicateTriple = new PredicateTripleExample("<" + s + ">", "<" + o + ">", removePrefix(s), removePrefix(o), lable, this);
@@ -207,9 +240,9 @@ public class DBpediaExplorer extends Explorer {
                 + "  FILTER strstarts(str(?o_type ), str(dbo:)).\n"
                 + "} GROUP BY ?s_type  ?o_type "
                 + "  ORDER By (str(?s_type))\n";
-        predicatesTriples = kg.runQuery(query);
+        predicatesTriplesVarSets = kg.runQuery(query);
         ArrayList<PredicateContext> predicateContexts = new ArrayList<>();
-        for (VariableSet predicate : predicatesTriples) {
+        for (VariableSet predicate : predicatesTriplesVarSets) {
             String stype = predicate.getVariables().get(0).getValueWithPrefix();
             String otype = predicate.getVariables().get(1).getValueWithPrefix();
             String weightString = predicate.getVariables().get(2).getValueWithPrefix();

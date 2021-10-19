@@ -19,7 +19,7 @@ public abstract class Explorer
     protected static Explorer instance = null;
     public static String endpoint;
     public static ArrayList<VariableSet> predicatesVariableSet;
-    public static ArrayList<VariableSet> predicatesTriples;
+    public static ArrayList<VariableSet> predicatesTriplesVarSets;
     public static ArrayList<Graph> result = new ArrayList<>();
     protected ArrayList<Predicate> predicateList = new ArrayList<>();
     

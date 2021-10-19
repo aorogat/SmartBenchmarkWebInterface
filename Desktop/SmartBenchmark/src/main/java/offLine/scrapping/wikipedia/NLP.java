@@ -20,6 +20,15 @@ public class NLP {
         sentence = sentence.replace(sType, "sssss");
         sentence = sentence.replace(oType, "ooooo");
         sentence = chunkerExample.last_VP_PP(sentence);
+        
+        if (sentence==null || sentence.length()<4) {
+            sentence="";
+        }
+        
+        sentence = sentence.trim();
+        sentence = sentence.replace("sssss", "");
+        sentence = sentence.replace("ooooo", "");
+        
         return sentence;
     }
 
@@ -32,7 +41,8 @@ public class NLP {
     }
 
     public static String removeRefrence(String sentence) {
-        return sentence.replaceAll("\\[[0-9]+\\]", "").replaceAll("[0-9]+\\]", "").replaceAll("\\[[0-9]*$", "");
+        return sentence.replaceAll("\\[[0-9]+\\]", "").replaceAll("[0-9]+\\]", "").replaceAll("\\[[0-9]*$", "")
+                .replaceAll("\\[citation needed\\]", "");
     }
 
     public static String removeBetweenCommas(String sentence) {

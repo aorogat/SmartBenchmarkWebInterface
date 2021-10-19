@@ -72,25 +72,6 @@ public class Test_OpenNLPChunkerExample {
         
         Map<String, String> phrases = combineSimplePhrases(tokens, chunker_tags);
         return phrases.get("VP");
-        
-//        String lastVP = "";
-//        String lastPP = "";
-//        for (Span chunk : chunks) {
-//            if (chunk.getType().equals("VP")) {
-//                lastVP = "";
-//                for (int j = chunk.getStart(); j <= chunk.getEnd(); ++j) {
-//                    lastVP += tokens[j] + " ";
-//                }
-//                lastPP = "";
-//            }
-//            if (chunk.getType().equals("PP")) {
-//                for (int j = chunk.getStart(); j <= chunk.getEnd(); ++j) {
-//                    lastPP += tokens[j] + " ";
-//                }
-//            }
-//
-//        }
-//        return (lastVP.trim() + " " + lastPP.trim()).trim();
     }
 
     public static void main(String[] args) throws IOException {
