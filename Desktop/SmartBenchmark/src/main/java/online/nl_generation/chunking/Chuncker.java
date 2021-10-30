@@ -1,4 +1,4 @@
-package online.nl_generation;
+package online.nl_generation.chunking;
 
 import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.chunker.ChunkerModel;
@@ -13,12 +13,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Test_OpenNLPChunkerExample {
+public class Chuncker {
 
     private final ChunkerME chunker;
     private final POSTaggerME tagger;
 
-    public Test_OpenNLPChunkerExample() throws IOException {
+    public Chuncker() throws IOException {
         //Download from http://opennlp.sourceforge.net/models-1.5/
         String currentDirectory = System.getProperty("user.dir");
         chunker = new ChunkerME(new ChunkerModel(new FileInputStream(currentDirectory + "\\OpennlpPretrainedModel\\en-chunker.bin")));
@@ -62,6 +62,44 @@ public class Test_OpenNLPChunkerExample {
         return spans.stream().toArray(Span[]::new);
     }
 
+    public String get_only_VP(String sentence) { //this method return a VP if and only if it is the only pharase between the subject and object
+        sentence.replace("sssss", "");
+        sentence.replace("ooooo", "");
+        sentence += " exxxx";
+        
+        String tokens[] = getTokens(sentence);
+        String pos_tags[] = getPOS(tokens);
+        String chunker_tags[] = getChunker().chunk(tokens, pos_tags);
+        double[] probs = getChunker().probs();
+
+        Span[] chunks = groupChunks(tokens, chunker_tags);
+
+        
+        Map<String, String> phrases = combineSimplePhrases(tokens, chunker_tags);
+        
+        
+        int VP_counter = 0;
+        int NP_counter = 0;
+        String VP = "";
+
+        for (String phraseKey : phrases.keySet()) {
+            if (phraseKey.contains("VP")) {
+                VP_counter++;
+                VP = phrases.get(phraseKey);
+            } else if (phraseKey.contains("NP")) {
+                if ((!phrases.get(phraseKey).equals("exxxx"))
+                        && (!phrases.get(phraseKey).equals("sssss"))
+                        && (!phrases.get(phraseKey).equals("ooooo"))) {
+                    NP_counter++;
+                }
+            }
+//            System.out.println(phraseKey + ": " + phrases.get(phraseKey));
+        }
+        if(VP_counter==1 && NP_counter==0)
+            return VP;
+        else return "";
+    }
+
     public String last_VP_PP(String sentence) {
         String tokens[] = getTokens(sentence);
         String pos_tags[] = getPOS(tokens);
@@ -69,16 +107,16 @@ public class Test_OpenNLPChunkerExample {
         double[] probs = getChunker().probs();
 
         Span[] chunks = groupChunks(tokens, chunker_tags);
-        
+
         Map<String, String> phrases = combineSimplePhrases(tokens, chunker_tags);
         return phrases.get("VP");
     }
 
     public static void main(String[] args) throws IOException {
-        Test_OpenNLPChunkerExample example = new Test_OpenNLPChunkerExample();
+        Chuncker example = new Chuncker();
 //         final String sentence = "The pretty cat chased the ugly rat.";
 //        final String sentence = "It is very beautiful.";
-        final String sentence = "[sssss eventually flows into the ooooo";
+        final String sentence = "sssss eventually flows into ooooo"; //add extra word as the chunker always remove the last word?!
         String tokens[] = example.getTokens(sentence);
         String pos_tags[] = example.getPOS(tokens);
         String chunker_tags[] = example.getChunker().chunk(tokens, pos_tags);
@@ -91,51 +129,56 @@ public class Test_OpenNLPChunkerExample {
         System.out.println("================= Chunks ===================");
         Span[] chunks = groupChunks(tokens, chunker_tags);
         Map<String, String> phrases = new HashMap<>();
-        String s = "";
-        for (int i = 0; i < chunks.length; i++) {
-            s = "";
-            if (chunks[i].getType().equals("NP")) {
-                for (int j = chunks[i].getStart(); j <= chunks[i].getEnd(); ++j) {
-                    s += tokens[j] + " ";
-                }
-                phrases.put("NP", s);
-            } else if (chunks[i].getType().equals("VP")) {
-                //Combine ADVP, VP, PP
-                int t = i - 1 >= 0 ? i - 1 : 0; //to avoid -ve index problem
-                if (chunks[t].getType().equals("ADVP")) {
-                    for (int j = chunks[t].getStart(); j <= chunks[t].getEnd(); ++j) {
-                        s += tokens[j] + " ";
-                    }
-                }
-                for (int j = chunks[i].getStart(); j <= chunks[i].getEnd(); ++j) {
-                    s += tokens[j] + " ";
-                }
-                t = i + 1 >= chunks.length-1 ? chunks.length-1 : i+1; //to avoid out of bound index problem
-                if (chunks[t].getType().equals("PP")) {
-                    for (int j = chunks[t].getStart(); j <= chunks[t].getEnd(); ++j) {
-                        s += tokens[j] + " ";
-                    }
-                }
-                phrases.put("VP", s);
-            }
 
-        }
-        System.out.println(phrases.toString());
+        System.out.println(example.get_only_VP(sentence));
+
+//        String s = "";
+//        for (int i = 0; i < chunks.length; i++) {
+//            s = "";
+//            if (chunks[i].getType().equals("NP")) {
+//                for (int j = chunks[i].getStart(); j <= chunks[i].getEnd(); ++j) {
+//                    s += tokens[j] + " ";
+//                }
+//                System.out.println("NP: " + s);
+//                phrases.put("NP", s);
+//            } else if (chunks[i].getType().equals("VP")) {
+//                //Combine ADVP, VP, PP
+//                int t = i - 1 >= 0 ? i - 1 : 0; //to avoid -ve index problem
+//                if (chunks[t].getType().equals("ADVP")) {
+//                    for (int j = chunks[t].getStart(); j <= chunks[t].getEnd(); ++j) {
+//                        s += tokens[j] + " ";
+//                    }
+//                }
+//                for (int j = chunks[i].getStart(); j <= chunks[i].getEnd(); ++j) {
+//                    s += tokens[j] + " ";
+//                }
+//                t = i + 1 >= chunks.length-1 ? chunks.length-1 : i+1; //to avoid out of bound index problem
+//                if (chunks[t].getType().equals("PP")) {
+//                    for (int j = chunks[t].getStart(); j <= chunks[t].getEnd(); ++j) {
+//                        s += tokens[j] + " ";
+//                    }
+//                }
+//                System.out.println("VP: " + s);
+//                phrases.put("VP", s);
+//            }
+//
+//        }
+//        System.out.println(phrases.toString());
     }
-    
-    
-    private static Map<String, String> combineSimplePhrases(String[] tokens, String[] chunker_tags)
-    {
+
+    private static Map<String, String> combineSimplePhrases(String[] tokens, String[] chunker_tags) {
         Span[] chunks = groupChunks(tokens, chunker_tags);
         Map<String, String> phrases = new HashMap<>();
         String s = "";
+        int VP_counter = 0;
+        int NP_counter = 0;
         for (int i = 0; i < chunks.length; i++) {
             s = "";
             if (chunks[i].getType().equals("NP")) {
                 for (int j = chunks[i].getStart(); j <= chunks[i].getEnd(); ++j) {
                     s += tokens[j] + " ";
                 }
-                phrases.put("NP", s);
+                phrases.put("NP" + (++NP_counter), s);
             } else if (chunks[i].getType().equals("VP")) {
                 //Combine ADVP, VP, PP
                 int t = i - 1 >= 0 ? i - 1 : 0; //to avoid -ve index problem
@@ -147,13 +190,13 @@ public class Test_OpenNLPChunkerExample {
                 for (int j = chunks[i].getStart(); j <= chunks[i].getEnd(); ++j) {
                     s += tokens[j] + " ";
                 }
-                t = i + 1 >= chunks.length-1 ? chunks.length-1 : i+1; //to avoid out of bound index problem
+                t = i + 1 >= chunks.length - 1 ? chunks.length - 1 : i + 1; //to avoid out of bound index problem
                 if (chunks[t].getType().equals("PP")) {
                     for (int j = chunks[t].getStart(); j <= chunks[t].getEnd(); ++j) {
                         s += tokens[j] + " ";
                     }
                 }
-                phrases.put("VP", s);
+                phrases.put("VP" + (++VP_counter), s);
             }
 
         }

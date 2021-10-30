@@ -1,17 +1,17 @@
 package offLine.scrapping.wikipedia;
 
 import java.io.IOException;
-import online.nl_generation.Test_OpenNLPChunkerExample;
+import online.nl_generation.chunking.Chuncker;
 
 public class NLP {
 
-    static Test_OpenNLPChunkerExample chunkerExample;
+    static Chuncker chunkerExample;
    
     
     
     public static String summarySentence(String sentence, String sType, String oType) throws IOException {
         if(chunkerExample==null)
-            chunkerExample = new Test_OpenNLPChunkerExample();
+            chunkerExample = new Chuncker();
         sentence = removeHyphenedPhrases(sentence);
         sentence = removeParenthesesPhrases(sentence);
         sentence = removeRefrence(sentence);
@@ -19,15 +19,16 @@ public class NLP {
         
         sentence = sentence.replace(sType, "sssss");
         sentence = sentence.replace(oType, "ooooo");
-        sentence = chunkerExample.last_VP_PP(sentence);
+        sentence = sentence.replace("sssss", "");
+        sentence = sentence.replace("ooooo", "");
+        sentence = chunkerExample.get_only_VP(sentence);
         
         if (sentence==null || sentence.length()<4) {
             sentence="";
         }
         
         sentence = sentence.trim();
-        sentence = sentence.replace("sssss", "");
-        sentence = sentence.replace("ooooo", "");
+        
         
         return sentence;
     }

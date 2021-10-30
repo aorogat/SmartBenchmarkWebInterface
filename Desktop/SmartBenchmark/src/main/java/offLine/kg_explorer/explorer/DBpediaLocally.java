@@ -5,9 +5,7 @@
  */
 package offLine.kg_explorer.explorer;
 
-import static org.apache.jena.assembler.JA.FileManager;
 import org.apache.jena.query.Dataset;
-import org.apache.jena.rdf.model.Model;
 import org.apache.jena.tdb.TDBFactory;
 
 /**

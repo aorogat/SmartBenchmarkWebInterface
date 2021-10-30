@@ -150,11 +150,12 @@ public class DBpediaExplorer extends Explorer {
         ArrayList<PredicateTripleExample> predicateTriples = predicateTriples = new ArrayList<>();
         try {
 //            query = "SELECT DISTINCT ?s ?o WHERE { ?s <" + predicate.trim() + "> ?o . ?o ?t ?l. } LIMIT " + (noOfExamples - 1); //only those with entity object
-            query = "SELECT DISTINCT ?s ?o WHERE { ?s <" + predicate.trim() + "> ?o ."
-                    + "?s rdf:type <" + sType + ">. "
-                    + "?o rdf:type <" + oType + ">. "
-                    + ""
-                    + ""
+            query = "SELECT DISTINCT ?s ?o WHERE { \n"
+                    + "?s <" + predicate.trim() + "> ?o .\n"
+                    + "?s rdf:type <" + sType + ">. \n"
+                    + "?o rdf:type <" + oType + ">. \n"
+                    + "\n"
+                    + "\n"
                     + "    FILTER NOT EXISTS {\n"
                     + "      ?s rdf:type ?type1 .\n"
                     + "      ?type1 rdfs:subClassOf <" + sType + ">.\n"
@@ -167,7 +168,8 @@ public class DBpediaExplorer extends Explorer {
                     + "      ?s rdf:type ?superType1 .\n"
                     + "    }.\n"
                     + "\n"
-                    + "   ?o      rdf:type              <" + oType + ">.\n"
+                    + "\n"
+                    + "\n"
                     + "    FILTER NOT EXISTS {\n"
                     + "      ?o rdf:type ?type2 .\n"
                     + "      ?type2 rdfs:subClassOf <" + oType + ">.\n"
@@ -179,10 +181,21 @@ public class DBpediaExplorer extends Explorer {
                     + "      <" + oType + "> rdfs:subClassOf ?superType2 .\n"
                     + "      ?o rdf:type ?superType2 .\n"
                     + "    }.\n"
+                    + "\n"
+                    + "\n"
+                    //Get only s and o with only one predicate between them /////// NOT WORKING ?! Why ///////
+//                    + "    FILTER NOT EXISTS {\n"
+//                    + "      ?s ?pp ?o .\n"
+//                    + "      FILTER ?pp = <" + predicate.trim() + ">.\n"
+//                    + "    }.\n"
+                    + "\n"
+                    + "\n"
+                    + "\n"
+                    //Get only dbpedia types
                     + "  FILTER strstarts(str(<" + sType + ">  ), str(dbo:)).\n"
                     + "  FILTER strstarts(str(<" + oType + "> ), str(dbo:)).\n"
-                    + ""
-                    + ""
+                    + "\n"
+                    + "\n"
                     + "} LIMIT " + noOfExamples;
             predicatesTriplesVarSets = kg.runQuery(query);
             if(predicatesTriplesVarSets.size()>noOfExamples)

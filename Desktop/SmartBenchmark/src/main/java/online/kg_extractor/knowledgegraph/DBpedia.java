@@ -101,7 +101,7 @@ public class DBpedia extends KnowledgeGraph {
                     + "?default-graph-uri=http%3A%2F%2Fdbpedia.org&"
                     + "query=" + URLEncoder.encode(queryString, StandardCharsets.UTF_8.toString()) + "&"
                     + "format=application%2Fsparql-results%2Bjson&"
-                    + "timeout=0&"
+                    + "timeout=30000&"
                     + "debug=on";
             try {
                 JSONObject json = readJsonFromUrl(url);
