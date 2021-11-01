@@ -63,10 +63,11 @@ public class Chuncker {
     }
 
     public String get_only_VP(String sentence) { //this method return a VP if and only if it is the only pharase between the subject and object
-        sentence.replace("sssss", "");
-        sentence.replace("ooooo", "");
+        String replace;
+        replace = sentence.replace("sssss", "");
+        replace = sentence.replace("ooooo", "");
         sentence += " exxxx";
-        
+
         String tokens[] = getTokens(sentence);
         String pos_tags[] = getPOS(tokens);
         String chunker_tags[] = getChunker().chunk(tokens, pos_tags);
@@ -74,10 +75,8 @@ public class Chuncker {
 
         Span[] chunks = groupChunks(tokens, chunker_tags);
 
-        
         Map<String, String> phrases = combineSimplePhrases(tokens, chunker_tags);
-        
-        
+
         int VP_counter = 0;
         int NP_counter = 0;
         String VP = "";
@@ -95,8 +94,19 @@ public class Chuncker {
             }
 //            System.out.println(phraseKey + ": " + phrases.get(phraseKey));
         }
-        if(VP_counter==1 && NP_counter==0)
+        if (VP_counter == 1 && NP_counter == 0 && !VP.contains(" and ") && !VP.contains(" or ")) {
             return VP;
+        } else {
+            return "";
+        }
+    }
+    
+    public String get_only_NP(String sentence) { //this method return a NP if and only if it is in the form of "is the ... of"
+        String replace;
+        replace = sentence.replace("sssss", "");
+        replace = replace.replace("ooooo", "");
+        if(replace.trim().matches("is the ([a-zA-Z])+ of"))
+            return replace;
         else return "";
     }
 
@@ -116,7 +126,7 @@ public class Chuncker {
         Chuncker example = new Chuncker();
 //         final String sentence = "The pretty cat chased the ugly rat.";
 //        final String sentence = "It is very beautiful.";
-        final String sentence = "sssss eventually flows into ooooo"; //add extra word as the chunker always remove the last word?!
+        final String sentence = "sssss is the brother of ooooo"; //add extra word as the chunker always remove the last word?!
         String tokens[] = example.getTokens(sentence);
         String pos_tags[] = example.getPOS(tokens);
         String chunker_tags[] = example.getChunker().chunk(tokens, pos_tags);
@@ -131,6 +141,7 @@ public class Chuncker {
         Map<String, String> phrases = new HashMap<>();
 
         System.out.println(example.get_only_VP(sentence));
+        System.out.println(example.get_only_NP(sentence));
 
 //        String s = "";
 //        for (int i = 0; i < chunks.length; i++) {
@@ -197,6 +208,13 @@ public class Chuncker {
                     }
                 }
                 phrases.put("VP" + (++VP_counter), s);
+            }
+            else{
+                if (!(chunks[i].getType().equals("ADVP")) &&
+                        !(chunks[i].getType().equals("PP")) )
+                    for (int j = chunks[i].getStart(); j <= chunks[i].getEnd(); ++j) {
+                    s += tokens[j] + " ";
+                }
             }
 
         }

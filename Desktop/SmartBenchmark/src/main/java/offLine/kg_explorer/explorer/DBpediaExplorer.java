@@ -13,6 +13,7 @@ import online.kg_extractor.model.VariableSet;
  * @author aorogat
  */
 public class DBpediaExplorer extends Explorer {
+    private static int numberOfNLExamples = 100;
 
     private DBpediaExplorer(String url) {
         super();
@@ -53,13 +54,14 @@ public class DBpediaExplorer extends Explorer {
         ListOfPredicates predicates = new ListOfPredicates(predicateList);
 
         for (VariableSet predicate : predicatesVariableSet) {
-            System.out.println("=============================== New Predicate ============================= ");
+            System.out.println("=============================== New Predicate: " + predicate.toString().trim() + " ============================= ");
             predicateObject.setPredicateURI(predicate.toString().trim());
             predicateObject.setPredicate(removePrefix(predicate.toString().trim()));
             predicateObject.setLabel(getPredicateLabel(predicate.toString().trim()));
             contexts = getPredicatesContext("<" + predicate.toString().trim() + ">");
             for (PredicateContext context : contexts) {
-                predicateObject.setTripleExamples(getOneTripleExample(predicate.toString().trim(), context.getSubjectType(), context.getObjectType(), predicateObject.getLabel(), 10));
+                predicateObject.setTripleExamples(getOneTripleExample(predicate.toString().trim(),
+                        context.getSubjectType(), context.getObjectType(), predicateObject.getLabel(), numberOfNLExamples));
                 predicateObject.setPredicateContext(context);
                 predicateObject.print();
                 predicates.getPredicates().add(predicateObject);
@@ -186,7 +188,7 @@ public class DBpediaExplorer extends Explorer {
                     //Get only s and o with only one predicate between them /////// NOT WORKING ?! Why ///////
 //                    + "    FILTER NOT EXISTS {\n"
 //                    + "      ?s ?pp ?o .\n"
-//                    + "      FILTER ?pp = <" + predicate.trim() + ">.\n"
+//                    + "      FILTER(?pp = <" + predicate.trim() + ">).\n"
 //                    + "    }.\n"
                     + "\n"
                     + "\n"
@@ -251,6 +253,10 @@ public class DBpediaExplorer extends Explorer {
                 + "    }.\n"
                 + "  FILTER strstarts(str(?s_type ), str(dbo:)).\n"
                 + "  FILTER strstarts(str(?o_type ), str(dbo:)).\n"
+                //You can filter out types like (agent, ....)
+                + "  FILTER (?s_type NOT IN (dbo:Agent)).\n"
+                + "  FILTER (?o_type NOT IN (dbo:Agent)).\n"
+                
                 + "} GROUP BY ?s_type  ?o_type "
                 + "  ORDER By (str(?s_type))\n";
         predicatesTriplesVarSets = kg.runQuery(query);
