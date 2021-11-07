@@ -135,40 +135,36 @@ public class Chuncker {
         String s = "";
         Map<String, String> phrases = combineSimplePhrases(tokens, chunker_tags);
         String firstVP = phrases.get("VP1").trim();
-        String lastVP = phrases.get("VP"+VP_counter).trim();
+        String lastVP = phrases.get("VP" + VP_counter).trim();
         if (firstVP == null
-                    || firstVP.toLowerCase().trim().length() < 4
-                    || firstVP.toLowerCase().trim().equals("is")
-                    || firstVP.toLowerCase().trim().equals("are")
-                    || firstVP.toLowerCase().trim().equals("was")
-                    || firstVP.toLowerCase().trim().equals("were")) {
-                firstVP = "";
-            }
-        else
-        {
+                || firstVP.toLowerCase().trim().length() < 4
+                || firstVP.toLowerCase().trim().equals("is")
+                || firstVP.toLowerCase().trim().equals("are")
+                || firstVP.toLowerCase().trim().equals("was")
+                || firstVP.toLowerCase().trim().equals("were")) {
+            firstVP = "";
+        } else {
             if (s_o_direction) {
-                firstVP += "vp_s_o:" + firstVP;
+                firstVP = "vp_s_o:" + firstVP;
             } else {
-                firstVP += "vp_o_s:" + firstVP;
+                firstVP = "vp_o_s:" + firstVP;
             }
         }
         if (lastVP == null
-                    || lastVP.toLowerCase().trim().length() < 4
-                    || lastVP.toLowerCase().trim().equals("is")
-                    || lastVP.toLowerCase().trim().equals("are")
-                    || lastVP.toLowerCase().trim().equals("was")
-                    || lastVP.toLowerCase().trim().equals("were")) {
-                lastVP = "";
-            }
-        else
-        {
+                || lastVP.toLowerCase().trim().length() < 4
+                || lastVP.toLowerCase().trim().equals("is")
+                || lastVP.toLowerCase().trim().equals("are")
+                || lastVP.toLowerCase().trim().equals("was")
+                || lastVP.toLowerCase().trim().equals("were")) {
+            lastVP = "";
+        } else {
             if (s_o_direction) {
-                lastVP += "vp_s_o:" + lastVP;
+                lastVP = "vp_s_o:" + lastVP;
             } else {
-                lastVP += "vp_o_s:" + lastVP;
+                lastVP = "vp_o_s:" + lastVP;
             }
         }
-        return firstVP+"--"+lastVP;
+        return firstVP + "--" + lastVP + "--";
 //        for (int i = 1; i <= VP_counter; i++) {
 //            String curr = phrases.get("VP" + i).trim();
 //            if (curr == null
