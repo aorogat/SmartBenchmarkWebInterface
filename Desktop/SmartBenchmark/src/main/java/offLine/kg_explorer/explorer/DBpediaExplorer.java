@@ -1,6 +1,7 @@
 package offLine.kg_explorer.explorer;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import offLine.kg_explorer.model.ListOfPredicates;
 import offLine.kg_explorer.model.Predicate;
 import offLine.kg_explorer.model.PredicateContext;
@@ -13,7 +14,8 @@ import online.kg_extractor.model.VariableSet;
  * @author aorogat
  */
 public class DBpediaExplorer extends Explorer {
-    private static int numberOfNLExamples = 100;
+
+    private static int numberOfNLExamples = 30;
 
     private DBpediaExplorer(String url) {
         super();
@@ -37,14 +39,14 @@ public class DBpediaExplorer extends Explorer {
         int predicatesSizeOld = 0;
         int predicatesSizeNew = 1;
 
-//        do {
-        predicatesSizeOld = predicatesVariableSet.size();
-        getPredicateList(from, length);
-        predicatesSizeNew = predicatesVariableSet.size();
-        from += length;
-        System.out.println("Predicates size = " + predicatesSizeNew);
-        System.out.println(predicatesVariableSet.toString());
-//        } while (predicatesSizeNew > predicatesSizeOld);
+        do {
+            predicatesSizeOld = predicatesVariableSet.size();
+            getPredicateList(from, length);
+            predicatesSizeNew = predicatesVariableSet.size();
+            from += length;
+            System.out.println("Predicates size = " + predicatesSizeNew);
+            System.out.println(predicatesVariableSet.toString());
+        } while (predicatesSizeNew > predicatesSizeOld);
         System.out.println("Predicates size = " + predicatesSizeNew);
         System.out.println(predicatesVariableSet.toString());
 
@@ -54,7 +56,7 @@ public class DBpediaExplorer extends Explorer {
         ListOfPredicates predicates = new ListOfPredicates(predicateList);
 
         for (VariableSet predicate : predicatesVariableSet) {
-            System.out.println("=============================== New Predicate: " + predicate.toString().trim() + " ============================= ");
+            System.out.println("################### New Predicate: " + predicate.toString().trim() + " ################### ");
             predicateObject.setPredicateURI(predicate.toString().trim());
             predicateObject.setPredicate(removePrefix(predicate.toString().trim()));
             predicateObject.setLabel(getPredicateLabel(predicate.toString().trim()));
@@ -83,6 +85,9 @@ public class DBpediaExplorer extends Explorer {
                 + "} LIMIT " + length + " OFFSET " + from;
         predicatesVariableSet.addAll(kg.runQuery(query));
 
+        //Remove duplicates
+        predicatesVariableSet = new ArrayList<>(new HashSet<>(predicatesVariableSet));
+        
         //get predicates where the object is number
         //get predicates where the object is date
         //..
@@ -186,10 +191,10 @@ public class DBpediaExplorer extends Explorer {
                     + "\n"
                     + "\n"
                     //Get only s and o with only one predicate between them /////// NOT WORKING ?! Why ///////
-//                    + "    FILTER NOT EXISTS {\n"
-//                    + "      ?s ?pp ?o .\n"
-//                    + "      FILTER(?pp = <" + predicate.trim() + ">).\n"
-//                    + "    }.\n"
+                    //                    + "    FILTER NOT EXISTS {\n"
+                    //                    + "      ?s ?pp ?o .\n"
+                    //                    + "      FILTER(?pp = <" + predicate.trim() + ">).\n"
+                    //                    + "    }.\n"
                     + "\n"
                     + "\n"
                     + "\n"
@@ -200,13 +205,17 @@ public class DBpediaExplorer extends Explorer {
                     + "\n"
                     + "} LIMIT " + noOfExamples;
             predicatesTriplesVarSets = kg.runQuery(query);
-            if(predicatesTriplesVarSets.size()>noOfExamples)
+            if (predicatesTriplesVarSets.size() > noOfExamples) {
                 predicatesTriplesVarSets = new ArrayList<>(predicatesTriplesVarSets.subList(0, noOfExamples));
+            }
             for (VariableSet predicate1 : predicatesTriplesVarSets) {
                 String s = predicate1.getVariables().get(0).toString();
                 String o = predicate1.getVariables().get(1).toString();
                 PredicateTripleExample predicateTriple = new PredicateTripleExample("<" + s + ">", "<" + o + ">", removePrefix(s), removePrefix(o), lable, this);
                 predicateTriples.add(predicateTriple);
+                //To speed up the system. break after one VP.
+//                if(predicateTriple.getNlsSuggestionsObjects().size()>=1)
+//                    break;
             }
             return predicateTriples;
         } catch (Exception e) {
@@ -256,10 +265,12 @@ public class DBpediaExplorer extends Explorer {
                 //You can filter out types like (agent, ....)
                 + "  FILTER (?s_type NOT IN (dbo:Agent)).\n"
                 + "  FILTER (?o_type NOT IN (dbo:Agent)).\n"
-                
                 + "} GROUP BY ?s_type  ?o_type "
                 + "  ORDER By (str(?s_type))\n";
         predicatesTriplesVarSets = kg.runQuery(query);
+        //remove duplicates as sometimes Distinct does not work in the KGMS
+        predicatesTriplesVarSets = new ArrayList<>(new HashSet<>(predicatesTriplesVarSets));
+        
         ArrayList<PredicateContext> predicateContexts = new ArrayList<>();
         for (VariableSet predicate : predicatesTriplesVarSets) {
             String stype = predicate.getVariables().get(0).getValueWithPrefix();

@@ -33,6 +33,7 @@ public class PredicateTripleExample {
         try {
             nlsSuggestions.addAll(Wikipedia.getNLSentences(subject, object, true)); // add sentences from subject page
             nlsSuggestions.addAll(Wikipedia.getNLSentences(subject, object, false)); // add sentences from object page
+            fillNlsSuggestionsObjects();
         } catch (Exception e) {
 
         }
@@ -98,7 +99,7 @@ public class PredicateTripleExample {
         this.explorer = explorer;
     }
 
-    public ArrayList<NlsSuggestion> getNlsSuggestionsObjects() throws IOException {
+    private void fillNlsSuggestionsObjects() throws IOException {
         nlsSuggestionsObjects.clear();
 
         for (String nlsSuggestion : nlsSuggestions) {
@@ -115,14 +116,19 @@ public class PredicateTripleExample {
             } else {
                 pattern = nlsSuggestion.replaceAll(sub, sType).replaceAll(obj, oType);
             }
-            if(!(pattern.contains(sType)&&pattern.contains(oType)))
+            if (!(pattern.contains(sType) && pattern.contains(oType))) {
                 continue;
+            }
 
             String reducedPattern = NLP.summarySentence(pattern, sType, oType);
             //Only add the NL if the reducedPattern has a value
-            if(!"".equals(reducedPattern))
+            if (!"".equals(reducedPattern)) {
                 nlsSuggestionsObjects.add(new NlsSuggestion(nlsSuggestion, pattern, reducedPattern, predicateLabel, sType, oType));
+            }
         }
+    }
+
+    public ArrayList<NlsSuggestion> getNlsSuggestionsObjects() throws IOException {
         return nlsSuggestionsObjects;
     }
 
@@ -137,15 +143,7 @@ public class PredicateTripleExample {
     @Override
     public String toString() {
         String s = "";
-        try {
-            //ignore triple example without NLSs
-//        if(nlsSuggestions.size()==0)
-//            return s;
-//NLSs from strings to objects
-            getNlsSuggestionsObjects();
-        } catch (IOException ex) {
-            Logger.getLogger(PredicateTripleExample.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
         //order nlsSuggestions
         sortNlsSuggestionsObjects();
         s = subject + "___" + predicateLabel + "___" + object + "\t";

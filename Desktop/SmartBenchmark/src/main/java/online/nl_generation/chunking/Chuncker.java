@@ -17,6 +17,8 @@ public class Chuncker {
 
     private final ChunkerME chunker;
     private final POSTaggerME tagger;
+    static int VP_counter = 0;
+    static int NP_counter = 0;
 
     public Chuncker() throws IOException {
         //Download from http://opennlp.sourceforge.net/models-1.5/
@@ -100,14 +102,16 @@ public class Chuncker {
             return "";
         }
     }
-    
+
     public String get_only_NP(String sentence) { //this method return a NP if and only if it is in the form of "is the ... of"
         String replace;
         replace = sentence.replace("sssss", "");
         replace = replace.replace("ooooo", "");
-        if(replace.trim().matches("is the ([a-zA-Z])+ of"))
+        if (replace.trim().matches("is the ([a-zA-Z])+ of")) {
             return replace;
-        else return "";
+        } else {
+            return "";
+        }
     }
 
     public String last_VP_PP(String sentence) {
@@ -120,6 +124,68 @@ public class Chuncker {
 
         Map<String, String> phrases = combineSimplePhrases(tokens, chunker_tags);
         return phrases.get("VP");
+    }
+
+    public String firstANDlast_VP_PP(String sentence, boolean s_o_direction) {
+        String tokens[] = getTokens(sentence);
+        String pos_tags[] = getPOS(tokens);
+        String chunker_tags[] = getChunker().chunk(tokens, pos_tags);
+        double[] probs = getChunker().probs();
+        Span[] chunks = groupChunks(tokens, chunker_tags);
+        String s = "";
+        Map<String, String> phrases = combineSimplePhrases(tokens, chunker_tags);
+        String firstVP = phrases.get("VP1").trim();
+        String lastVP = phrases.get("VP"+VP_counter).trim();
+        if (firstVP == null
+                    || firstVP.toLowerCase().trim().length() < 4
+                    || firstVP.toLowerCase().trim().equals("is")
+                    || firstVP.toLowerCase().trim().equals("are")
+                    || firstVP.toLowerCase().trim().equals("was")
+                    || firstVP.toLowerCase().trim().equals("were")) {
+                firstVP = "";
+            }
+        else
+        {
+            if (s_o_direction) {
+                firstVP += "vp_s_o:" + firstVP;
+            } else {
+                firstVP += "vp_o_s:" + firstVP;
+            }
+        }
+        if (lastVP == null
+                    || lastVP.toLowerCase().trim().length() < 4
+                    || lastVP.toLowerCase().trim().equals("is")
+                    || lastVP.toLowerCase().trim().equals("are")
+                    || lastVP.toLowerCase().trim().equals("was")
+                    || lastVP.toLowerCase().trim().equals("were")) {
+                lastVP = "";
+            }
+        else
+        {
+            if (s_o_direction) {
+                lastVP += "vp_s_o:" + lastVP;
+            } else {
+                lastVP += "vp_o_s:" + lastVP;
+            }
+        }
+        return firstVP+"--"+lastVP;
+//        for (int i = 1; i <= VP_counter; i++) {
+//            String curr = phrases.get("VP" + i).trim();
+//            if (curr == null
+//                    || curr.toLowerCase().trim().length() < 4
+//                    || curr.toLowerCase().trim().equals("is")
+//                    || curr.toLowerCase().trim().equals("are")
+//                    || curr.toLowerCase().trim().equals("was")
+//                    || curr.toLowerCase().trim().equals("were")) {
+//                continue;
+//            }
+//            if (s_o_direction) {
+//                s += "vp_s_o:" + phrases.get("VP" + i).trim() + "--";
+//            } else {
+//                s += "vp_o_s:" + phrases.get("VP" + i).trim() + "--";
+//            }
+//        }
+//        return s;
     }
 
     public static void main(String[] args) throws IOException {
@@ -181,8 +247,8 @@ public class Chuncker {
         Span[] chunks = groupChunks(tokens, chunker_tags);
         Map<String, String> phrases = new HashMap<>();
         String s = "";
-        int VP_counter = 0;
-        int NP_counter = 0;
+        VP_counter = 0;
+        NP_counter = 0;
         for (int i = 0; i < chunks.length; i++) {
             s = "";
             if (chunks[i].getType().equals("NP")) {
@@ -208,12 +274,12 @@ public class Chuncker {
                     }
                 }
                 phrases.put("VP" + (++VP_counter), s);
-            }
-            else{
-                if (!(chunks[i].getType().equals("ADVP")) &&
-                        !(chunks[i].getType().equals("PP")) )
+            } else {
+                if (!(chunks[i].getType().equals("ADVP"))
+                        && !(chunks[i].getType().equals("PP"))) {
                     for (int j = chunks[i].getStart(); j <= chunks[i].getEnd(); ++j) {
-                    s += tokens[j] + " ";
+                        s += tokens[j] + " ";
+                    }
                 }
             }
 

@@ -18,17 +18,22 @@ public class NLP {
 
         sentence = sentence.replace(sType, "sssss");
         sentence = sentence.replace(oType, "ooooo");
+        boolean s_o_direction = sentence.indexOf("sssss") < sentence.indexOf("ooooo");
+
         sentence = sentence.replace("sssss", "");
         sentence = sentence.replace("ooooo", "");
 
-        String sentenceVP = chunkerExample.get_only_VP(sentence);
+//        String sentenceVP = chunkerExample.get_only_VP(sentence);
+        String sentenceVP = chunkerExample.firstANDlast_VP_PP(sentence, s_o_direction);
 
-        if (sentenceVP == null || sentenceVP.length() < 4
-                || sentenceVP.trim().toLowerCase().equals("is")
-                || sentenceVP.trim().toLowerCase().equals("are")
-                || sentenceVP.trim().toLowerCase().equals("was")
-                || sentenceVP.trim().toLowerCase().equals("were")
-                || !sentenceVP.trim().equals(sentence.trim())) {
+        if (sentenceVP == null
+                || sentenceVP.toLowerCase().replace("--", "").trim().length() < 4
+                || sentenceVP.toLowerCase().replace("--", "").trim().equals("is")
+                || sentenceVP.toLowerCase().replace("--", "").trim().equals("are")
+                || sentenceVP.toLowerCase().replace("--", "").trim().equals("was")
+                || sentenceVP.toLowerCase().replace("--", "").trim().equals("were") //                || !sentenceVP.trim().equals(sentence.trim())
+                || sentenceVP.toLowerCase().replace("--", "").trim().equals("s_o:")
+                || sentenceVP.toLowerCase().replace("--", "").trim().equals("o_s:")) {
             sentenceVP = "";
         }
 
@@ -38,7 +43,22 @@ public class NLP {
         String sentenceNP = "";
         if (sentenceVP.equals("")) {
             sentenceNP = chunkerExample.get_only_NP(sentence);
-            return sentenceNP;
+            if (s_o_direction) {
+                sentenceNP = "np_s_o:" + sentenceNP;
+            } else {
+                sentenceNP = "np_o_s:" + sentenceNP;
+            }
+            if (sentenceNP == null
+                    || sentenceNP.toLowerCase().replace("--", "").trim().length() < 4
+                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("is")
+                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("are")
+                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("was")
+                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("were") //                || !sentenceVP.trim().equals(sentence.trim())
+                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("np_s_o:")
+                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("np_o_s:")) {
+                sentenceNP = "";
+                return sentenceNP;
+            }
         }
         return sentenceVP;
     }
