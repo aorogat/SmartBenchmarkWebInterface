@@ -14,14 +14,19 @@ import java.util.regex.Pattern;
 public class TestSimilarity {
 
     public static void main(String[] args) throws IOException {
-            similarity("river mouth", "flows into");
+//            similarity("river mouth", "flows into");
 //            similarity("flows to", "flows into");
+              similarity("nationality", "was born on");
     }
     
     public static double similarity(String label, String predicateRepresentation) throws MalformedURLException, ProtocolException, IOException {
         double similar = 0;
         Chuncker chunkerExample = new Chuncker();
         String label_modified = chunkerExample.isItVP("X " + label + " Y");
+        if(label_modified == null)
+            label_modified = chunkerExample.isItVP(label);
+        if(label_modified == null)
+            label_modified = label.split(" ")[label.split(" ").length-1]+"_VERB";
         
         ArrayList<String> label_AllNouns = new ArrayList<>();
         
@@ -45,9 +50,11 @@ public class TestSimilarity {
             if (predicate_words[i].contains("_VERB")) {
                 predicateRepresentation_mainVerb = predicate_words[i];
             } else if (predicate_words[i].contains("_NOUN")) {
-                
+                predicateRepresentation_mainVerb = predicate_words[i];
             }
         }
+        if(predicateRepresentation_mainVerb==null)
+            predicateRepresentation_mainVerb = predicate_words[predicate_words.length-1]+"_VERB";
         
         if (!"".equals(label_mainVerb)) {
             System.out.println(similaritySimple(label_mainVerb, predicateRepresentation_mainVerb));
@@ -64,7 +71,7 @@ public class TestSimilarity {
     }
 
     private static double similaritySimple(String w1, String w2) throws MalformedURLException, ProtocolException, IOException {
-        URL url = new URL("http://127.0.0.1:12345/similarity?word1="+w1+"&word2="+w2);
+        URL url = new URL("http://127.0.0.1:12311/similarity?word1="+w1+"&word2="+w2);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));

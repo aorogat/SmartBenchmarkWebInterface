@@ -135,6 +135,8 @@ public class Chuncker {
         Span[] chunks = groupChunks(tokens, chunker_tags);
         String s = "";
         Map<String, String> phrases = combineSimplePhrases(tokens, chunker_tags);
+        if(phrases.isEmpty())
+            return null;
         if(VP_counter>0)
             return phrases.get("VP1").replace("X_NOUN", "").replace("Y_NOUN", "").trim();
         else
