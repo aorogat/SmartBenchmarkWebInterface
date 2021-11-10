@@ -15,7 +15,7 @@ import online.kg_extractor.model.VariableSet;
  */
 public class DBpediaExplorer extends Explorer {
 
-    private static int numberOfNLExamples = 30;
+    private static int numberOfNLExamples = 100;
 
     private DBpediaExplorer(String url) {
         super();

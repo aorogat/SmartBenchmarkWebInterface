@@ -2,6 +2,7 @@ package offLine.kg_explorer.model;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import offLine.kg_explorer.explorer.Explorer;
@@ -33,6 +34,8 @@ public class PredicateTripleExample {
         try {
             nlsSuggestions.addAll(Wikipedia.getNLSentences(subject, object, true)); // add sentences from subject page
             nlsSuggestions.addAll(Wikipedia.getNLSentences(subject, object, false)); // add sentences from object page
+            //Remove Duplicates
+            nlsSuggestions = new ArrayList<>(new HashSet<>(nlsSuggestions));
             fillNlsSuggestionsObjects();
         } catch (Exception e) {
 
@@ -132,20 +135,20 @@ public class PredicateTripleExample {
         return nlsSuggestionsObjects;
     }
 
-    public void sortNlsSuggestionsObjects() {
-        try {
-            nlsSuggestionsObjects.sort((s1, s2) -> (Math.abs(s1.getReducedPattern().replace(s1.getsType(), "").replace(s1.getoType(), "").length() - predicateLabel.length())
-                    - Math.abs(s2.getReducedPattern().replace(s2.getsType(), "").replace(s2.getoType(), "").length() - predicateLabel.length())));
-        } catch (Exception e) {
-        }
-    }
+//    public void sortNlsSuggestionsObjects() {
+//        try {
+//            nlsSuggestionsObjects.sort((s1, s2) -> (Math.abs(s1.getReducedPattern().replace(s1.getsType(), "").replace(s1.getoType(), "").length() - predicateLabel.length())
+//                    - Math.abs(s2.getReducedPattern().replace(s2.getsType(), "").replace(s2.getoType(), "").length() - predicateLabel.length())));
+//        } catch (Exception e) {
+//        }
+//    }
 
     @Override
     public String toString() {
         String s = "";
 
         //order nlsSuggestions
-        sortNlsSuggestionsObjects();
+//        sortNlsSuggestionsObjects();
         s = subject + "___" + predicateLabel + "___" + object + "\t";
         for (NlsSuggestion nlsSuggestion : nlsSuggestionsObjects) {
             s += "Sentence: " + nlsSuggestion.getSentence()

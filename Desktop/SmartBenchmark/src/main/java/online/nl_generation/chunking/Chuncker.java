@@ -126,6 +126,21 @@ public class Chuncker {
         return phrases.get("VP");
     }
 
+    public String isItVP(String phrase)
+    {
+        String tokens[] = getTokens(phrase);
+        String pos_tags[] = getPOS(tokens);
+        String chunker_tags[] = getChunker().chunk(tokens, pos_tags);
+        double[] probs = getChunker().probs();
+        Span[] chunks = groupChunks(tokens, chunker_tags);
+        String s = "";
+        Map<String, String> phrases = combineSimplePhrases(tokens, chunker_tags);
+        if(VP_counter>0)
+            return phrases.get("VP1").replace("X_NOUN", "").replace("Y_NOUN", "").trim();
+        else
+            return phrases.get("NP1").replace("X_NOUN", "").replace("Y_NOUN", "").trim();
+    }
+    
     public String firstANDlast_VP_PP(String sentence, boolean s_o_direction) {
         String tokens[] = getTokens(sentence);
         String pos_tags[] = getPOS(tokens);
@@ -134,8 +149,12 @@ public class Chuncker {
         Span[] chunks = groupChunks(tokens, chunker_tags);
         String s = "";
         Map<String, String> phrases = combineSimplePhrases(tokens, chunker_tags);
-        String firstVP = phrases.get("VP1").trim();
-        String lastVP = phrases.get("VP" + VP_counter).trim();
+        String firstVP = null;
+        if(VP_counter>0)
+            firstVP = phrases.get("VP1").trim();
+        String lastVP = null;
+        if(VP_counter>1)
+            lastVP = phrases.get("VP" + VP_counter).trim();
         if (firstVP == null
                 || firstVP.toLowerCase().trim().length() < 4
                 || firstVP.toLowerCase().trim().equals("is")
@@ -249,7 +268,7 @@ public class Chuncker {
             s = "";
             if (chunks[i].getType().equals("NP")) {
                 for (int j = chunks[i].getStart(); j <= chunks[i].getEnd(); ++j) {
-                    s += tokens[j] + " ";
+                    s += tokens[j]+"_NOUN ";
                 }
                 phrases.put("NP" + (++NP_counter), s);
             } else if (chunks[i].getType().equals("VP")) {
@@ -257,11 +276,11 @@ public class Chuncker {
                 int t = i - 1 >= 0 ? i - 1 : 0; //to avoid -ve index problem
                 if (chunks[t].getType().equals("ADVP")) {
                     for (int j = chunks[t].getStart(); j <= chunks[t].getEnd(); ++j) {
-                        s += tokens[j] + " ";
+                        s += tokens[j]+"_ADVP ";
                     }
                 }
                 for (int j = chunks[i].getStart(); j <= chunks[i].getEnd(); ++j) {
-                    s += tokens[j] + " ";
+                    s += tokens[j]+"_VERB ";
                 }
                 t = i + 1 >= chunks.length - 1 ? chunks.length - 1 : i + 1; //to avoid out of bound index problem
                 if (chunks[t].getType().equals("PP")) {
