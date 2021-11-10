@@ -9,9 +9,12 @@ import opennlp.tools.util.Span;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Chuncker {
 
@@ -126,8 +129,7 @@ public class Chuncker {
         return phrases.get("VP");
     }
 
-    public String isItVP(String phrase)
-    {
+    public String isItVP(String phrase) {
         String tokens[] = getTokens(phrase);
         String pos_tags[] = getPOS(tokens);
         String chunker_tags[] = getChunker().chunk(tokens, pos_tags);
@@ -135,15 +137,17 @@ public class Chuncker {
         Span[] chunks = groupChunks(tokens, chunker_tags);
         String s = "";
         Map<String, String> phrases = combineSimplePhrases(tokens, chunker_tags);
-        if(phrases.isEmpty())
+        if (phrases.isEmpty()) {
             return null;
-        if(VP_counter>0)
+        }
+        if (VP_counter > 0) {
             return phrases.get("VP1").replace("X_NOUN", "").replace("Y_NOUN", "").trim();
-        else
+        } else {
             return phrases.get("NP1").replace("X_NOUN", "").replace("Y_NOUN", "").trim();
+        }
     }
-    
-    public String firstANDlast_VP_PP(String sentence, boolean s_o_direction) {
+
+    public String firstANDlast_VP_PP(String sentence, String label, boolean s_o_direction) {
         String tokens[] = getTokens(sentence);
         String pos_tags[] = getPOS(tokens);
         String chunker_tags[] = getChunker().chunk(tokens, pos_tags);
@@ -152,18 +156,52 @@ public class Chuncker {
         String s = "";
         Map<String, String> phrases = combineSimplePhrases(tokens, chunker_tags);
         String firstVP = null;
-        if(VP_counter>0)
-            firstVP = phrases.get("VP1").trim();
+        if (VP_counter > 0) {
+            try {
+                firstVP = phrases.get("VP1").trim();
+                if (firstVP == null
+                        || firstVP.toLowerCase().trim().length() < 4
+                        || firstVP.toLowerCase().trim().equals("is_verb")
+                        || firstVP.toLowerCase().trim().equals("are_verb")
+                        || firstVP.toLowerCase().trim().equals("was_verb")
+                        || firstVP.toLowerCase().trim().equals("were_verb")) {
+                    firstVP = "";
+                } else {
+                    firstVP = firstVP + "(" + PhraseSimilarity.similarity(label, firstVP) + ")";
+                }
+            } catch (ProtocolException ex) {
+                Logger.getLogger(Chuncker.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(Chuncker.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         String lastVP = null;
-        if(VP_counter>1)
-            lastVP = phrases.get("VP" + VP_counter).trim();
+        if (VP_counter > 1) {
+            try {
+                lastVP = phrases.get("VP" + VP_counter).trim();
+                if (lastVP == null
+                        || lastVP.toLowerCase().trim().length() < 4
+                        || lastVP.toLowerCase().trim().equals("is_verb")
+                        || lastVP.toLowerCase().trim().equals("are_verb")
+                        || lastVP.toLowerCase().trim().equals("was_verb")
+                        || lastVP.toLowerCase().trim().equals("were_verb")) {
+                    lastVP = "";
+                } else {
+                    lastVP = lastVP + "(" + PhraseSimilarity.similarity(label, lastVP) + ")";
+                }
+            } catch (ProtocolException ex) {
+                Logger.getLogger(Chuncker.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(Chuncker.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         if (firstVP == null
                 || firstVP.toLowerCase().trim().length() < 4
-                || firstVP.toLowerCase().trim().equals("is")
-                || firstVP.toLowerCase().trim().equals("are")
-                || firstVP.toLowerCase().trim().equals("was")
-                || firstVP.toLowerCase().trim().equals("were")) {
-            firstVP = "";
+                || firstVP.toLowerCase().trim().equals("is_verb")
+                || firstVP.toLowerCase().trim().equals("are_verb")
+                || firstVP.toLowerCase().trim().equals("was_verb")
+                || firstVP.toLowerCase().trim().equals("were_verb")) {
+//            firstVP = "";
         } else {
             if (s_o_direction) {
                 firstVP = "vp_s_o:" + firstVP;
@@ -173,11 +211,11 @@ public class Chuncker {
         }
         if (lastVP == null
                 || lastVP.toLowerCase().trim().length() < 4
-                || lastVP.toLowerCase().trim().equals("is")
-                || lastVP.toLowerCase().trim().equals("are")
-                || lastVP.toLowerCase().trim().equals("was")
-                || lastVP.toLowerCase().trim().equals("were")) {
-            lastVP = "";
+                || lastVP.toLowerCase().trim().equals("is_verb")
+                || lastVP.toLowerCase().trim().equals("are_verb")
+                || lastVP.toLowerCase().trim().equals("was_verb")
+                || lastVP.toLowerCase().trim().equals("were_verb")) {
+//            lastVP = "";
         } else {
             if (s_o_direction) {
                 lastVP = "vp_s_o:" + lastVP;
@@ -185,24 +223,22 @@ public class Chuncker {
                 lastVP = "vp_o_s:" + lastVP;
             }
         }
-        return firstVP + "--" + lastVP + "--";
-//        for (int i = 1; i <= VP_counter; i++) {
-//            String curr = phrases.get("VP" + i).trim();
-//            if (curr == null
-//                    || curr.toLowerCase().trim().length() < 4
-//                    || curr.toLowerCase().trim().equals("is")
-//                    || curr.toLowerCase().trim().equals("are")
-//                    || curr.toLowerCase().trim().equals("was")
-//                    || curr.toLowerCase().trim().equals("were")) {
-//                continue;
-//            }
-//            if (s_o_direction) {
-//                s += "vp_s_o:" + phrases.get("VP" + i).trim() + "--";
-//            } else {
-//                s += "vp_o_s:" + phrases.get("VP" + i).trim() + "--";
-//            }
-//        }
-//        return s;
+        if(firstVP==null)
+            firstVP = "";
+        if(lastVP==null)
+            lastVP = "";
+        if ("".equals(firstVP) && "".equals(lastVP)) {
+            return "";
+        }
+        if ("".equals(firstVP)) {
+            return lastVP;
+        }
+        if ("".equals(lastVP)) {
+            return firstVP;
+        }
+        return firstVP + "--" + lastVP;
+//                + "--";
+
     }
 
     public static void main(String[] args) throws IOException {
@@ -270,7 +306,7 @@ public class Chuncker {
             s = "";
             if (chunks[i].getType().equals("NP")) {
                 for (int j = chunks[i].getStart(); j <= chunks[i].getEnd(); ++j) {
-                    s += tokens[j]+"_NOUN ";
+                    s += tokens[j] + "_NOUN ";
                 }
                 phrases.put("NP" + (++NP_counter), s);
             } else if (chunks[i].getType().equals("VP")) {
@@ -278,11 +314,11 @@ public class Chuncker {
                 int t = i - 1 >= 0 ? i - 1 : 0; //to avoid -ve index problem
                 if (chunks[t].getType().equals("ADVP")) {
                     for (int j = chunks[t].getStart(); j <= chunks[t].getEnd(); ++j) {
-                        s += tokens[j]+"_ADVP ";
+                        s += tokens[j] + "_ADVP ";
                     }
                 }
                 for (int j = chunks[i].getStart(); j <= chunks[i].getEnd(); ++j) {
-                    s += tokens[j]+"_VERB ";
+                    s += tokens[j] + "_VERB ";
                 }
                 t = i + 1 >= chunks.length - 1 ? chunks.length - 1 : i + 1; //to avoid out of bound index problem
                 if (chunks[t].getType().equals("PP")) {

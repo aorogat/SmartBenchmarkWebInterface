@@ -7,7 +7,7 @@ public class NLP {
 
     static Chuncker chunkerExample;
 
-    public static String summarySentence(String sentence, String sType, String oType) throws IOException {
+    public static String summarySentence(String sentence, String label, String sType, String oType) throws IOException {
         if (chunkerExample == null) {
             chunkerExample = new Chuncker();
         }
@@ -24,7 +24,7 @@ public class NLP {
         sentence = sentence.replace("ooooo", "");
 
 //        String sentenceVP = chunkerExample.get_only_VP(sentence);
-        String sentenceVP = chunkerExample.firstANDlast_VP_PP(sentence, s_o_direction);
+        String sentenceVP = chunkerExample.firstANDlast_VP_PP(sentence, label, s_o_direction);
 
         if (sentenceVP == null
                 || sentenceVP.toLowerCase().replace("--", "").trim().length() < 4
@@ -38,15 +38,17 @@ public class NLP {
         }
 
         sentenceVP = sentenceVP.trim();
-
+        
+        
+        
         //try NP
         String sentenceNP = "";
         if (sentenceVP.equals("")) {
             sentenceNP = chunkerExample.get_only_NP(sentence);
             if (s_o_direction) {
-                sentenceNP = "np_s_o:" + sentenceNP;
+                sentenceNP = "np_s_o:" + sentenceNP.replaceAll("\\_VERB", "").replaceAll("\\_NOUN", "");
             } else {
-                sentenceNP = "np_o_s:" + sentenceNP;
+                sentenceNP = "np_o_s:" + sentenceNP.replaceAll("\\_VERB", "").replaceAll("\\_NOUN", "");
             }
             if (sentenceNP == null
                     || sentenceNP.toLowerCase().replace("--", "").trim().length() < 4
@@ -60,7 +62,7 @@ public class NLP {
                 return sentenceNP;
             }
         }
-        return sentenceVP;
+        return sentenceVP.replaceAll("\\_VERB", "").replaceAll("\\_NOUN", "").replaceAll("\\_ADVP", "");
     }
 
     public static String removeHyphenedPhrases(String sentence) {

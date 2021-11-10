@@ -123,7 +123,7 @@ public class PredicateTripleExample {
                 continue;
             }
 
-            String reducedPattern = NLP.summarySentence(pattern, sType, oType);
+            String reducedPattern = NLP.summarySentence(pattern, predicateLabel, sType, oType);
             //Only add the NL if the reducedPattern has a value
             if (!"".equals(reducedPattern)) {
                 nlsSuggestionsObjects.add(new NlsSuggestion(nlsSuggestion, pattern, reducedPattern, predicateLabel, sType, oType));

@@ -16,6 +16,7 @@ import online.kg_extractor.model.VariableSet;
 public class DBpediaExplorer extends Explorer {
 
     private static int numberOfNLExamples = 100;
+    private static int minContextWeight = 20;
 
     private DBpediaExplorer(String url) {
         super();

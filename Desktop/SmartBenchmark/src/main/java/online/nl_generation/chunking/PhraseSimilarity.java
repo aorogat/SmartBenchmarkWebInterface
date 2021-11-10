@@ -8,10 +8,8 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class TestSimilarity {
+public class PhraseSimilarity {
 
     public static void main(String[] args) throws IOException {
 //            similarity("river mouth", "flows into");
@@ -20,6 +18,8 @@ public class TestSimilarity {
     }
     
     public static double similarity(String label, String predicateRepresentation) throws MalformedURLException, ProtocolException, IOException {
+        predicateRepresentation = predicateRepresentation.replace("s_o:", "");
+        predicateRepresentation = predicateRepresentation.replace("o_s:", "");
         double similar = 0;
         Chuncker chunkerExample = new Chuncker();
         String label_modified = chunkerExample.isItVP("X " + label + " Y");
@@ -44,7 +44,8 @@ public class TestSimilarity {
         }
         
         //Get predicate verb or nouns
-        String predicate_modified = chunkerExample.isItVP("X " + predicateRepresentation + " Y");
+        String predicate_modified = chunkerExample.isItVP("X " + predicateRepresentation.replace("_VERB", "")
+                .replace("_NOUN", "").trim()+ " Y");
         String[] predicate_words = predicate_modified.split(" ");
         for (int i = 0; i < predicate_words.length; i++) {
             if (predicate_words[i].contains("_VERB")) {
@@ -57,7 +58,7 @@ public class TestSimilarity {
             predicateRepresentation_mainVerb = predicate_words[predicate_words.length-1]+"_VERB";
         
         if (!"".equals(label_mainVerb)) {
-            System.out.println(similaritySimple(label_mainVerb, predicateRepresentation_mainVerb));
+            return similaritySimple(label_mainVerb, predicateRepresentation_mainVerb);
         } else {
             double sum = 0;
             double avgSim = 0;
@@ -65,7 +66,8 @@ public class TestSimilarity {
                 sum += similaritySimple(l, predicateRepresentation_mainVerb);
             }
             avgSim = sum/label_AllNouns.size();
-            System.out.println("avgSim: " + avgSim);
+            similar = avgSim;
+//            System.out.println("avgSim: " + avgSim);
         }
         return similar;
     }
