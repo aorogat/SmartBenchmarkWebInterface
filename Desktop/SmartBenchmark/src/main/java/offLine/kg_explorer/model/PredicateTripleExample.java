@@ -3,8 +3,6 @@ package offLine.kg_explorer.model;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import offLine.kg_explorer.explorer.Explorer;
 import offLine.scrapping.wikipedia.NLP;
 import offLine.scrapping.wikipedia.Wikipedia;

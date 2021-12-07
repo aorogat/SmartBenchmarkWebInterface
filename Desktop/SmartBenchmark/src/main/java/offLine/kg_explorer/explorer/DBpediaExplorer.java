@@ -17,6 +17,7 @@ public class DBpediaExplorer extends Explorer {
 
     private static int numberOfNLExamples = 100;
     private static int minContextWeight = 20;
+    int counter =0;
 
     private DBpediaExplorer(String url) {
         super();
@@ -57,20 +58,23 @@ public class DBpediaExplorer extends Explorer {
         ListOfPredicates predicates = new ListOfPredicates(predicateList);
 
         for (VariableSet predicate : predicatesVariableSet) {
-            System.out.println("################### New Predicate: " + predicate.toString().trim() + " ################### ");
+            System.out.println("###################"+ ++counter +": New Predicate: " + predicate.toString().trim() + " ################### ");
             predicateObject.setPredicateURI(predicate.toString().trim());
             predicateObject.setPredicate(removePrefix(predicate.toString().trim()));
             predicateObject.setLabel(getPredicateLabel(predicate.toString().trim()));
             contexts = getPredicatesContext("<" + predicate.toString().trim() + ">");
             for (PredicateContext context : contexts) {
-                predicateObject.setTripleExamples(getOneTripleExample(predicate.toString().trim(),
-                        context.getSubjectType(), context.getObjectType(), predicateObject.getLabel(), numberOfNLExamples));
+//                predicateObject.setTripleExamples(getOneTripleExample(predicate.toString().trim(),
+//                        context.getSubjectType(), context.getObjectType(), predicateObject.getLabel(), numberOfNLExamples));
                 predicateObject.setPredicateContext(context);
                 predicateObject.print();
                 predicates.getPredicates().add(predicateObject);
             }
 
         }
+        
+        Database.storePredicates(predicateList);
+        
         predicates.setPredicates(predicateList);
         return predicates;
     }
@@ -264,8 +268,8 @@ public class DBpediaExplorer extends Explorer {
                 + "  FILTER strstarts(str(?s_type ), str(dbo:)).\n"
                 + "  FILTER strstarts(str(?o_type ), str(dbo:)).\n"
                 //You can filter out types like (agent, ....)
-                + "  FILTER (?s_type NOT IN (dbo:Agent)).\n"
-                + "  FILTER (?o_type NOT IN (dbo:Agent)).\n"
+                + "  FILTER (?s_type NOT IN (dbo:Agent, dbo:Settlement)).\n"
+                + "  FILTER (?o_type NOT IN (dbo:Agent, dbo:Settlement)).\n"
                 + "} GROUP BY ?s_type  ?o_type "
                 + "  ORDER By (str(?s_type))\n";
         predicatesTriplesVarSets = kg.runQuery(query);
@@ -335,3 +339,4 @@ public class DBpediaExplorer extends Explorer {
     }
 
 }
+    

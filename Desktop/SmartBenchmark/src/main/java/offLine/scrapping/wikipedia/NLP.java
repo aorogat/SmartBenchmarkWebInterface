@@ -1,7 +1,9 @@
 package offLine.scrapping.wikipedia;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import online.nl_generation.chunking.Chuncker;
+import online.nl_generation.chunking.Phrase;
 
 public class NLP {
 
@@ -24,7 +26,17 @@ public class NLP {
         sentence = sentence.replace("ooooo", "");
 
 //        String sentenceVP = chunkerExample.get_only_VP(sentence);
-        String sentenceVP = chunkerExample.firstANDlast_VP_PP(sentence, label, s_o_direction);
+        ArrayList<Phrase> vps = chunkerExample.firstANDlast_VP_PP(sentence, label, s_o_direction);
+        String sentenceVP = "";
+        for (Phrase vp : vps) {
+            sentenceVP = "vp_";
+            if(vp.getDirection()==Phrase.S_O)
+                sentenceVP += "s_o:";
+            else
+                sentenceVP += "o_s:";
+            sentenceVP += vp.getVerbPhrase() + "("+vp.getLabelSimilarity()+")";
+        }
+//        String sentenceVP = chunkerExample.firstANDlast_VP_PP(sentence, label, s_o_direction).toString();
 
         if (sentenceVP == null
                 || sentenceVP.toLowerCase().replace("--", "").trim().length() < 4

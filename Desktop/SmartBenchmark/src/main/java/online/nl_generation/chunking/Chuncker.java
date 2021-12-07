@@ -147,7 +147,10 @@ public class Chuncker {
         }
     }
 
-    public String firstANDlast_VP_PP(String sentence, String label, boolean s_o_direction) {
+    public ArrayList<Phrase> firstANDlast_VP_PP(String sentence, String label, boolean s_o_direction) {
+        //To hold the output
+        ArrayList<Phrase> verb_phrasess = new ArrayList<>();
+
         String tokens[] = getTokens(sentence);
         String pos_tags[] = getPOS(tokens);
         String chunker_tags[] = getChunker().chunk(tokens, pos_tags);
@@ -155,10 +158,14 @@ public class Chuncker {
         Span[] chunks = groupChunks(tokens, chunker_tags);
         String s = "";
         Map<String, String> phrases = combineSimplePhrases(tokens, chunker_tags);
+
         String firstVP = null;
+        Phrase verbPhraseFirst = new Phrase();
         if (VP_counter > 0) {
             try {
                 firstVP = phrases.get("VP1").trim();
+                verbPhraseFirst.verbPhrase = firstVP;
+                verbPhraseFirst.type = Phrase.VP;
                 if (firstVP == null
                         || firstVP.toLowerCase().trim().length() < 4
                         || firstVP.toLowerCase().trim().equals("is_verb")
@@ -166,8 +173,18 @@ public class Chuncker {
                         || firstVP.toLowerCase().trim().equals("was_verb")
                         || firstVP.toLowerCase().trim().equals("were_verb")) {
                     firstVP = "";
+                    verbPhraseFirst.verbPhrase = firstVP;
                 } else {
                     firstVP = firstVP + "(" + PhraseSimilarity.similarity(label, firstVP) + ")";
+                    verbPhraseFirst.labelSimilarity = PhraseSimilarity.similarity(label, firstVP);
+                    
+                    if (s_o_direction) {
+                        firstVP = "vp_s_o:" + firstVP;
+                        verbPhraseFirst.direction = Phrase.S_O;
+                    } else {
+                        firstVP = "vp_o_s:" + firstVP;
+                        verbPhraseFirst.direction = Phrase.O_S;
+                    }
                 }
             } catch (ProtocolException ex) {
                 Logger.getLogger(Chuncker.class.getName()).log(Level.SEVERE, null, ex);
@@ -175,10 +192,30 @@ public class Chuncker {
                 Logger.getLogger(Chuncker.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        if(!"".equals(firstVP))
+            verb_phrasess.add(verbPhraseFirst); 
+
+//        if (firstVP == null
+//                || firstVP.toLowerCase().trim().length() < 4
+//                || firstVP.toLowerCase().trim().equals("is_verb")
+//                || firstVP.toLowerCase().trim().equals("are_verb")
+//                || firstVP.toLowerCase().trim().equals("was_verb")
+//                || firstVP.toLowerCase().trim().equals("were_verb")) {
+////            firstVP = "";
+//        } else {
+//            if (s_o_direction) {
+//                firstVP = "vp_s_o:" + firstVP;
+//            } else {
+//                firstVP = "vp_o_s:" + firstVP;
+//            }
+//        }
         String lastVP = null;
+        Phrase verbPhraseLast = new Phrase();
         if (VP_counter > 1) {
             try {
                 lastVP = phrases.get("VP" + VP_counter).trim();
+                verbPhraseLast.verbPhrase = lastVP;
+                verbPhraseLast.type = Phrase.VP;
                 if (lastVP == null
                         || lastVP.toLowerCase().trim().length() < 4
                         || lastVP.toLowerCase().trim().equals("is_verb")
@@ -186,8 +223,17 @@ public class Chuncker {
                         || lastVP.toLowerCase().trim().equals("was_verb")
                         || lastVP.toLowerCase().trim().equals("were_verb")) {
                     lastVP = "";
+                    verbPhraseLast.verbPhrase = lastVP;
                 } else {
                     lastVP = lastVP + "(" + PhraseSimilarity.similarity(label, lastVP) + ")";
+                    verbPhraseLast.labelSimilarity = PhraseSimilarity.similarity(label, lastVP);
+                    if (s_o_direction) {
+                        lastVP = "vp_s_o:" + lastVP;
+                        verbPhraseLast.direction = Phrase.S_O;
+                    } else {
+                        lastVP = "vp_o_s:" + lastVP;
+                        verbPhraseLast.direction = Phrase.O_S;
+                    }
                 }
             } catch (ProtocolException ex) {
                 Logger.getLogger(Chuncker.class.getName()).log(Level.SEVERE, null, ex);
@@ -195,50 +241,44 @@ public class Chuncker {
                 Logger.getLogger(Chuncker.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        if (firstVP == null
-                || firstVP.toLowerCase().trim().length() < 4
-                || firstVP.toLowerCase().trim().equals("is_verb")
-                || firstVP.toLowerCase().trim().equals("are_verb")
-                || firstVP.toLowerCase().trim().equals("was_verb")
-                || firstVP.toLowerCase().trim().equals("were_verb")) {
+        if(!"".equals(lastVP))
+            verb_phrasess.add(verbPhraseLast);
+
+//        if (lastVP == null
+//                || lastVP.toLowerCase().trim().length() < 4
+//                || lastVP.toLowerCase().trim().equals("is_verb")
+//                || lastVP.toLowerCase().trim().equals("are_verb")
+//                || lastVP.toLowerCase().trim().equals("was_verb")
+//                || lastVP.toLowerCase().trim().equals("were_verb")) {
+////            lastVP = "";
+//        } else {
+//            if (s_o_direction) {
+//                lastVP = "vp_s_o:" + lastVP;
+//            } else {
+//                lastVP = "vp_o_s:" + lastVP;
+//            }
+//        }
+
+
+//        if (firstVP == null) {
 //            firstVP = "";
-        } else {
-            if (s_o_direction) {
-                firstVP = "vp_s_o:" + firstVP;
-            } else {
-                firstVP = "vp_o_s:" + firstVP;
-            }
-        }
-        if (lastVP == null
-                || lastVP.toLowerCase().trim().length() < 4
-                || lastVP.toLowerCase().trim().equals("is_verb")
-                || lastVP.toLowerCase().trim().equals("are_verb")
-                || lastVP.toLowerCase().trim().equals("was_verb")
-                || lastVP.toLowerCase().trim().equals("were_verb")) {
+//        }
+//        if (lastVP == null) {
 //            lastVP = "";
-        } else {
-            if (s_o_direction) {
-                lastVP = "vp_s_o:" + lastVP;
-            } else {
-                lastVP = "vp_o_s:" + lastVP;
-            }
-        }
-        if(firstVP==null)
-            firstVP = "";
-        if(lastVP==null)
-            lastVP = "";
-        if ("".equals(firstVP) && "".equals(lastVP)) {
-            return "";
-        }
-        if ("".equals(firstVP)) {
-            return lastVP;
-        }
-        if ("".equals(lastVP)) {
-            return firstVP;
-        }
-        return firstVP + "--" + lastVP;
+//        }
+//        if ("".equals(firstVP) && "".equals(lastVP)) {
+//            return "";
+//        }
+//        if ("".equals(firstVP)) {
+//            return lastVP;
+//        }
+//        if ("".equals(lastVP)) {
+//            return firstVP;
+//        }
+//        return firstVP + "--" + lastVP;
 //                + "--";
 
+    return verb_phrasess;
     }
 
     public static void main(String[] args) throws IOException {
