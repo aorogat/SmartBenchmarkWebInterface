@@ -37,7 +37,7 @@ public class DBpedia extends KnowledgeGraph {
         this.endpoint = endpoint;
     }
 
-    public static DBpedia getInstance(String endpoint) {
+    public static KnowledgeGraph getInstance(String endpoint) {
         if (instance == null) {
             instance = new DBpedia(endpoint);
             return (DBpedia) instance;

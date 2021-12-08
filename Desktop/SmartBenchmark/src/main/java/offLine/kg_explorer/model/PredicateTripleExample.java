@@ -3,6 +3,7 @@ package offLine.kg_explorer.model;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import offLine.kg_explorer.explorer.Database;
 import offLine.kg_explorer.explorer.Explorer;
 import offLine.scrapping.wikipedia.NLP;
 import offLine.scrapping.wikipedia.Wikipedia;
@@ -18,9 +19,13 @@ public class PredicateTripleExample {
     private String subjectURI;
     private String objectURI;
     private String predicateLabel;
+    private String predicateURI;
     private ArrayList<String> nlsSuggestions = new ArrayList<>();
-    private ArrayList<NlsSuggestion> nlsSuggestionsObjects = new ArrayList<>();
+    private ArrayList<Predicate_NLP_Representation> nlsSuggestionsObjects = new ArrayList<>();
     private Explorer explorer;
+    
+    
+    
 
     public PredicateTripleExample(String subjectURI, String objectURI, String subject, String object, String predicateLabel, Explorer explorer) {
         this.subjectURI = subjectURI;
@@ -124,12 +129,12 @@ public class PredicateTripleExample {
             String reducedPattern = NLP.summarySentence(pattern, predicateLabel, sType, oType);
             //Only add the NL if the reducedPattern has a value
             if (!"".equals(reducedPattern)) {
-                nlsSuggestionsObjects.add(new NlsSuggestion(nlsSuggestion, pattern, reducedPattern, predicateLabel, sType, oType));
+                nlsSuggestionsObjects.add(new Predicate_NLP_Representation(nlsSuggestion, pattern, reducedPattern, predicateLabel, sType, oType));
             }
         }
     }
 
-    public ArrayList<NlsSuggestion> getNlsSuggestionsObjects() throws IOException {
+    public ArrayList<Predicate_NLP_Representation> getNlsSuggestionsObjects() throws IOException {
         return nlsSuggestionsObjects;
     }
 
@@ -148,7 +153,7 @@ public class PredicateTripleExample {
         //order nlsSuggestions
 //        sortNlsSuggestionsObjects();
         s = subject + "___" + predicateLabel + "___" + object + "\t";
-        for (NlsSuggestion nlsSuggestion : nlsSuggestionsObjects) {
+        for (Predicate_NLP_Representation nlsSuggestion : nlsSuggestionsObjects) {
             s += "Sentence: " + nlsSuggestion.getSentence()
                     + "\tPattern: " + nlsSuggestion.getPattern() + "\tReduced Pattern: " + nlsSuggestion.getReducedPattern() + "\t";
         }
@@ -158,5 +163,15 @@ public class PredicateTripleExample {
     public ArrayList<String> getNlsSuggestions() {
         return nlsSuggestions;
     }
+
+    public String getPredicateURI() {
+        return predicateURI;
+    }
+
+    public void setPredicateURI(String predicateURI) {
+        this.predicateURI = predicateURI;
+    }
+    
+    
 
 }

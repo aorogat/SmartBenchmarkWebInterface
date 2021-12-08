@@ -25,8 +25,10 @@ public class Predicate {
     @Override
     public String toString()
     {
-        return predicateURI + "\t" + label + "\t" + weight + "\t" +  
-                tripleExamples.toString();
+        return predicateURI + "\t" + label + "\t" + weight + "\t" 
+                + predicateContext.getSubjectType() + "\t" 
+                + predicateContext.getObjectType() + "\t" 
+                + predicateContext.getWeight()+ "\t" ;
     }
 
     public String getPredicateURI() {

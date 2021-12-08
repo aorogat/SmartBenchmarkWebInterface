@@ -14,7 +14,7 @@ import online.kg_extractor.model.subgraph.SingleEdgeGraph;
  */
 public class Predicates {
 
-    static DBpedia dbpedia = DBpedia.getInstance("https://dbpedia.org/sparql");
+    static DBpedia dbpedia = (DBpedia) DBpedia.getInstance("https://dbpedia.org/sparql");
     static String endpoint = dbpedia.getEndpoint();
     static ArrayList<VariableSet> predicates;
     static ArrayList<VariableSet> predicatesTriples;

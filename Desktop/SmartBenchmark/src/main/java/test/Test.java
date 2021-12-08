@@ -17,7 +17,7 @@ public class Test {
 
     public static void main(String[] args) {
         //Define KG
-        DBpedia dbpedia = DBpedia.getInstance("https://dbpedia.org/sparql");
+        DBpedia dbpedia = (DBpedia) DBpedia.getInstance("https://dbpedia.org/sparql");
 
         //Generate a subgraph with specific shape
 //        String seed = "<http://dbpedia.org/resource/Galileo_Galilei> ";

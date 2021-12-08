@@ -17,12 +17,13 @@ public class DBpediaExplorer extends Explorer {
 
     private static int numberOfNLExamples = 100;
     private static int minContextWeight = 20;
-    int counter =0;
+    int counter = 0;
 
     private DBpediaExplorer(String url) {
         super();
         kg = DBpedia.getInstance(url);
         endpoint = kg.getEndpoint();
+        Database.connect();
     }
 
     public static DBpediaExplorer getInstance(String url) {
@@ -42,12 +43,12 @@ public class DBpediaExplorer extends Explorer {
         int predicatesSizeNew = 1;
 
         do {
-            predicatesSizeOld = predicatesVariableSet.size();
-            getPredicateList(from, length);
-            predicatesSizeNew = predicatesVariableSet.size();
-            from += length;
-            System.out.println("Predicates size = " + predicatesSizeNew);
-            System.out.println(predicatesVariableSet.toString());
+        predicatesSizeOld = predicatesVariableSet.size();
+        getPredicateList(from, length);
+        predicatesSizeNew = predicatesVariableSet.size();
+        from += length;
+        System.out.println("Predicates size = " + predicatesSizeNew);
+        System.out.println(predicatesVariableSet.toString());
         } while (predicatesSizeNew > predicatesSizeOld);
         System.out.println("Predicates size = " + predicatesSizeNew);
         System.out.println(predicatesVariableSet.toString());
@@ -58,23 +59,37 @@ public class DBpediaExplorer extends Explorer {
         ListOfPredicates predicates = new ListOfPredicates(predicateList);
 
         for (VariableSet predicate : predicatesVariableSet) {
-            System.out.println("###################"+ ++counter +": New Predicate: " + predicate.toString().trim() + " ################### ");
-            predicateObject.setPredicateURI(predicate.toString().trim());
-            predicateObject.setPredicate(removePrefix(predicate.toString().trim()));
-            predicateObject.setLabel(getPredicateLabel(predicate.toString().trim()));
+            System.out.println("###################" + ++counter + ": New Predicate: " + predicate.toString().trim() + " ################### ");
+
+            String uri = predicate.toString().trim();
+            String predi = removePrefix(predicate.toString().trim());
+            String lab = getPredicateLabel(predicate.toString().trim());
+
             contexts = getPredicatesContext("<" + predicate.toString().trim() + ">");
             for (PredicateContext context : contexts) {
+                predicateObject = new Predicate(this);
+                predicateObject.setPredicateURI(uri);
+                predicateObject.setPredicate(predi);
+                predicateObject.setLabel(lab);
+
 //                predicateObject.setTripleExamples(getOneTripleExample(predicate.toString().trim(),
 //                        context.getSubjectType(), context.getObjectType(), predicateObject.getLabel(), numberOfNLExamples));
                 predicateObject.setPredicateContext(context);
                 predicateObject.print();
                 predicates.getPredicates().add(predicateObject);
+                try{
+                Database.storePredicates(predicateObject);
+                }
+                catch(Exception e)
+                {
+                    System.out.println("XXXXXXXXXX NOT SOTRED XXXXXXXXXXXXX");
+                }
             }
 
         }
+
         
-        Database.storePredicates(predicateList);
-        
+
         predicates.setPredicates(predicateList);
         return predicates;
     }
@@ -92,7 +107,7 @@ public class DBpediaExplorer extends Explorer {
 
         //Remove duplicates
         predicatesVariableSet = new ArrayList<>(new HashSet<>(predicatesVariableSet));
-        
+
         //get predicates where the object is number
         //get predicates where the object is date
         //..
@@ -157,7 +172,7 @@ public class DBpediaExplorer extends Explorer {
         }
     }
 
-    private ArrayList<PredicateTripleExample> getOneTripleExample(String predicate, String sType, String oType, String lable, int noOfExamples) {
+    public ArrayList<PredicateTripleExample> getOneTripleExample(String predicate, String sType, String oType, String lable, int noOfExamples) {
         String query = "";
         ArrayList<PredicateTripleExample> predicateTriples = predicateTriples = new ArrayList<>();
         try {
@@ -275,7 +290,7 @@ public class DBpediaExplorer extends Explorer {
         predicatesTriplesVarSets = kg.runQuery(query);
         //remove duplicates as sometimes Distinct does not work in the KGMS
         predicatesTriplesVarSets = new ArrayList<>(new HashSet<>(predicatesTriplesVarSets));
-        
+
         ArrayList<PredicateContext> predicateContexts = new ArrayList<>();
         for (VariableSet predicate : predicatesTriplesVarSets) {
             String stype = predicate.getVariables().get(0).getValueWithPrefix();
@@ -339,4 +354,3 @@ public class DBpediaExplorer extends Explorer {
     }
 
 }
-    
