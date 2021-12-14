@@ -3,6 +3,7 @@ package offLine.kg_explorer.explorer;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -23,6 +24,7 @@ import offLine.kg_explorer.model.Predicate_NLP_Representation;
 public class Database {
 
     static Statement st = null;
+    static Connection con;
     static boolean connected = false;
 
     public static Statement connect() {
@@ -35,7 +37,7 @@ public class Database {
         String password = "admin";
 
         try {
-            Connection con = DriverManager.getConnection(url, user, password);
+            con = DriverManager.getConnection(url, user, password);
 
             st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT VERSION()");
@@ -77,7 +79,7 @@ public class Database {
             String sql = "SELECT *\n"
                     + "FROM \"Predicates\"\n"
                     + "WHERE \"processed\" is NULL "
-                    + "ORDER BY \"ContextWeight\" DESC;";
+                    + "ORDER BY \"URI\", \"Context_Subject\", \"Context_Object\";";
 
             ResultSet result = st.executeQuery(sql);
             Predicate p;
@@ -94,17 +96,20 @@ public class Database {
         } catch (SQLException ex) {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         }
+        System.out.println("Predicate List Size = " + predicates.size());
+        System.out.println("==============================================");
         return predicates;
     }
 
-    public static boolean storePredicates_NLP_Representation(Predicate predicate, ArrayList<PredicateTripleExample> examples) {
+    public static boolean storePredicates_NLP_Representation(Predicate predicate, ArrayList<PredicateTripleExample> examples) throws IOException {
         connect();
-        try {
-            String sql = "";
-            System.out.println(predicate.toString());
-            for (PredicateTripleExample example : examples) {
-                
-                for (Predicate_NLP_Representation nlp : example.getNlsSuggestionsObjects()) {
+        String sql = "";
+
+        System.out.println(predicate.toString());
+        for (PredicateTripleExample example : examples) {
+
+            for (Predicate_NLP_Representation nlp : example.getNlsSuggestionsObjects()) {
+                try {
                     System.out.println("'" + predicate.getPredicateURI() + "',"
                             + "'" + predicate.getPredicateContext().getSubjectType() + "',"
                             + "'" + predicate.getPredicateContext().getObjectType() + "',"
@@ -113,38 +118,138 @@ public class Database {
                             + "'" + nlp.getSentence() + "',"
                             + "'" + nlp.getPattern() + "',"
                             + "'" + nlp.getReducedPattern() + "'");
-                    
-                    sql += "INSERT INTO \"NLP_Representation\" (\"URI\", \"ContextSubject\", \"ContextObject\", "
+
+                    sql = "INSERT INTO \"NLP_Representation\" (\"URI\", \"ContextSubject\", \"ContextObject\", "
                             + "\"TripleExampleSubject\", \"TripleExampleObject\", \"Sentence\", "
                             + "\"Pattern\", \"ReducedPattern\")\n"
-                            + "VALUES( '" + predicate.getPredicateURI() + "',"
-                            + "'" + predicate.getPredicateContext().getSubjectType() + "',"
-                            + "'" + predicate.getPredicateContext().getObjectType() + "',"
-                            + "'" + example.getSubjectURI() + "',"
-                            + "'" + example.getObjectURI() + "',"
-                            + "'" + nlp.getSentence() + "',"
-                            + "'" + nlp.getPattern() + "',"
-                            + "'" + nlp.getReducedPattern() + "'"
-                            + " )"
-                            + "; \n";
+                            + "VALUES(?,?,?,?,?,?,?,?);";
+                    PreparedStatement preparedStatement = con.prepareStatement(sql);
+
+                    preparedStatement.setString(1, predicate.getPredicateURI());
+                    preparedStatement.setString(2, predicate.getPredicateContext().getSubjectType());
+                    preparedStatement.setString(3, predicate.getPredicateContext().getObjectType());
+                    preparedStatement.setString(4, example.getSubjectURI());
+                    preparedStatement.setString(5, example.getObjectURI());
+                    preparedStatement.setString(6, nlp.getSentence().replace("'", "''"));
+                    preparedStatement.setString(7, nlp.getPattern().replace("'", "''"));
+                    preparedStatement.setString(8, nlp.getReducedPattern().replace("'", "''"));
+
+                    preparedStatement.executeUpdate();
+                } catch (SQLException ex) {
+                    System.out.println(sql);
+                    Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
                 }
+
             }
-            
-            sql += "UPDATE \"Predicates\" SET"
-                    + "\"processed\" = 'YES'\n"
-                    + "WHERE "
-                    + "\"URI\" = '"+predicate.getPredicateURI()+"' AND"
-                    + "\"Context_Subject\" = '"+predicate.getPredicateContext().getSubjectType()+"' AND"
-                    + "\"Context_Object\" = '"+predicate.getPredicateContext().getObjectType()+"';";
-            
-            st.executeUpdate(sql);
-            return true;
+        }
+        sql = "UPDATE \"Predicates\" SET "
+                + "\"processed\" = 'YES'\n "
+                + "WHERE "
+                + "\"URI\" = ? AND "
+                + "\"Context_Subject\" = ? AND "
+                + "\"Context_Object\" = ?;";
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = con.prepareStatement(sql);
+            preparedStatement.setString(1, predicate.getPredicateURI());
+            preparedStatement.setString(2, predicate.getPredicateContext().getSubjectType());
+            preparedStatement.setString(3, predicate.getPredicateContext().getObjectType());
+
+            preparedStatement.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
+        }
+
+        return true;
+    }
+
+    public static ArrayList<Predicate> getVerbPrepositionLabels() {
+        connect();
+        ArrayList<Predicate> predicates = new ArrayList<>();
+        try {
+            String sql = "SELECT *\n"
+                    + "FROM public.\"Predicates\" \n"
+                    + "WHERE (\"Label\" ~*  '.*\\s(above|across|against|along|among|around|at\n"
+                    + "	   |before|behind|below|beneath|beside|between|by|down|from|in\n"
+                    + "	   |into|near|on|to|toward|under|upon|with|within)$')\n"
+                    + "ORDER BY \"URI\", \"Context_Subject\", \"Context_Object\";";
+
+            ResultSet result = st.executeQuery(sql);
+            Predicate p;
+            while (result.next()) {
+                p = new Predicate(Explorer.instance);
+                p.setPredicateURI(result.getString("URI"));
+                p.setLabel(result.getString("Label"));
+                p.setPredicateContext(new PredicateContext(
+                        result.getString("Context_Subject"),
+                        result.getString("Context_Object"),
+                        (int) result.getDouble("ContextWeight")));
+                predicates.add(p);
+            }
+        } catch (SQLException ex) {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return false;
+        System.out.println("Predicate List Size = " + predicates.size());
+        System.out.println("==============================================");
+        return predicates;
+    }
+
+    public static boolean storePredicates_VP(String table, Predicate predicate, String vp, int confidence, double labelSimilarity) throws IOException {
+        System.out.println("storePredicates_VP: "+ predicate.getLabel());
+        connect();
+        String sql = "";
+
+        System.out.println(predicate.toString());
+        try {
+            sql = "INSERT INTO \""+table+"\" (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", "
+                    + "\"VP\", \"labelSimilarity\", \"confidence\")\n"
+                    + "VALUES(?,?,?,?,?,?)"
+                    + " ON CONFLICT (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", \"VP\") DO NOTHING;";
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
+
+            preparedStatement.setString(1, predicate.getPredicateURI());
+            preparedStatement.setString(2, predicate.getPredicateContext().getSubjectType());
+            preparedStatement.setString(3, predicate.getPredicateContext().getObjectType());
+            preparedStatement.setString(4, vp);
+            preparedStatement.setDouble(5, labelSimilarity);
+            preparedStatement.setInt(6, confidence);
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println(sql);
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return true;
+    }
+    
+    public static boolean storePredicates_NP(String table, Predicate predicate, String np, int confidence, double labelSimilarity) throws IOException {
+        System.out.println("storePredicates_NP: "+ predicate.getLabel());
+        connect();
+        String sql = "";
+
+        System.out.println(predicate.toString());
+        try {
+            sql = "INSERT INTO \""+table+"\" (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", "
+                    + "\"NP\", \"labelSimilarity\", \"confidence\")\n"
+                    + "VALUES(?,?,?,?,?,?)"
+                    + " ON CONFLICT (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", \"NP\") DO NOTHING;";
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
+
+            preparedStatement.setString(1, predicate.getPredicateURI());
+            preparedStatement.setString(2, predicate.getPredicateContext().getSubjectType());
+            preparedStatement.setString(3, predicate.getPredicateContext().getObjectType());
+            preparedStatement.setString(4, np);
+            preparedStatement.setDouble(5, labelSimilarity);
+            preparedStatement.setInt(6, confidence);
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println(sql);
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return true;
     }
 
     public static void main(String[] args) {

@@ -16,19 +16,21 @@ public class NLP {
         sentence = removeHyphenedPhrases(sentence);
         sentence = removeParenthesesPhrases(sentence);
         sentence = removeRefrence(sentence);
-        sentence = removeBeforeSubjectAfterObject(sentence);
+//        sentence = removeBeforeSubjectAfterObject(sentence);
 
         sentence = sentence.replace(sType, "sssss");
         sentence = sentence.replace(oType, "ooooo");
         boolean s_o_direction = sentence.indexOf("sssss") < sentence.indexOf("ooooo");
 
-        sentence = sentence.replace("sssss", "");
-        sentence = sentence.replace("ooooo", "");
+//        sentence = sentence.replace("sssss", "");
+//        sentence = sentence.replace("ooooo", "");
 
 //        String sentenceVP = chunkerExample.get_only_VP(sentence);
         ArrayList<Phrase> vps = chunkerExample.firstANDlast_VP_PP(sentence, label, s_o_direction);
         String sentenceVP = "";
         for (Phrase vp : vps) {
+            if(vp==null)
+                continue;
             sentenceVP = "vp_";
             if(vp.getDirection()==Phrase.S_O)
                 sentenceVP += "s_o:";
@@ -44,8 +46,8 @@ public class NLP {
                 || sentenceVP.toLowerCase().replace("--", "").trim().equals("are")
                 || sentenceVP.toLowerCase().replace("--", "").trim().equals("was")
                 || sentenceVP.toLowerCase().replace("--", "").trim().equals("were") //                || !sentenceVP.trim().equals(sentence.trim())
-                || sentenceVP.toLowerCase().replace("--", "").trim().equals("s_o:")
-                || sentenceVP.toLowerCase().replace("--", "").trim().equals("o_s:")) {
+                || sentenceVP.toLowerCase().replace("--", "").trim().equals("vp_s_o:")
+                || sentenceVP.toLowerCase().replace("--", "").trim().equals("vp_o_s:")) {
             sentenceVP = "";
         }
 

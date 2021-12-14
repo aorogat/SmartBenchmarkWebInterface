@@ -35,6 +35,7 @@ public class PredicateTripleExample {
         this.explorer = explorer;
         this.predicateLabel = predicateLabel;
         try {
+            System.out.println(subjectURI + "\t" + objectURI + "\t" + predicateLabel + "\t");
             nlsSuggestions.addAll(Wikipedia.getNLSentences(subject, object, true)); // add sentences from subject page
             nlsSuggestions.addAll(Wikipedia.getNLSentences(subject, object, false)); // add sentences from object page
             //Remove Duplicates

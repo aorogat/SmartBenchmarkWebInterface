@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.*;
 
 public class Chuncker {
 
@@ -110,11 +111,23 @@ public class Chuncker {
         String replace;
         replace = sentence.replace("sssss", "");
         replace = replace.replace("ooooo", "");
-        if (replace.trim().matches("is the ([a-zA-Z])+ of")) {
-            return replace;
-        } else {
-            return "";
-        }
+        String np;
+
+        String pattern = "(?i)is\\s+the\\s+(\\w+)\\s+of";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(replace);
+        if(m.find())
+            return m.group(1);
+        return null;
+//        while (m.find()) {
+//            System.out.println("Found value: " + m.group(0));
+//        }
+//
+//        if (replace.trim().matches(".*(is|are) the (\\w)+ of.*")) {
+//            return replace;
+//        } else {
+//            return "";
+//        }
     }
 
     public String last_VP_PP(String sentence) {
@@ -177,7 +190,7 @@ public class Chuncker {
                 } else {
                     firstVP = firstVP + "(" + PhraseSimilarity.similarity(label, firstVP) + ")";
                     verbPhraseFirst.labelSimilarity = PhraseSimilarity.similarity(label, firstVP);
-                    
+
                     if (s_o_direction) {
                         firstVP = "vp_s_o:" + firstVP;
                         verbPhraseFirst.direction = Phrase.S_O;
@@ -192,23 +205,10 @@ public class Chuncker {
                 Logger.getLogger(Chuncker.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        if(!"".equals(firstVP))
-            verb_phrasess.add(verbPhraseFirst); 
+        if (!"".equals(firstVP)) {
+            verb_phrasess.add(verbPhraseFirst);
+        }
 
-//        if (firstVP == null
-//                || firstVP.toLowerCase().trim().length() < 4
-//                || firstVP.toLowerCase().trim().equals("is_verb")
-//                || firstVP.toLowerCase().trim().equals("are_verb")
-//                || firstVP.toLowerCase().trim().equals("was_verb")
-//                || firstVP.toLowerCase().trim().equals("were_verb")) {
-////            firstVP = "";
-//        } else {
-//            if (s_o_direction) {
-//                firstVP = "vp_s_o:" + firstVP;
-//            } else {
-//                firstVP = "vp_o_s:" + firstVP;
-//            }
-//        }
         String lastVP = null;
         Phrase verbPhraseLast = new Phrase();
         if (VP_counter > 1) {
@@ -241,44 +241,12 @@ public class Chuncker {
                 Logger.getLogger(Chuncker.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        if(!"".equals(lastVP))
+        if (!"".equals(lastVP)) {
             verb_phrasess.add(verbPhraseLast);
+        }
 
-//        if (lastVP == null
-//                || lastVP.toLowerCase().trim().length() < 4
-//                || lastVP.toLowerCase().trim().equals("is_verb")
-//                || lastVP.toLowerCase().trim().equals("are_verb")
-//                || lastVP.toLowerCase().trim().equals("was_verb")
-//                || lastVP.toLowerCase().trim().equals("were_verb")) {
-////            lastVP = "";
-//        } else {
-//            if (s_o_direction) {
-//                lastVP = "vp_s_o:" + lastVP;
-//            } else {
-//                lastVP = "vp_o_s:" + lastVP;
-//            }
-//        }
-
-
-//        if (firstVP == null) {
-//            firstVP = "";
-//        }
-//        if (lastVP == null) {
-//            lastVP = "";
-//        }
-//        if ("".equals(firstVP) && "".equals(lastVP)) {
-//            return "";
-//        }
-//        if ("".equals(firstVP)) {
-//            return lastVP;
-//        }
-//        if ("".equals(lastVP)) {
-//            return firstVP;
-//        }
 //        return firstVP + "--" + lastVP;
-//                + "--";
-
-    return verb_phrasess;
+        return verb_phrasess;
     }
 
     public static void main(String[] args) throws IOException {
