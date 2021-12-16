@@ -11,7 +11,7 @@ public class Phrase {
     public final static byte VP = 1;
     public final static byte NP = 2;
     
-    
+    String sentence;
     String verbPhrase; //e.g., flows into
     String baseVerbForm; //e.g., flow
     double labelSimilarity; //e.g., "flows into" similarity with "river mouth" is 3.9
@@ -57,6 +57,15 @@ public class Phrase {
     public void setType(byte type) {
         this.type = type;
     }
+
+    public String getSentence() {
+        return sentence;
+    }
+
+    public void setSentence(String sentence) {
+        this.sentence = sentence;
+    }
+    
     
     
     

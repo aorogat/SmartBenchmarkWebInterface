@@ -13,6 +13,7 @@ import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.*;
@@ -116,9 +117,10 @@ public class Chuncker {
         String pattern = "(?i)is\\s+the\\s+(\\w+)\\s+of";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(replace);
-        if(m.find())
+        if (m.find()) {
             return m.group(1);
-        return null;
+        }
+        return "";
 //        while (m.find()) {
 //            System.out.println("Found value: " + m.group(0));
 //        }
@@ -172,30 +174,53 @@ public class Chuncker {
         String s = "";
         Map<String, String> phrases = combineSimplePhrases(tokens, chunker_tags);
 
-        String firstVP = null;
+        String currentVP = null;
         Phrase verbPhraseFirst = new Phrase();
-        if (VP_counter > 0) {
+        int last = VP_counter;
+        for (int i = 1; i <= last; i++) {
             try {
-                firstVP = phrases.get("VP1").trim();
-                verbPhraseFirst.verbPhrase = firstVP;
+                verbPhraseFirst = new Phrase();
+                currentVP = phrases.get("VP" + i).trim();
+                verbPhraseFirst.verbPhrase = currentVP;
                 verbPhraseFirst.type = Phrase.VP;
-                if (firstVP == null
-                        || firstVP.toLowerCase().trim().length() < 4
-                        || firstVP.toLowerCase().trim().equals("is_verb")
-                        || firstVP.toLowerCase().trim().equals("are_verb")
-                        || firstVP.toLowerCase().trim().equals("was_verb")
-                        || firstVP.toLowerCase().trim().equals("were_verb")) {
-                    firstVP = "";
-                    verbPhraseFirst.verbPhrase = firstVP;
+                if (currentVP == null
+                        || currentVP.toLowerCase().trim().length() < 4
+                        || currentVP.toLowerCase().trim().equals("is_verb")
+                        || currentVP.toLowerCase().trim().equals("are_verb")
+                        || currentVP.toLowerCase().trim().equals("was_verb")
+                        || currentVP.toLowerCase().trim().equals("were_verb")
+                        || currentVP.toLowerCase().trim().equals("s")
+                        || currentVP.toLowerCase().trim().contains("ooooo")
+                        || currentVP.toLowerCase().trim().contains("sssss")
+                        || currentVP.toLowerCase().trim().contains("{")
+                        || currentVP.toLowerCase().trim().contains("}")
+                        || currentVP.toLowerCase().trim().contains("[")
+                        || currentVP.toLowerCase().trim().contains("]")
+                        || currentVP.toLowerCase().trim().contains(":")) {
+                    currentVP = "";
+                    verbPhraseFirst.verbPhrase = currentVP;
                 } else {
-                    firstVP = firstVP + "(" + PhraseSimilarity.similarity(label, firstVP) + ")";
-                    verbPhraseFirst.labelSimilarity = PhraseSimilarity.similarity(label, firstVP);
+                    //Get similarity
+                    double sim = BasicNLP_FromPython.similarity(label, currentVP);
+//                    currentVP = currentVP + "(" + sim + ")";
+                    verbPhraseFirst.labelSimilarity = sim;
+                    
+                    //Get verb base form
+                    String lastVerb = "";
+                    String sc = "";
+                    StringTokenizer tokenizer = new StringTokenizer(currentVP);
+                    while (tokenizer.hasMoreTokens()) {   
+                        sc = tokenizer.nextToken();
+                        if(sc.toLowerCase().contains("_verb"))
+                            lastVerb = sc;
+                    }
+                    verbPhraseFirst.baseVerbForm = BasicNLP_FromPython.vaseVerb(lastVerb.toLowerCase().replace("_verb", ""));
 
                     if (s_o_direction) {
-                        firstVP = "vp_s_o:" + firstVP;
+                        currentVP = "vp_s_o:" + currentVP;
                         verbPhraseFirst.direction = Phrase.S_O;
                     } else {
-                        firstVP = "vp_o_s:" + firstVP;
+                        currentVP = "vp_o_s:" + currentVP;
                         verbPhraseFirst.direction = Phrase.O_S;
                     }
                 }
@@ -204,48 +229,12 @@ public class Chuncker {
             } catch (IOException ex) {
                 Logger.getLogger(Chuncker.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
-        if (!"".equals(firstVP)) {
-            verb_phrasess.add(verbPhraseFirst);
-        }
 
-        String lastVP = null;
-        Phrase verbPhraseLast = new Phrase();
-        if (VP_counter > 1) {
-            try {
-                lastVP = phrases.get("VP" + VP_counter).trim();
-                verbPhraseLast.verbPhrase = lastVP;
-                verbPhraseLast.type = Phrase.VP;
-                if (lastVP == null
-                        || lastVP.toLowerCase().trim().length() < 4
-                        || lastVP.toLowerCase().trim().equals("is_verb")
-                        || lastVP.toLowerCase().trim().equals("are_verb")
-                        || lastVP.toLowerCase().trim().equals("was_verb")
-                        || lastVP.toLowerCase().trim().equals("were_verb")) {
-                    lastVP = "";
-                    verbPhraseLast.verbPhrase = lastVP;
-                } else {
-                    lastVP = lastVP + "(" + PhraseSimilarity.similarity(label, lastVP) + ")";
-                    verbPhraseLast.labelSimilarity = PhraseSimilarity.similarity(label, lastVP);
-                    if (s_o_direction) {
-                        lastVP = "vp_s_o:" + lastVP;
-                        verbPhraseLast.direction = Phrase.S_O;
-                    } else {
-                        lastVP = "vp_o_s:" + lastVP;
-                        verbPhraseLast.direction = Phrase.O_S;
-                    }
-                }
-            } catch (ProtocolException ex) {
-                Logger.getLogger(Chuncker.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(Chuncker.class.getName()).log(Level.SEVERE, null, ex);
+            if (!"".equals(currentVP)) {
+                verb_phrasess.add(verbPhraseFirst);
             }
         }
-        if (!"".equals(lastVP)) {
-            verb_phrasess.add(verbPhraseLast);
-        }
 
-//        return firstVP + "--" + lastVP;
         return verb_phrasess;
     }
 

@@ -15,6 +15,7 @@ public class Predicate {
     private long weight;
     private List<PredicateTripleExample> tripleExamples = new ArrayList<>();
     private Explorer explorer;
+    private String NLPattern; //replicate for each predicate
     //Predicate Context
     private PredicateContext predicateContext;
     
@@ -88,6 +89,16 @@ public class Predicate {
                     "\t"+getTripleExamples().toString());
         
     }
+
+    public String getNLPattern() {
+        return NLPattern;
+    }
+
+    public void setNLPattern(String NLPattern) {
+        this.NLPattern = NLPattern;
+    }
+    
+    
     
     
 }

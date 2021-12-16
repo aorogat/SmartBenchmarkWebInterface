@@ -9,7 +9,8 @@ public class NLP {
 
     static Chuncker chunkerExample;
 
-    public static String summarySentence(String sentence, String label, String sType, String oType) throws IOException {
+    public static ArrayList<Phrase> summarySentence(String sentence, String label, String sType, String oType) throws IOException {
+        String sourceSentence = sentence;
         if (chunkerExample == null) {
             chunkerExample = new Chuncker();
         }
@@ -24,59 +25,62 @@ public class NLP {
 
 //        sentence = sentence.replace("sssss", "");
 //        sentence = sentence.replace("ooooo", "");
-
 //        String sentenceVP = chunkerExample.get_only_VP(sentence);
         ArrayList<Phrase> vps = chunkerExample.firstANDlast_VP_PP(sentence, label, s_o_direction);
         String sentenceVP = "";
         for (Phrase vp : vps) {
-            if(vp==null)
+            vp.setSentence(sourceSentence);
+            if (vp == null) {
                 continue;
-            sentenceVP = "vp_";
-            if(vp.getDirection()==Phrase.S_O)
+            }
+            sentenceVP += "vp_";
+            if (vp.getDirection() == Phrase.S_O) {
                 sentenceVP += "s_o:";
-            else
+            } else {
                 sentenceVP += "o_s:";
-            sentenceVP += vp.getVerbPhrase() + "("+vp.getLabelSimilarity()+")";
+            }
+            sentenceVP += vp.getVerbPhrase() + "(" + vp.getLabelSimilarity() + ")";
+            sentenceVP += "[" + vp.getBaseVerbForm() + "]\t\t";
         }
 //        String sentenceVP = chunkerExample.firstANDlast_VP_PP(sentence, label, s_o_direction).toString();
 
-        if (sentenceVP == null
-                || sentenceVP.toLowerCase().replace("--", "").trim().length() < 4
-                || sentenceVP.toLowerCase().replace("--", "").trim().equals("is")
-                || sentenceVP.toLowerCase().replace("--", "").trim().equals("are")
-                || sentenceVP.toLowerCase().replace("--", "").trim().equals("was")
-                || sentenceVP.toLowerCase().replace("--", "").trim().equals("were") //                || !sentenceVP.trim().equals(sentence.trim())
-                || sentenceVP.toLowerCase().replace("--", "").trim().equals("vp_s_o:")
-                || sentenceVP.toLowerCase().replace("--", "").trim().equals("vp_o_s:")) {
-            sentenceVP = "";
-        }
-
-        sentenceVP = sentenceVP.trim();
-        
-        
-        
+//        if (sentenceVP == null
+//                || sentenceVP.toLowerCase().replace("--", "").trim().length() < 4
+//                || sentenceVP.toLowerCase().replace("--", "").trim().equals("is")
+//                || sentenceVP.toLowerCase().replace("--", "").trim().equals("are")
+//                || sentenceVP.toLowerCase().replace("--", "").trim().equals("was")
+//                || sentenceVP.toLowerCase().replace("--", "").trim().equals("were") //                || !sentenceVP.trim().equals(sentence.trim())
+//                || sentenceVP.toLowerCase().replace("--", "").trim().equals("vp_s_o:")
+//                || sentenceVP.toLowerCase().replace("--", "").trim().equals("vp_o_s:")) {
+//            sentenceVP = "";
+//        }
+//
+//        sentenceVP = sentenceVP.trim();
         //try NP
-        String sentenceNP = "";
-        if (sentenceVP.equals("")) {
-            sentenceNP = chunkerExample.get_only_NP(sentence);
-            if (s_o_direction) {
-                sentenceNP = "np_s_o:" + sentenceNP.replaceAll("\\_VERB", "").replaceAll("\\_NOUN", "");
-            } else {
-                sentenceNP = "np_o_s:" + sentenceNP.replaceAll("\\_VERB", "").replaceAll("\\_NOUN", "");
-            }
-            if (sentenceNP == null
-                    || sentenceNP.toLowerCase().replace("--", "").trim().length() < 4
-                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("is")
-                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("are")
-                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("was")
-                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("were") //                || !sentenceVP.trim().equals(sentence.trim())
-                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("np_s_o:")
-                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("np_o_s:")) {
-                sentenceNP = "";
-                return sentenceNP;
-            }
+//        String sentenceNP = "";
+//        if (sentenceVP.equals("")) {
+//            sentenceNP = chunkerExample.get_only_NP(sentence);
+//            if (s_o_direction) {
+//                sentenceNP = "np_s_o:" + sentenceNP.replaceAll("\\_VERB", "").replaceAll("\\_NOUN", "");
+//            } else {
+//                sentenceNP = "np_o_s:" + sentenceNP.replaceAll("\\_VERB", "").replaceAll("\\_NOUN", "");
+//            }
+//            if (sentenceNP == null
+//                    || sentenceNP.toLowerCase().replace("--", "").trim().length() < 4
+//                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("is")
+//                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("are")
+//                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("was")
+//                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("were") //                || !sentenceVP.trim().equals(sentence.trim())
+//                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("np_s_o:")
+//                    || sentenceNP.toLowerCase().replace("--", "").trim().equals("np_o_s:")) {
+//                sentenceNP = "";
+//                return sentenceNP;
+//            }
+        for (Phrase vp : vps) {
+            vp.setVerbPhrase(vp.getVerbPhrase().replaceAll("\\_VERB", "").replaceAll("\\_NOUN", "").replaceAll("\\_ADVP", ""));
         }
-        return sentenceVP.replaceAll("\\_VERB", "").replaceAll("\\_NOUN", "").replaceAll("\\_ADVP", "");
+        return vps;
+//        return sentenceVP.replaceAll("\\_VERB", "").replaceAll("\\_NOUN", "").replaceAll("\\_ADVP", "");
     }
 
     public static String removeHyphenedPhrases(String sentence) {

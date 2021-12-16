@@ -8,8 +8,10 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class PhraseSimilarity {
+public class BasicNLP_FromPython {
 
     public static void main(String[] args) throws IOException {
 //            similarity("river mouth", "flows into");
@@ -72,8 +74,29 @@ public class PhraseSimilarity {
         return similar;
     }
 
-    private static double similaritySimple(String w1, String w2) throws MalformedURLException, ProtocolException, IOException {
-        URL url = new URL("http://127.0.0.1:12311/similarity?word1="+w1+"&word2="+w2);
+    private static double similaritySimple(String w1, String w2) {
+        try {
+            URL url = new URL("http://127.0.0.1:12311/similarity?word1="+w1+"&word2="+w2);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer content = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+            in.close();
+            return Double.parseDouble(content.toString());
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(BasicNLP_FromPython.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(BasicNLP_FromPython.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 0;
+    }
+    
+    public static String vaseVerb(String w) throws MalformedURLException, ProtocolException, IOException {
+        URL url = new URL("http://127.0.0.1:12311/base?word="+w);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
@@ -83,6 +106,6 @@ public class PhraseSimilarity {
             content.append(inputLine);
         }
         in.close();
-        return Double.parseDouble(content.toString());
+        return content.toString();
     }
 }

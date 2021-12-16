@@ -16,6 +16,7 @@ import offLine.kg_explorer.model.Predicate;
 import offLine.kg_explorer.model.PredicateContext;
 import offLine.kg_explorer.model.PredicateTripleExample;
 import offLine.kg_explorer.model.Predicate_NLP_Representation;
+import online.nl_generation.chunking.Phrase;
 
 /**
  *
@@ -170,8 +171,8 @@ public class Database {
             String sql = "SELECT *\n"
                     + "FROM public.\"Predicates\" \n"
                     + "WHERE (\"Label\" ~*  '.*\\s(above|across|against|along|among|around|at\n"
-                    + "	   |before|behind|below|beneath|beside|between|by|down|from|in\n"
-                    + "	   |into|near|on|to|toward|under|upon|with|within)$')\n"
+                    + "	   |before|behind|below|beneath|beside|between|by|from|in\n"
+                    + "	   |into|near|on|to|toward|under|upon|with|within|of)$')\n"
                     + "ORDER BY \"URI\", \"Context_Subject\", \"Context_Object\";";
 
             ResultSet result = st.executeQuery(sql);
@@ -194,14 +195,44 @@ public class Database {
         return predicates;
     }
 
+    public static ArrayList<Predicate> getNLPatterns() {
+        connect();
+        ArrayList<Predicate> predicates = new ArrayList<>();
+        try {
+            String sql = "SELECT \"NLP_Representation\".\"URI\", \"NLP_Representation\".\"ContextSubject\", \"NLP_Representation\".\"ContextObject\", \"NLP_Representation\".\"Pattern\", \"Predicates\".\"Label\"\n"
+                    + "FROM public.\"NLP_Representation\" INNER JOIN \"Predicates\" ON(\"NLP_Representation\".\"URI\"=\"Predicates\".\"URI\" AND \n"
+                    + "														   \"NLP_Representation\".\"ContextSubject\"=\"Predicates\".\"Context_Subject\" AND\n"
+                    + "														   \"NLP_Representation\".\"ContextObject\"=\"Predicates\".\"Context_Object\")\n"
+                    + "ORDER BY \"URI\", \"ContextSubject\", \"ContextObject\";";
+
+            ResultSet result = st.executeQuery(sql);
+            Predicate p;
+            while (result.next()) {
+                p = new Predicate(Explorer.instance);
+                p.setPredicateURI(result.getString("URI"));
+                p.setLabel(result.getString("Label"));
+                p.setPredicateContext(new PredicateContext(
+                        result.getString("ContextSubject"),
+                        result.getString("ContextObject"), 0));
+                p.setNLPattern(result.getString("Pattern"));
+                predicates.add(p);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println("Predicate List Size = " + predicates.size());
+        System.out.println("==============================================");
+        return predicates;
+    }
+
     public static boolean storePredicates_VP(String table, Predicate predicate, String vp, int confidence, double labelSimilarity) throws IOException {
-        System.out.println("storePredicates_VP: "+ predicate.getLabel());
+        System.out.println("storePredicates_VP: " + predicate.getLabel());
         connect();
         String sql = "";
 
         System.out.println(predicate.toString());
         try {
-            sql = "INSERT INTO \""+table+"\" (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", "
+            sql = "INSERT INTO \"" + table + "\" (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", "
                     + "\"VP\", \"labelSimilarity\", \"confidence\")\n"
                     + "VALUES(?,?,?,?,?,?)"
                     + " ON CONFLICT (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", \"VP\") DO NOTHING;";
@@ -222,15 +253,15 @@ public class Database {
 
         return true;
     }
-    
+
     public static boolean storePredicates_NP(String table, Predicate predicate, String np, int confidence, double labelSimilarity) throws IOException {
-        System.out.println("storePredicates_NP: "+ predicate.getLabel());
+        System.out.println("storePredicates_NP: " + predicate.getLabel());
         connect();
         String sql = "";
 
         System.out.println(predicate.toString());
         try {
-            sql = "INSERT INTO \""+table+"\" (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", "
+            sql = "INSERT INTO \"" + table + "\" (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", "
                     + "\"NP\", \"labelSimilarity\", \"confidence\")\n"
                     + "VALUES(?,?,?,?,?,?)"
                     + " ON CONFLICT (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", \"NP\") DO NOTHING;";
@@ -242,6 +273,42 @@ public class Database {
             preparedStatement.setString(4, np);
             preparedStatement.setDouble(5, labelSimilarity);
             preparedStatement.setInt(6, confidence);
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println(sql);
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return true;
+    }
+    
+    
+    public static boolean storeNL_VP(Phrase phrase, Predicate predicate) throws IOException {
+        System.out.println("storeNL_VP: " + phrase.getVerbPhrase());
+        connect();
+        String sql = "";
+        String table = ""; 
+        
+        if(phrase.getDirection()==Phrase.S_O)
+            table = "VP_S_O";
+        else
+            table = "VP_O_S";
+
+        try {
+            sql = "INSERT INTO \"" + table + "\" (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", "
+                    + "\"VP\", \"labelSimilarity\", \"baseVerb\", \"sentence\")\n"
+                    + "VALUES(?,?,?,?,?,?,?)"
+                    + " ON CONFLICT (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", \"VP\") DO NOTHING;";
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
+
+            preparedStatement.setString(1, predicate.getPredicateURI());
+            preparedStatement.setString(2, predicate.getPredicateContext().getSubjectType());
+            preparedStatement.setString(3, predicate.getPredicateContext().getObjectType());
+            preparedStatement.setString(4, phrase.getVerbPhrase());
+            preparedStatement.setDouble(5, phrase.getLabelSimilarity());
+            preparedStatement.setString(6, phrase.getBaseVerbForm());
+            preparedStatement.setString(7, phrase.getSentence());
 
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
