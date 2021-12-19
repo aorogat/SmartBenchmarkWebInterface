@@ -16,9 +16,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import offLine.kg_explorer.explorer.DBpediaExplorer;
 import offLine.kg_explorer.explorer.Database;
+import offLine.kg_explorer.explorer.SPARQL;
 import offLine.kg_explorer.model.Predicate;
 import offLine.scrapping.wikipedia.NLP;
+import online.nl_generation.chunking.BasicNLP_FromPython;
 import online.nl_generation.chunking.Phrase;
+import settings.KG_Settings;
 
 /**
  *
@@ -26,7 +29,7 @@ import online.nl_generation.chunking.Phrase;
  */
 public class Predicate_Representation_Extractor {
 
-    static void fill_S_O() {
+    static void fill_from_Labels_VP_and_NP_S_O() {
         //From Labels: Any label can be a verb can be added.
         //1- Verbs end by a preposition (e.g., developed by, ...) if "for used, it is NP
         ArrayList<Predicate> predicates = Database.getVerbPrepositionLabels();
@@ -108,7 +111,7 @@ public class Predicate_Representation_Extractor {
         }
     }
 
-    static void fill_O_S() {
+    static void fill_from_Labels_VP_O_S() {
         //From Labels: Any label can be a verb can be added.
         //1- Verbs end by a preposition can be changed (e.g., developed by to developed)
         ArrayList<Predicate> predicates = Database.getVerbPrepositionLabels();
@@ -124,7 +127,7 @@ public class Predicate_Representation_Extractor {
         }
     }
 
-    static void fill_from_text_corpus() {
+    static void fill_from_text_corpus_VP() {
         ArrayList<Predicate> predicates = Database.getNLPatterns();
         ArrayList<Phrase> phrases = new ArrayList<>();
         for (Predicate predicate : predicates) {
@@ -134,17 +137,31 @@ public class Predicate_Representation_Extractor {
             System.out.print(predicate.getLabel() + "\t");
             System.out.print(predicate.getNLPattern() + "\n");
             try {
-                phrases = NLP.summarySentence(predicate.getNLPattern(),
+                phrases = NLP.getCandidatePhrases(predicate.getNLPattern(),
                         predicate.getLabel(),
-                        getType(predicate.getNLPattern(), "(\\[s\\{(.*?)\\}\\]?)"),
-                        getType(predicate.getNLPattern(), "(\\[o\\{.*\\}\\]?)"));
+                        getFirstRegularExMatch(predicate.getNLPattern(), "(\\[s\\{(.*?)\\}\\]?)"),
+                        getFirstRegularExMatch(predicate.getNLPattern(), "(\\[o\\{(.*?)\\}\\]?)"));
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
             for (Phrase phrase : phrases) {
+                phrase.setLabelSimilarity(BasicNLP_FromPython.phraseSimilarity(predicate.getLabel(), phrase.getPhrase()));
+                phrase.setSubjectSimilarity(
+                        BasicNLP_FromPython.phraseSimilarity(
+                                SPARQL.getPredicateLabel(KG_Settings.explorer, predicate.getPredicateContext().getSubjectType()), 
+                                phrase.getPhrase())
+                        );
+                phrase.setObjectSimilarity(
+                        BasicNLP_FromPython.phraseSimilarity(
+                                SPARQL.getPredicateLabel(KG_Settings.explorer, predicate.getPredicateContext().getObjectType()), 
+                                phrase.getPhrase())
+                        );
+                phrase.setObjectSimilarity(BasicNLP_FromPython.phraseSimilarity(predicate.getLabel(), phrase.getPhrase()));
                 try {
                     System.out.println(phrase.getSentence());
-                    System.out.println(phrase.getVerbPhrase() + "(" + phrase.getLabelSimilarity() + ")"
+                    System.out.println(phrase.getPhrase() + "(" + phrase.getLabelSimilarity() + ")"
+                            + "(" + phrase.getSubjectSimilarity() + ")"
+                                    + "(" + phrase.getObjectSimilarity() + ")"
                             + "(" + phrase.getBaseVerbForm() + ")");
                     Database.storeNL_VP(phrase, predicate);
                 } catch (IOException ex) {
@@ -155,10 +172,58 @@ public class Predicate_Representation_Extractor {
 
     }
 
-    private static String getType(String mydata, String reg) {
+    static void fill_from_text_corpus_NP() {
+        ArrayList<Predicate> predicates = Database.getNLPatterns();
+        for (Predicate predicate : predicates) {
+            System.out.print(predicate.getPredicateURI() + "\t");
+            System.out.print(predicate.getPredicateContext().getSubjectType() + "\t");
+            System.out.print(predicate.getPredicateContext().getObjectType() + "\t");
+            System.out.print(predicate.getLabel() + "\t");
+            System.out.print(predicate.getNLPattern() + "\n");
+            
+            String np = getFirstRegularExMatch(predicate.getNLPattern(), "((is|are|was|were)\\ (a|the|an)\\ (([a-z0-9]*(\\ )*){1,3})\\ (" + getVerbPrepositionsConcatenated("|") + "))");
+            if("".equals(np)||np==null)
+                continue;
+            
+            boolean s_o_direction = predicate.getNLPattern().indexOf("[s{") < predicate.getNLPattern().indexOf("[o{");
+            String subjectType = SPARQL.getPredicateLabel(KG_Settings.explorer, predicate.getPredicateContext().getSubjectType());
+            String objectType = SPARQL.getPredicateLabel(KG_Settings.explorer, predicate.getPredicateContext().getObjectType());
+            double labelSimilarity = BasicNLP_FromPython.phraseSimilarity(predicate.getLabel(), np);
+            double subjectSimilarity = BasicNLP_FromPython.phraseSimilarity(subjectType, np);
+            double objectSimilarity = BasicNLP_FromPython.phraseSimilarity(objectType, np);
+            
+            System.out.println();
+            System.out.println("");
+            
+            Phrase phrase = new Phrase();
+            phrase.setSentence(predicate.getNLPattern());
+            phrase.setPhrase(np);
+            phrase.setLabelSimilarity(labelSimilarity);
+            phrase.setSubjectSimilarity(subjectSimilarity);
+            phrase.setObjectSimilarity(objectSimilarity);
+            
+            if (s_o_direction) {
+                phrase.setDirection(Phrase.S_O);
+            } else {
+                phrase.setDirection(Phrase.O_S);
+            }
+            System.out.println(np + "\t" + predicate.getLabel() + "\t" + phrase.getLabelSimilarity());
+            System.out.println(np + "\t" + subjectType + "\t" + subjectSimilarity);
+            System.out.println(np + "\t" + objectType + "\t" + objectSimilarity);
+                try {
+                    if(!"".equals(phrase.getPhrase()))
+                        Database.storeNL_NP(phrase, predicate);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+        }
+
+    }
+
+    private static String getFirstRegularExMatch(String sentence, String reg) {
         String p = "";
         Pattern pattern = Pattern.compile(reg);
-        Matcher matcher = pattern.matcher(mydata);
+        Matcher matcher = pattern.matcher(sentence);
         if (matcher.find()) {
             p = matcher.group(1);
         }
@@ -166,9 +231,10 @@ public class Predicate_Representation_Extractor {
     }
 
     public static void main(String[] args) throws SQLException {
-        fill_S_O();
-        fill_O_S();
-        fill_from_text_corpus();
+//        fill_from_Labels_VP_and_NP_S_O();
+//        fill_from_Labels_VP_O_S();
+        fill_from_text_corpus_VP();
+//        fill_from_text_corpus_NP();
     }
 
     private static String wordPOS(String w) throws MalformedURLException, ProtocolException, IOException {
@@ -183,5 +249,35 @@ public class Predicate_Representation_Extractor {
         }
         in.close();
         return content.toString();
+    }
+
+    private static String getVerbPrepositionsConcatenated(String separator) {
+        return "above" + separator
+                + "across" + separator
+                + "about" + separator
+                + "of" + separator
+                + "for" + separator
+                + "against" + separator
+                + "along" + separator
+                + "among" + separator
+                + "around" + separator
+                + "at" + separator
+                + "before" + separator
+                + "behind" + separator
+                + "below" + separator
+                + "beneath" + separator
+                + "beside" + separator
+                + "between" + separator
+                + //                "by" + separator +
+                "in" + separator
+                + "into" + separator
+                + "near" + separator
+                + "on" + separator
+                + "to" + separator
+                + "toward" + separator
+                + "under" + separator
+                + "upon" + separator
+                + "with" + separator
+                + "within";
     }
 }

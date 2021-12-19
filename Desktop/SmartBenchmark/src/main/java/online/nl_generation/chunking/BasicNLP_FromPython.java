@@ -7,6 +7,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,6 +19,28 @@ public class BasicNLP_FromPython {
 //            similarity("river mouth", "flows into");
 //            similarity("flows to", "flows into");
               similarity("nationality", "was born on");
+    }
+    
+    public static double phraseSimilarity(String phrase1, String phrase2)
+    {
+        try {
+            URL url = new URL("http://127.0.0.1:12311/phraseSimilarity?phrase1="+ URLEncoder.encode(phrase1, StandardCharsets.UTF_8.toString())+"&phrase2="+URLEncoder.encode(phrase2, StandardCharsets.UTF_8.toString()));
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer content = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+            in.close();
+            return Double.parseDouble(content.toString());
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(BasicNLP_FromPython.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(BasicNLP_FromPython.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 0;
     }
     
     public static double similarity(String label, String predicateRepresentation) throws MalformedURLException, ProtocolException, IOException {

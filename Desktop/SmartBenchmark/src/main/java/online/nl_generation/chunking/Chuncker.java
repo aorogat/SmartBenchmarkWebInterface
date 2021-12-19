@@ -153,7 +153,7 @@ public class Chuncker {
         String s = "";
         Map<String, String> phrases = combineSimplePhrases(tokens, chunker_tags);
         if (phrases.isEmpty()) {
-            return null;
+            return "";
         }
         if (VP_counter > 0) {
             return phrases.get("VP1").replace("X_NOUN", "").replace("Y_NOUN", "").trim();
@@ -181,7 +181,7 @@ public class Chuncker {
             try {
                 verbPhraseFirst = new Phrase();
                 currentVP = phrases.get("VP" + i).trim();
-                verbPhraseFirst.verbPhrase = currentVP;
+                verbPhraseFirst.phrase = currentVP;
                 verbPhraseFirst.type = Phrase.VP;
                 if (currentVP == null
                         || currentVP.toLowerCase().trim().length() < 4
@@ -198,7 +198,7 @@ public class Chuncker {
                         || currentVP.toLowerCase().trim().contains("]")
                         || currentVP.toLowerCase().trim().contains(":")) {
                     currentVP = "";
-                    verbPhraseFirst.verbPhrase = currentVP;
+                    verbPhraseFirst.phrase = currentVP;
                 } else {
                     //Get similarity
                     double sim = BasicNLP_FromPython.similarity(label, currentVP);

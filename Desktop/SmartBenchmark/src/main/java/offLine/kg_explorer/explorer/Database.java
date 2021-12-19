@@ -79,7 +79,7 @@ public class Database {
         try {
             String sql = "SELECT *\n"
                     + "FROM \"Predicates\"\n"
-                    + "WHERE \"processed\" is NULL "
+//                    + "WHERE \"processed\" is NULL "
                     + "ORDER BY \"URI\", \"Context_Subject\", \"Context_Object\";";
 
             ResultSet result = st.executeQuery(sql);
@@ -203,6 +203,7 @@ public class Database {
                     + "FROM public.\"NLP_Representation\" INNER JOIN \"Predicates\" ON(\"NLP_Representation\".\"URI\"=\"Predicates\".\"URI\" AND \n"
                     + "														   \"NLP_Representation\".\"ContextSubject\"=\"Predicates\".\"Context_Subject\" AND\n"
                     + "														   \"NLP_Representation\".\"ContextObject\"=\"Predicates\".\"Context_Object\")\n"
+//                    + " WHERE \"NLP_Representation\".\"processed\" is null "
                     + "ORDER BY \"URI\", \"ContextSubject\", \"ContextObject\";";
 
             ResultSet result = st.executeQuery(sql);
@@ -233,9 +234,9 @@ public class Database {
         System.out.println(predicate.toString());
         try {
             sql = "INSERT INTO \"" + table + "\" (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", "
-                    + "\"VP\", \"labelSimilarity\", \"confidence\")\n"
-                    + "VALUES(?,?,?,?,?,?)"
-                    + " ON CONFLICT (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", \"VP\") DO NOTHING;";
+                    + "\"VP\", \"labelSimilarity\", \"confidence\", \"sentence\")\n"
+                    + "VALUES(?,?,?,?,?,?,?)"
+                    + " ON CONFLICT (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", \"VP\", \"sentence\") DO NOTHING;";
             PreparedStatement preparedStatement = con.prepareStatement(sql);
 
             preparedStatement.setString(1, predicate.getPredicateURI());
@@ -244,6 +245,7 @@ public class Database {
             preparedStatement.setString(4, vp);
             preparedStatement.setDouble(5, labelSimilarity);
             preparedStatement.setInt(6, confidence);
+            preparedStatement.setString(7, predicate.getLabel());
 
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
@@ -285,7 +287,7 @@ public class Database {
     
     
     public static boolean storeNL_VP(Phrase phrase, Predicate predicate) throws IOException {
-        System.out.println("storeNL_VP: " + phrase.getVerbPhrase());
+        System.out.println("storeNL_VP: " + phrase.getPhrase());
         connect();
         String sql = "";
         String table = ""; 
@@ -297,20 +299,41 @@ public class Database {
 
         try {
             sql = "INSERT INTO \"" + table + "\" (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", "
-                    + "\"VP\", \"labelSimilarity\", \"baseVerb\", \"sentence\")\n"
-                    + "VALUES(?,?,?,?,?,?,?)"
-                    + " ON CONFLICT (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", \"VP\") DO NOTHING;";
+                    + "\"VP\", \"labelSimilarity\", \"baseVerb\", \"sentence\", \"subjectSimilarity\", \"objectSimilarity\")\n"
+                    + "VALUES(?,?,?,?,?,?,?,?,?)"
+                    + " ON CONFLICT (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", \"VP\", \"sentence\") DO UPDATE\n" +
+                      "SET \"labelSimilarity\" = excluded.\"labelSimilarity\", "
+                    + "\"subjectSimilarity\" = excluded.\"subjectSimilarity\","
+                    + "\"objectSimilarity\" = excluded.\"objectSimilarity\";";
             PreparedStatement preparedStatement = con.prepareStatement(sql);
 
             preparedStatement.setString(1, predicate.getPredicateURI());
             preparedStatement.setString(2, predicate.getPredicateContext().getSubjectType());
             preparedStatement.setString(3, predicate.getPredicateContext().getObjectType());
-            preparedStatement.setString(4, phrase.getVerbPhrase());
+            preparedStatement.setString(4, phrase.getPhrase());
             preparedStatement.setDouble(5, phrase.getLabelSimilarity());
             preparedStatement.setString(6, phrase.getBaseVerbForm());
             preparedStatement.setString(7, phrase.getSentence());
+            preparedStatement.setDouble(8, phrase.getSubjectSimilarity());
+            preparedStatement.setDouble(9, phrase.getObjectSimilarity());
 
             preparedStatement.executeUpdate();
+            
+            
+            sql = "UPDATE \"NLP_Representation\" SET \"processed\" = 'YES'\n"
+                + "WHERE "
+                + "\"URI\" = ? AND "
+                + "\"ContextSubject\" = ? AND "
+                + "\"ContextObject\" = ? AND "
+                + "\"Pattern\" = ?;";
+            preparedStatement = con.prepareStatement(sql);
+
+            preparedStatement.setString(1, predicate.getPredicateURI());
+            preparedStatement.setString(2, predicate.getPredicateContext().getSubjectType());
+            preparedStatement.setString(3, predicate.getPredicateContext().getObjectType());
+            preparedStatement.setString(4, phrase.getSentence());
+            preparedStatement.executeUpdate();
+            
         } catch (SQLException ex) {
             System.out.println(sql);
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
@@ -319,6 +342,62 @@ public class Database {
         return true;
     }
 
+    
+    
+    public static boolean storeNL_NP(Phrase phrase, Predicate predicate) throws IOException {
+        System.out.println("storeNL_NP: " + phrase.getPhrase());
+        connect();
+        String sql = "";
+        String table = ""; 
+        
+        if(phrase.getDirection()==Phrase.S_O)
+            table = "NP_S_O";
+        else
+            table = "NP_O_S";
+
+        try {
+            sql = "INSERT INTO \"" + table + "\" (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", "
+                    + "\"NP\", \"labelSimilarity\", \"sentence\", \"subjectSimilarity\", \"objectSimilarity\")\n"
+                    + "VALUES(?,?,?,?,?,?,?,?)"
+                    + " ON CONFLICT (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", \"NP\", \"sentence\") DO NOTHING;";
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
+
+            preparedStatement.setString(1, predicate.getPredicateURI());
+            preparedStatement.setString(2, predicate.getPredicateContext().getSubjectType());
+            preparedStatement.setString(3, predicate.getPredicateContext().getObjectType());
+            preparedStatement.setString(4, phrase.getPhrase());
+            preparedStatement.setDouble(5, phrase.getLabelSimilarity());
+            preparedStatement.setString(6, phrase.getSentence());
+            preparedStatement.setDouble(7, phrase.getSubjectSimilarity());
+            preparedStatement.setDouble(8, phrase.getObjectSimilarity());
+
+            preparedStatement.executeUpdate();
+            
+            
+            sql = "UPDATE \"NLP_Representation\" SET \"processed\" = 'YES_ALL'\n"
+                + "WHERE "
+                + "\"URI\" = ? AND "
+                + "\"ContextSubject\" = ? AND "
+                + "\"ContextObject\" = ? AND "
+                + "\"Pattern\" = ?;";
+            preparedStatement = con.prepareStatement(sql);
+
+            preparedStatement.setString(1, predicate.getPredicateURI());
+            preparedStatement.setString(2, predicate.getPredicateContext().getSubjectType());
+            preparedStatement.setString(3, predicate.getPredicateContext().getObjectType());
+            preparedStatement.setString(4, phrase.getSentence());
+            preparedStatement.executeUpdate();
+            
+        } catch (SQLException ex) {
+            System.out.println(sql);
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return true;
+    }
+
+    
+    
     public static void main(String[] args) {
         connect();
     }

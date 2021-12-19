@@ -9,7 +9,7 @@ public class NLP {
 
     static Chuncker chunkerExample;
 
-    public static ArrayList<Phrase> summarySentence(String sentence, String label, String sType, String oType) throws IOException {
+    public static ArrayList<Phrase> getCandidatePhrases(String sentence, String label, String sType, String oType) throws IOException {
         String sourceSentence = sentence;
         if (chunkerExample == null) {
             chunkerExample = new Chuncker();
@@ -39,7 +39,7 @@ public class NLP {
             } else {
                 sentenceVP += "o_s:";
             }
-            sentenceVP += vp.getVerbPhrase() + "(" + vp.getLabelSimilarity() + ")";
+            sentenceVP += vp.getPhrase() + "(" + vp.getLabelSimilarity() + ")";
             sentenceVP += "[" + vp.getBaseVerbForm() + "]\t\t";
         }
 //        String sentenceVP = chunkerExample.firstANDlast_VP_PP(sentence, label, s_o_direction).toString();
@@ -76,10 +76,23 @@ public class NLP {
 //                sentenceNP = "";
 //                return sentenceNP;
 //            }
+        ArrayList<Phrase> modifiedPhrases = new ArrayList<>();
         for (Phrase vp : vps) {
-            vp.setVerbPhrase(vp.getVerbPhrase().replaceAll("\\_VERB", "").replaceAll("\\_NOUN", "").replaceAll("\\_ADVP", ""));
+            vp.setPhrase(vp.getPhrase().replaceAll("\\_VERB", "").replaceAll("\\_NOUN", "").replaceAll("\\_ADVP", ""));
+            if (vp.getPhrase() == null
+                    || vp.getPhrase().toLowerCase().replace("--", "").trim().length() < 4
+                    || vp.getPhrase().toLowerCase().replace("--", "").trim().equals("is")
+                    || vp.getPhrase().toLowerCase().replace("--", "").trim().equals("are")
+                    || vp.getPhrase().toLowerCase().replace("--", "").trim().equals("was")
+                    || vp.getPhrase().toLowerCase().replace("--", "").trim().equals("were") //                || !sentenceVP.trim().equals(sentence.trim())
+                    || vp.getPhrase().toLowerCase().replace("--", "").trim().equals("np_s_o:")
+                    || vp.getPhrase().toLowerCase().replace("--", "").trim().equals("np_o_s:")) {
+
+            }
+            else
+                modifiedPhrases.add(vp);
         }
-        return vps;
+        return modifiedPhrases;
 //        return sentenceVP.replaceAll("\\_VERB", "").replaceAll("\\_NOUN", "").replaceAll("\\_ADVP", "");
     }
 

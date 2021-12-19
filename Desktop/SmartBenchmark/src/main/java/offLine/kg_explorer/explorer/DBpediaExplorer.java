@@ -19,7 +19,7 @@ public class DBpediaExplorer extends Explorer {
     private static int minContextWeight = 20;
     int counter = 0;
 
-    private DBpediaExplorer(String url) {
+    public DBpediaExplorer(String url) {
         super();
         kg = DBpedia.getInstance(url);
         endpoint = kg.getEndpoint();
