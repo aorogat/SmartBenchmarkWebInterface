@@ -33,7 +33,7 @@ import org.xml.sax.InputSource;
 //Singleton Class
 public class DBpedia extends KnowledgeGraph {
 
-    private DBpedia(String endpoint) {
+    public DBpedia(String endpoint) {
         this.endpoint = endpoint;
     }
 
@@ -134,6 +134,18 @@ public class DBpedia extends KnowledgeGraph {
 
                 } catch (Exception e) {
                     //e.printStackTrace();
+                    try {
+                        VariableSet variableSet = new VariableSet();
+                        //Boolean
+                        if (json.getBoolean("boolean")) {
+                            variableSet.getVariables().add(new Variable("v", "true", "boolean"));
+                        } else {
+                            variableSet.getVariables().add(new Variable("v", "flase", "boolean"));
+                        }
+                        queryResult.add(variableSet);
+                    } catch (Exception et) {
+                        et.printStackTrace();
+                    }
                 }
             } catch (Exception ee) {
                 //ee.printStackTrace();

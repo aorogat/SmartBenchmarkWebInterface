@@ -16,7 +16,9 @@ import offLine.kg_explorer.model.Predicate;
 import offLine.kg_explorer.model.PredicateContext;
 import offLine.kg_explorer.model.PredicateTripleExample;
 import offLine.kg_explorer.model.Predicate_NLP_Representation;
+import offLine.scrapping.model.PredicateNLRepresentation;
 import online.nl_generation.chunking.Phrase;
+import settings.KG_Settings;
 
 /**
  *
@@ -73,6 +75,58 @@ public class Database {
         return false;
     }
 
+    
+    
+    public static ArrayList<PredicateNLRepresentation> getPredicatesNLRepresentationLexicon() {
+        connect();
+        ArrayList<PredicateNLRepresentation> predicatesNLRepresentations = new ArrayList<>();
+        try {
+            String sql = "SELECT *\n"
+                    + "FROM \"Lexicon\"\n"
+                    + "ORDER BY \"PredicateURI\", \"Context_Subject\", \"Context_Object\";";
+
+            ResultSet result = st.executeQuery(sql);
+            PredicateNLRepresentation p;
+            while (result.next()) {
+                p = new PredicateNLRepresentation(
+                        result.getString("PredicateURI"), 
+                        result.getString("Context_Subject"),
+                        result.getString("Context_Object"),
+                        result.getString("NP_S_O"),
+                        result.getString("VP_O_S"),
+                        result.getString("NP_O_S"),
+                        result.getString("VP_S_O")
+                );
+                predicatesNLRepresentations.add(p);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return predicatesNLRepresentations;
+    }
+
+            
+    public static ArrayList<Predicate> getAvailablePredicates() {
+        connect();
+        ArrayList<Predicate> predicates = new ArrayList<>();
+        try {
+            String sql = "SELECT DISTINCT \"PredicateURI\",\"Context_Subject\",\"Context_Object\"\n"
+                    + "FROM \"Lexicon\"\n";
+
+            ResultSet result = st.executeQuery(sql);
+            while (result.next()) {
+                Predicate predicate = new Predicate(KG_Settings.explorer);
+                predicate.setPredicateURI(result.getString("PredicateURI"));
+                predicate.setPredicateContext(new PredicateContext(result.getString("Context_Subject"), result.getString("Context_Object"), 0));
+                predicates.add(predicate);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return predicates;
+    }
+    
+            
     public static ArrayList<Predicate> getPredicates() {
         connect();
         ArrayList<Predicate> predicates = new ArrayList<>();
@@ -164,6 +218,8 @@ public class Database {
         return true;
     }
 
+    
+    
     public static ArrayList<Predicate> getVerbPrepositionLabels() {
         connect();
         ArrayList<Predicate> predicates = new ArrayList<>();
@@ -199,7 +255,11 @@ public class Database {
         connect();
         ArrayList<Predicate> predicates = new ArrayList<>();
         try {
-            String sql = "SELECT \"NLP_Representation\".\"URI\", \"NLP_Representation\".\"ContextSubject\", \"NLP_Representation\".\"ContextObject\", \"NLP_Representation\".\"Pattern\", \"Predicates\".\"Label\"\n"
+            String sql = "SELECT \"NLP_Representation\".\"URI\", "
+                    + "\"NLP_Representation\".\"ContextSubject\", "
+                    + "\"NLP_Representation\".\"ContextObject\", "
+                    + "\"NLP_Representation\".\"Pattern\", "
+                    + "\"Predicates\".\"Label\"\n"
                     + "FROM public.\"NLP_Representation\" INNER JOIN \"Predicates\" ON(\"NLP_Representation\".\"URI\"=\"Predicates\".\"URI\" AND \n"
                     + "														   \"NLP_Representation\".\"ContextSubject\"=\"Predicates\".\"Context_Subject\" AND\n"
                     + "														   \"NLP_Representation\".\"ContextObject\"=\"Predicates\".\"Context_Object\")\n"
@@ -224,6 +284,21 @@ public class Database {
         System.out.println("Predicate List Size = " + predicates.size());
         System.out.println("==============================================");
         return predicates;
+    }
+    
+    
+    
+    public static boolean populateLexicon() throws IOException {
+        try {
+            String sql = "REFRESH MATERIALIZED VIEW \"Lexicon\";";
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return true;
     }
 
     public static boolean storePredicates_VP(String table, Predicate predicate, String vp, int confidence, double labelSimilarity) throws IOException {

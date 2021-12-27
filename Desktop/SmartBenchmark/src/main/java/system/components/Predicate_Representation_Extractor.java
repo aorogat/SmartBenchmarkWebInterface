@@ -1,4 +1,4 @@
-package offLine.nlp;
+package system.components;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -230,11 +230,12 @@ public class Predicate_Representation_Extractor {
         return p;
     }
 
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws SQLException, IOException {
 //        fill_from_Labels_VP_and_NP_S_O();
 //        fill_from_Labels_VP_O_S();
-        fill_from_text_corpus_VP();
-//        fill_from_text_corpus_NP();
+//        fill_from_text_corpus_VP();
+        fill_from_text_corpus_NP();
+        Database.populateLexicon();
     }
 
     private static String wordPOS(String w) throws MalformedURLException, ProtocolException, IOException {

@@ -1,4 +1,4 @@
-package offLine.nlp;
+package system.components;
 
 /**
  *

@@ -18,16 +18,16 @@ public class StarQuestion {
 
     public static ArrayList<GeneratedQuestion> generateQuestions(StarGraph g) {
 
-        seed = g.getStar().get(0).getSource().getValue();
+        seed = g.getStar().get(0).getSubject().getValue();
 
         //get type - Fill starPredicates map
         for (TriplePattern triple : g.getStar()) {
-            String typeLabel = triple.getLabel().getValue();
-            String s = triple.getSource().getValue();
-            String o = triple.getDestination().getValue();
+            String typeLabel = triple.getPredicate().getValue();
+            String s = triple.getSubject().getValue();
+            String o = triple.getObject().getValue();
 
             if (typeLabel.equals("rdf:type") || typeLabel.equals("a")) {
-                type = triple.getDestination().getValue();
+                type = triple.getObject().getValue();
                 continue;
             }
             if (!starPredicates.containsKey(typeLabel)) {
@@ -57,8 +57,8 @@ public class StarQuestion {
 
     private static GeneratedQuestion generate_WithAnd_Question(StarGraph g, int questionType) {
         ArrayList<String> questionStrings = new ArrayList<>();
-        String seedValue = g.getStar().get(0).getSource().getValue();
-        String seedValueWithPrefix = g.getStar().get(0).getSource().getValueWithPrefix();
+        String seedValue = g.getStar().get(0).getSubject().getValue();
+        String seedValueWithPrefix = g.getStar().get(0).getSubject().getValueWithPrefix();
 
         //Construct the Question Strings
         switch (questionType) {
@@ -108,8 +108,8 @@ public class StarQuestion {
     }
 
     private static GeneratedQuestion generate_WithOr_Question(StarGraph g, int questionType) {
-        String seedValue = g.getStar().get(0).getSource().getValue();
-        String seedValueWithPrefix = g.getStar().get(0).getSource().getValueWithPrefix();
+        String seedValue = g.getStar().get(0).getSubject().getValue();
+        String seedValueWithPrefix = g.getStar().get(0).getSubject().getValueWithPrefix();
         Map<String, HashSet<String>> starPredicatesTriples = new HashMap<>();
         ArrayList<String> questionStrings = new ArrayList<>();
         String query = "";
@@ -139,8 +139,8 @@ public class StarQuestion {
         ArrayList<TriplePattern> star = g.getStar();
 
         for (TriplePattern triple : star) {
-            String typeLabel = triple.getLabel().getValueWithPrefix();
-            String s = triple.getSource().getValueWithPrefix();
+            String typeLabel = triple.getPredicate().getValueWithPrefix();
+            String s = triple.getSubject().getValueWithPrefix();
             String tripleString = triple.toQueryTriplePattern();
             if (!starPredicatesTriples.containsKey(typeLabel)) {
                 HashSet<String> objects = new HashSet<>();

@@ -5,12 +5,14 @@ import java.util.HashSet;
 import offLine.kg_explorer.model.PredicateContext;
 import offLine.kg_explorer.model.PredicateTripleExample;
 import online.kg_extractor.model.VariableSet;
+import system.components.Branch;
 
 /**
  *
  * @author aorogat
  */
 public class SPARQL {
+
     public static String getPredicateLabel(Explorer explorer, String predicate) {
         String query = "";
         //get labels
@@ -23,6 +25,63 @@ public class SPARQL {
             return explorer.predicatesTriplesVarSets.get(0).getVariables().get(0).toString();
         } catch (Exception e) {
             return (predicate.trim());
+        }
+    }
+
+    public static String getType(Explorer explorer, String URI) {
+        String query = "";
+        //get labels
+        try {
+            query = "SELECT DISTINCT ?s_type WHERE { "
+                    + "    <" + URI + "> rdf:type ?s_type. "
+                    + "    FILTER strstarts(str(?s_type ), str(dbo:))"
+                    + "}";
+            explorer.predicatesTriplesVarSets = explorer.kg.runQuery(query);
+            return explorer.predicatesTriplesVarSets.get(0).getVariables().get(0).toString();
+        } catch (Exception e) {
+            return "UNKONWN";
+        }
+    }
+
+    public static Branch getBranchOfType_SType_connectTo_OType(Explorer explorer, String S_type, String O_type, String predicateURI, int offset) {
+        String query = "";
+        //get labels
+        try {
+            query = "SELECT DISTINCT ?s ?o WHERE { "
+                    + "  ?s <" + predicateURI + "> ?o.  ?s rdf:type <" + S_type + ">.  ?o rdf:type <" + O_type + ">.  "
+                    + "} OFFSET " + offset;
+            explorer.predicatesTriplesVarSets = explorer.kg.runQuery(query);
+            
+            String s = explorer.predicatesTriplesVarSets.get(0).getVariables().get(0).toString();
+            String o = explorer.predicatesTriplesVarSets.get(0).getVariables().get(1).toString();
+                
+            Branch branch = new Branch(s, o, predicateURI, S_type, O_type);
+            
+            return branch;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static boolean isASubtypeOf(Explorer explorer, String child, String parent) {
+        String query = "";
+        //A better solution is to use property path expressions in SPARQL 1.1. This would be rewritten as
+        if(child.startsWith("http"))
+            child = "<" + child + ">";
+        if(parent.startsWith("http"))
+            parent = "<" + parent + ">";
+        try {
+            query = "ASK WHERE {\n"
+                    + "  "+child+" rdfs:subClassOf* "+parent+".\n"
+                    + "}";
+            explorer.predicatesTriplesVarSets = explorer.kg.runQuery(query);
+            String answer = explorer.predicatesTriplesVarSets.get(0).getVariables().get(0).getValue();
+            if(answer.equals("true"))
+                return true;
+            else
+                return false;
+        } catch (Exception e) {
+            return false;
         }
     }
 
@@ -133,7 +192,7 @@ public class SPARQL {
 ////                predicateTriples.add(predicateTriple);
 //                //To speed up the system. break after one VP.
 ////                if(predicateTriple.getNlsSuggestionsObjects().size()>=1)
-////                    break;
+//////                    break;
 //            }
 //            return predicateTriples;
 //        } catch (Exception e) {
@@ -206,7 +265,6 @@ public class SPARQL {
 //        return predicateContexts;
 //
 //    }
-//
 //    public static ArrayList<PredicateContext> filterOutNoisyContexts(ArrayList<PredicateContext> contexts) {
 //        ArrayList<PredicateContext> newContexts = new ArrayList<>();
 //        double mean = 0;
@@ -224,5 +282,4 @@ public class SPARQL {
 //        }
 //        return newContexts;
 //    }
-
 }

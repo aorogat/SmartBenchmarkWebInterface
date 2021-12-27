@@ -201,9 +201,9 @@ public class Chuncker {
                     verbPhraseFirst.phrase = currentVP;
                 } else {
                     //Get similarity
-                    double sim = BasicNLP_FromPython.similarity(label, currentVP);
+//                    double sim = BasicNLP_FromPython.similarity(label, currentVP);
 //                    currentVP = currentVP + "(" + sim + ")";
-                    verbPhraseFirst.labelSimilarity = sim;
+//                    verbPhraseFirst.labelSimilarity = sim;
                     
                     //Get verb base form
                     String lastVerb = "";

@@ -180,6 +180,8 @@ public class SingleEdgeGraph extends Graph {
                 + "?o"
                 + " " + filter
                 + "}";
+        
+        
         queryResult = knowledgeGraph.runQuery(query);
         for (VariableSet queryResult1 : queryResult) {
             triplePattern = new TriplePattern(

@@ -5,53 +5,53 @@ package online.kg_extractor.model;
  * @author aorogat
  */
 public class TriplePattern {
-    private Variable source;
-    private Variable destination;
-    private Variable label;
+    private Variable subject;
+    private Variable object;
+    private Variable predicate;
 
     public TriplePattern(Variable source, Variable destination, Variable label) {
-        this.source = source;
-        this.destination = destination;
-        this.label = label;
+        this.subject = source;
+        this.object = destination;
+        this.predicate = label;
     }
 
     
-    public Variable getSource() {
-        return source;
+    public Variable getSubject() {
+        return subject;
     }
 
-    public void setSource(Variable source) {
-        this.source = source;
+    public void setSubject(Variable source) {
+        this.subject = source;
     }
 
-    public Variable getDestination() {
-        return destination;
+    public Variable getObject() {
+        return object;
     }
 
-    public void setDestination(Variable destination) {
-        this.destination = destination;
+    public void setObject(Variable destination) {
+        this.object = destination;
     }
 
-    public Variable getLabel() {
-        return label;
+    public Variable getPredicate() {
+        return predicate;
     }
 
-    public void setLabel(Variable label) {
-        this.label = label;
+    public void setPredicate(Variable label) {
+        this.predicate = label;
     }
 
     public String toString(){
-        String s = source.getValue() + " ____" + label.getValue()+"____ "+destination.getValue();
+        String s = subject.getValue() + " ____" + predicate.getValue()+"____ "+object.getValue();
         return s;
     }
     
     public String toStringNotSubject(){
-        String s = " ____" + label.getValue()+"____ "+destination.getValue();
+        String s = " ____" + predicate.getValue()+"____ "+object.getValue();
         return s;
     }
     
     public String toQueryTriplePattern(){
-        String s = source + "\t" + label + "\t" + destination;
+        String s = "<"+subject + ">\t<" + predicate + ">\t<" + object + ">";
         return s;
     }
     

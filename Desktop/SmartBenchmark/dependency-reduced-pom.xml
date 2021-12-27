@@ -16,6 +16,7 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <classifier>javadoc</classifier>
               <transformers>
                 <transformer />
                 <transformer>

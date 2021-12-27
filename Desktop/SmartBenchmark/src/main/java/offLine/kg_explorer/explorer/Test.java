@@ -40,5 +40,7 @@ public class Test {
 //            firstIteration = false;
 //            System.gc(); //force Java garbage collection 
 //        } while (predicats.getPredicates().size() > 0);
+
+
     }
 }
