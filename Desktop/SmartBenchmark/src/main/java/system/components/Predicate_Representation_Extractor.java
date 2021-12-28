@@ -36,9 +36,9 @@ public class Predicate_Representation_Extractor {
         for (Predicate predicate : predicates) {
             try {
                 if (predicate.getLabel().endsWith(" of")) {
-                    Database.storePredicates_NP("NP_S_O", predicate, predicate.getLabel(), 99, 0);
+                    Database.storePredicates_NP("NP_S_O", predicate, predicate.getLabel(), 99, 1,1,1);
                 } else {
-                    Database.storePredicates_VP("VP_S_O", predicate, predicate.getLabel(), 100, 0);
+                    Database.storePredicates_VP("VP_S_O", predicate, predicate.getLabel(), 100, 1,1,1);
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -52,9 +52,9 @@ public class Predicate_Representation_Extractor {
             {
                 try {
                     if (wordPOS(predicate.getLabel()).trim().equals("v")) {
-                        Database.storePredicates_VP("VP_S_O", predicate, predicate.getLabel(), 99, 0);
+                        Database.storePredicates_VP("VP_S_O", predicate, predicate.getLabel(), 99, 1,1,1);
                     } else if (wordPOS(predicate.getLabel()).trim().equals("n")) {
-                        Database.storePredicates_NP("NP_S_O", predicate, predicate.getLabel(), 99, 0);
+                        Database.storePredicates_NP("NP_S_O", predicate, predicate.getLabel(), 99, 1,1,1);
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -101,7 +101,7 @@ public class Predicate_Representation_Extractor {
                         }
                     }
                     if (!hasVerb) {
-                        Database.storePredicates_NP("NP_S_O", predicate, label, 98, 0);
+                        Database.storePredicates_NP("NP_S_O", predicate, label, 98, 1,1,1);
                     }
 
                 } catch (Exception ex) {
@@ -119,7 +119,7 @@ public class Predicate_Representation_Extractor {
             try {
                 if (predicate.getLabel().toLowerCase().endsWith(" by")) {
                     Database.storePredicates_VP("VP_O_S", predicate, predicate.getLabel().toLowerCase()
-                            .replace(" by", ""), 100, 0);
+                            .replace(" by", ""), 100, 1,1,1);
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -231,10 +231,10 @@ public class Predicate_Representation_Extractor {
     }
 
     public static void main(String[] args) throws SQLException, IOException {
-//        fill_from_Labels_VP_and_NP_S_O();
-//        fill_from_Labels_VP_O_S();
+        fill_from_Labels_VP_and_NP_S_O();
+        fill_from_Labels_VP_O_S();
 //        fill_from_text_corpus_VP();
-        fill_from_text_corpus_NP();
+//        fill_from_text_corpus_NP();
         Database.populateLexicon();
     }
 

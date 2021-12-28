@@ -56,7 +56,15 @@ public class PredicateNLRepresentation {
 
 
     public String getPredicate_s_O_NP() {
+        if(predicate_s_O_NP==null)
+            return predicate_s_O_NP;
+        if(predicate_s_O_NP.toLowerCase().startsWith("is ")||
+                predicate_s_O_NP.toLowerCase().startsWith("are ")||
+                predicate_s_O_NP.toLowerCase().startsWith("was ")||
+                predicate_s_O_NP.toLowerCase().startsWith("were "))
         return predicate_s_O_NP;
+        else 
+            return  "is/are the " + predicate_s_O_NP + " of";
     }
 
     public void setPredicate_s_O_NP(String predicate_s_O_NP) {
@@ -80,7 +88,15 @@ public class PredicateNLRepresentation {
     }
 
     public String getPredicate_o_s_NP() {
+        if(predicate_o_s_NP==null)
+            return predicate_o_s_NP;
+        if(predicate_o_s_NP.toLowerCase().startsWith("is ")||
+                predicate_o_s_NP.toLowerCase().startsWith("are ")||
+                predicate_o_s_NP.toLowerCase().startsWith("was ")||
+                predicate_o_s_NP.toLowerCase().startsWith("were "))
         return predicate_o_s_NP;
+        else 
+            return "is/are the " + predicate_o_s_NP + " of";
     }
 
     public void setPredicate_o_s_NP(String predicate_o_s_NP) {

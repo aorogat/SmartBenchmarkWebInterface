@@ -301,7 +301,7 @@ public class Database {
         return true;
     }
 
-    public static boolean storePredicates_VP(String table, Predicate predicate, String vp, int confidence, double labelSimilarity) throws IOException {
+    public static boolean storePredicates_VP(String table, Predicate predicate, String vp, int confidence, double labelSimilarity, double subjectSimilarity, double objectSimilarity) throws IOException {
         System.out.println("storePredicates_VP: " + predicate.getLabel());
         connect();
         String sql = "";
@@ -309,9 +309,9 @@ public class Database {
         System.out.println(predicate.toString());
         try {
             sql = "INSERT INTO \"" + table + "\" (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", "
-                    + "\"VP\", \"labelSimilarity\", \"confidence\", \"sentence\")\n"
-                    + "VALUES(?,?,?,?,?,?,?)"
-                    + " ON CONFLICT (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", \"VP\", \"sentence\") DO NOTHING;";
+                    + "\"VP\", \"labelSimilarity\", \"confidence\", \"sentence\", \"subjectSimilarity\", \"objectSimilarity\")\n"
+                    + "VALUES(?,?,?,?,?,?,?,?,?)"
+                    + " ON CONFLICT (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", \"VP\", \"sentence\")  DO NOTHING;";
             PreparedStatement preparedStatement = con.prepareStatement(sql);
 
             preparedStatement.setString(1, predicate.getPredicateURI());
@@ -321,6 +321,8 @@ public class Database {
             preparedStatement.setDouble(5, labelSimilarity);
             preparedStatement.setInt(6, confidence);
             preparedStatement.setString(7, predicate.getLabel());
+            preparedStatement.setDouble(8, subjectSimilarity);
+            preparedStatement.setDouble(9, objectSimilarity);
 
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
@@ -331,7 +333,7 @@ public class Database {
         return true;
     }
 
-    public static boolean storePredicates_NP(String table, Predicate predicate, String np, int confidence, double labelSimilarity) throws IOException {
+    public static boolean storePredicates_NP(String table, Predicate predicate, String np, int confidence, double subjectSimilarity, double objectSimilarity, double labelSimilarity) throws IOException {
         System.out.println("storePredicates_NP: " + predicate.getLabel());
         connect();
         String sql = "";
@@ -339,9 +341,9 @@ public class Database {
         System.out.println(predicate.toString());
         try {
             sql = "INSERT INTO \"" + table + "\" (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", "
-                    + "\"NP\", \"labelSimilarity\", \"confidence\")\n"
-                    + "VALUES(?,?,?,?,?,?)"
-                    + " ON CONFLICT (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", \"NP\") DO NOTHING;";
+                    + "\"NP\", \"labelSimilarity\", \"confidence\", \"subjectSimilarity\", \"objectSimilarity\", \"sentence\")\n"
+                    + "VALUES(?,?,?,?,?,?,?,?,?)"
+                    + " ON CONFLICT (\"PredicateURI\", \"Context_Subject\", \"Context_Object\", \"NP\", \"sentence\")  DO NOTHING;";
             PreparedStatement preparedStatement = con.prepareStatement(sql);
 
             preparedStatement.setString(1, predicate.getPredicateURI());
@@ -350,6 +352,9 @@ public class Database {
             preparedStatement.setString(4, np);
             preparedStatement.setDouble(5, labelSimilarity);
             preparedStatement.setInt(6, confidence);
+            preparedStatement.setDouble(7, subjectSimilarity);
+            preparedStatement.setDouble(8, objectSimilarity);
+            preparedStatement.setString(9, predicate.getLabel());
 
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
