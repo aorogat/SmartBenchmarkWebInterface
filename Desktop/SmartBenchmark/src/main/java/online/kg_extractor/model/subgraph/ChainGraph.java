@@ -1,6 +1,7 @@
 package online.kg_extractor.model.subgraph;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import online.kg_extractor.knowledgegraph.KnowledgeGraph;
 import online.kg_extractor.model.NodeType;
 import online.kg_extractor.model.TriplePattern;
@@ -22,7 +23,14 @@ public class ChainGraph extends Graph {
         this.chain = chain;
     }
 
+//    public ArrayList<Graph> generateFromLexicon(KnowledgeGraph knowledgeGraph, String seed, int seedType, int endType, int chainLength, boolean uniqueProperties
+//    {
+//        
+//    }
     public ArrayList<Graph> generate(KnowledgeGraph knowledgeGraph, String seed, int seedType, int endType, int chainLength, boolean uniqueProperties) {
+        if (!seed.startsWith("<")) {
+            seed = "<" + seed + ">";
+        }
         if (seedType == NodeType.SUBJECT_ENTITY) {
             return generate_SUBJECT_ENTITY(knowledgeGraph, seed, endType, seedType, chainLength, uniqueProperties);
         } else if (seedType == NodeType.OBJECT_ENTITY) {
@@ -53,16 +61,19 @@ public class ChainGraph extends Graph {
         //Predicate not in the unwanted list of the current KG
         String[] unwantedPropertiesList = knowledgeGraph.getUnwantedProperties();
         String unwantedPropertiesString = knowledgeGraph.getUnwantedPropertiesString();
-        for(int i = 0; i < chainLength; i++) 
-            filter += "FILTER (?p"+(i+1)+" NOT IN(" + unwantedPropertiesString + ")). ";
-        
-        
+        for (int i = 0; i < chainLength; i++) {
+            filter += "FILTER (?p" + (i + 1) + " NOT IN(" + unwantedPropertiesString + ")). ";
+            filter += "FILTER strstarts(str(?p" + (i + 1) + " ), str(dbo:)). ";
+        }
+
         for (int i = 0; i < chainLength; i++) {
             vars += "?o" + i + " " + "?p" + (i + 1) + " " + "?o" + (i + 1) + " ";
             triples += "?o" + i + " " + "?p" + (i + 1) + " " + "?o" + (i + 1) + " . ";
             lastVar = "?o" + (i + 1);
-            if(uniqueProperties)
-                filter += "FILTER NOT EXISTS { ?o"+i+"  ?p"+(i+1)+" ?m"+(i+1)+". FILTER(?m"+(i+1)+" != ?o"+(i+1)+")}. ";
+            filter += "FILTER NOT EXISTS { ?o" + i + "  ?p" + (i + 1) + " ?t" + (i + 1) + ". FILTER(?t" + (i + 1) + " != ?o" + (i + 1) + ")}. ";
+            if (uniqueProperties) {
+                filter += "FILTER NOT EXISTS { ?o" + i + "  ?p" + (i + 1) + " ?m" + (i + 1) + ". FILTER(?m" + (i + 1) + " != ?o" + (i + 1) + ")}. ";
+            }
         }
 
         vars = vars.replace("?o0", seed);
@@ -71,16 +82,16 @@ public class ChainGraph extends Graph {
 
         //Return the chain in which the 1st node is the seed
         if (endType == NodeType.IRI) {
-            filter += "FILTER isIRI("+lastVar+"). ";
+            filter += "FILTER isIRI(" + lastVar + "). ";
         } else if (endType == NodeType.NUMBER) {
-            filter += "FILTER isNumeric("+lastVar+"). ";
+            filter += "FILTER isNumeric(" + lastVar + "). ";
         } else if (endType == NodeType.LITERAL) {
-            filter += "FILTER isLiteral("+lastVar+"). ";
+            filter += "FILTER isLiteral(" + lastVar + "). ";
         } else if (endType == NodeType.DATE) {
-            filter += "FILTER ( datatype("+lastVar+") = xsd:dateTime ). ";
+            filter += "FILTER ( datatype(" + lastVar + ") = xsd:dateTime ). ";
         }
 
-        String query = "SELECT " + vars + " WHERE { "
+        String query = "SELECT REDUCED " + vars + " WHERE { "
                 + triples
                 + " " + filter
                 + "}";
@@ -122,9 +133,10 @@ public class ChainGraph extends Graph {
         //Predicate not in the unwanted list of the current KG
         String[] unwantedPropertiesList = knowledgeGraph.getUnwantedProperties();
         String unwantedPropertiesString = knowledgeGraph.getUnwantedPropertiesString();
-        for(int i = 0; i < chainLength; i++) 
-            filter += "FILTER (?p"+(i+1)+" NOT IN(" + unwantedPropertiesString + ")). ";
-        
+        for (int i = 0; i < chainLength; i++) {
+            filter += "FILTER (?p" + (i + 1) + " NOT IN(" + unwantedPropertiesString + ")). ";
+        }
+
         for (int i = 0; i < chainLength; i++) {
             vars += "?o" + i + " " + "?p" + (i + 1) + " " + "?o" + (i + 1) + " ";
             triples += "?o" + i + " " + "?p" + (i + 1) + " " + "?o" + (i + 1) + " . ";
@@ -146,7 +158,7 @@ public class ChainGraph extends Graph {
                 filter += "FILTER ( datatype(?s) = xsd:dateTime ). ";
             }
 
-            String query = "SELECT " + vars + " WHERE { "
+            String query = "SELECT  REDUCED " + vars + " WHERE { "
                     + triples
                     + " " + filter
                     + "}";
@@ -165,7 +177,7 @@ public class ChainGraph extends Graph {
                 result.add(new ChainGraph(chain));
             }
         }
-        return result;
+        return new ArrayList<>(new HashSet<>(result));
     }
 
     public String toString() {
@@ -183,6 +195,5 @@ public class ChainGraph extends Graph {
     public void setChain(ArrayList<TriplePattern> chain) {
         this.chain = chain;
     }
-    
-    
+
 }

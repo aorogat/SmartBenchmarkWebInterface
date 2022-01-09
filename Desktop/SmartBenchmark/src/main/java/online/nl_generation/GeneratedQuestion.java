@@ -6,14 +6,18 @@ public class GeneratedQuestion
 {
     private ArrayList<String> questionString;
     private String query;
+    private String graphString;
     
     public GeneratedQuestion() {
     }
 
-    public GeneratedQuestion(ArrayList<String> questionString, String query) {
+    public GeneratedQuestion(ArrayList<String> questionString, String query, String graphString) {
         this.questionString = questionString;
         this.query = query;
+        this.graphString = graphString;
     }
+
+    
 
     
     
@@ -39,6 +43,7 @@ public class GeneratedQuestion
     
     public void print()
     {
+        System.out.println(graphString);
         System.out.println(query);
         for (String q : questionString) {
             System.out.print("\033[1;35m");//MAGENTA Color
@@ -46,5 +51,16 @@ public class GeneratedQuestion
         }
         System.out.println("");
     }
+
+    public String getGraphString() {
+        return graphString;
+    }
+
+    public void setGraphString(String graphString) {
+        this.graphString = graphString;
+    }
+    
+    
+    
     
 }

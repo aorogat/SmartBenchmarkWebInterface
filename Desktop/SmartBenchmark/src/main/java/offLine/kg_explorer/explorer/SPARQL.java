@@ -5,6 +5,7 @@ import java.util.HashSet;
 import offLine.kg_explorer.model.PredicateContext;
 import offLine.kg_explorer.model.PredicateTripleExample;
 import online.kg_extractor.model.VariableSet;
+import settings.KG_Settings;
 import system.components.Branch;
 
 /**
@@ -34,6 +35,18 @@ public class SPARQL {
         try {
             query = "SELECT DISTINCT ?s_type WHERE { "
                     + "    <" + URI + "> rdf:type ?s_type. "
+                    + "    FILTER NOT EXISTS {\n"
+                    + "      <" + URI + "> rdf:type ?type1 .\n"
+                    + "      ?type1 rdfs:subClassOf ?s_type.\n"
+                    + "      FILTER NOT EXISTS {\n"
+                    + "         ?type1 owl:equivalentClass ?s_type.\n"
+                    + "      }\n"
+                    + "    }.\n"
+                    + "    FILTER EXISTS {\n"
+                    + "      ?s_type rdfs:subClassOf ?superType1 .\n"
+                    + "      <" + URI + "> rdf:type ?superType1 .\n"
+                    + "    }.\n"
+                    + "\n"
                     + "    FILTER strstarts(str(?s_type ), str(dbo:))"
                     + "}";
             explorer.predicatesTriplesVarSets = explorer.kg.runQuery(query);
@@ -42,7 +55,66 @@ public class SPARQL {
             return "UNKONWN";
         }
     }
+    
+    
+    
+    
+    public static ArrayList<PredicateContext> getPredicateContextFromTripleExample(String subjectURI, String predicateURI, String objectURI) {
+        String unwantedPropertiesString = KG_Settings.knowledgeGraph.getUnwantedPropertiesString();
+        long weight = 0;
+        String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+                + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+                + "PREFIX owl: <http://www.w3.org/2002/07/owl#> \n"
+                + "PREFIX schema: <http://schema.org/> \n"
+                + " \n"
+                + "SELECT DISTINCT ?s_type  ?o_type  \n"
+                //                + "SELECT DISTINCT SAMPLE(?s) SAMPLE(?o) ?s_type    ?o_type \n"
+                + "WHERE{\n"
+                + "<"+subjectURI+">      rdf:type              ?s_type.\n"
+                + "    FILTER NOT EXISTS {\n"
+                + "      <"+subjectURI+"> rdf:type ?type1 .\n"
+                + "      ?type1 rdfs:subClassOf ?s_type.\n"
+                + "      FILTER NOT EXISTS {\n"
+                + "         ?type1 owl:equivalentClass ?s_type.\n"
+                + "      }\n"
+                + "    }.\n"
+                + "    FILTER EXISTS {\n"
+                + "      ?s_type rdfs:subClassOf ?superType1 .\n"
+                + "      <"+subjectURI+"> rdf:type ?superType1 .\n"
+                + "    }.\n"
+                + "\n"
+                + "   <"+objectURI+">      rdf:type              ?o_type.\n"
+                + "    FILTER NOT EXISTS {\n"
+                + "      <"+objectURI+"> rdf:type ?type2 .\n"
+                + "      ?type2 rdfs:subClassOf ?o_type.\n"
+                + "      FILTER NOT EXISTS {\n"
+                + "         ?type2 owl:equivalentClass ?o_type.\n"
+                + "      }\n"
+                + "    }.\n"
+                + "    FILTER EXISTS {\n"
+                + "      ?o_type rdfs:subClassOf ?superType2 .\n"
+                + "      <"+objectURI+"> rdf:type ?superType2 .\n"
+                + "    }.\n"
+                + "  FILTER strstarts(str(?s_type ), str(dbo:)).\n"
+                + "  FILTER strstarts(str(?o_type ), str(dbo:)).\n"
+                + "}";
+        ArrayList<VariableSet> predicatesTriplesVarSets = KG_Settings.knowledgeGraph.runQuery(query);
+        //remove duplicates as sometimes Distinct does not work in the KGMS
+        predicatesTriplesVarSets = new ArrayList<>(new HashSet<>(predicatesTriplesVarSets));
 
+        ArrayList<PredicateContext> predicateContexts = new ArrayList<>();
+        for (VariableSet predicate : predicatesTriplesVarSets) {
+            String stype = predicate.getVariables().get(0).getValueWithPrefix();
+            String otype = predicate.getVariables().get(1).getValueWithPrefix();
+            weight = 0;
+            predicateContexts.add(new PredicateContext(stype, otype, weight));
+        }
+        return predicateContexts;
+
+    }
+    
+    
+    
     public static Branch getBranchOfType_SType_connectTo_OType(Explorer explorer, String S_type, String O_type, String predicateURI, int offset) {
         String query = "";
         //get labels
@@ -51,12 +123,12 @@ public class SPARQL {
                     + "  ?s <" + predicateURI + "> ?o.  ?s rdf:type <" + S_type + ">.  ?o rdf:type <" + O_type + ">.  "
                     + "} OFFSET " + offset;
             explorer.predicatesTriplesVarSets = explorer.kg.runQuery(query);
-            
+
             String s = explorer.predicatesTriplesVarSets.get(0).getVariables().get(0).toString();
             String o = explorer.predicatesTriplesVarSets.get(0).getVariables().get(1).toString();
-                
+
             Branch branch = new Branch(s, o, predicateURI, S_type, O_type);
-            
+
             return branch;
         } catch (Exception e) {
             return null;
@@ -66,20 +138,23 @@ public class SPARQL {
     public static boolean isASubtypeOf(Explorer explorer, String child, String parent) {
         String query = "";
         //A better solution is to use property path expressions in SPARQL 1.1. This would be rewritten as
-        if(child.startsWith("http"))
+        if (child.startsWith("http")) {
             child = "<" + child + ">";
-        if(parent.startsWith("http"))
+        }
+        if (parent.startsWith("http")) {
             parent = "<" + parent + ">";
+        }
         try {
             query = "ASK WHERE {\n"
-                    + "  "+child+" rdfs:subClassOf* "+parent+".\n"
+                    + "  " + child + " rdfs:subClassOf* " + parent + ".\n"
                     + "}";
             explorer.predicatesTriplesVarSets = explorer.kg.runQuery(query);
             String answer = explorer.predicatesTriplesVarSets.get(0).getVariables().get(0).getValue();
-            if(answer.equals("true"))
+            if (answer.equals("true")) {
                 return true;
-            else
+            } else {
                 return false;
+            }
         } catch (Exception e) {
             return false;
         }

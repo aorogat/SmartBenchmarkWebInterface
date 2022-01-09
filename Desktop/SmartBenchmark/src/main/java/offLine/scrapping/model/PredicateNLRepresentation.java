@@ -1,18 +1,19 @@
 package offLine.scrapping.model;
 
 public class PredicateNLRepresentation {
+
     private String predicate;
     //Context
     private String subject_type;
     private String object_type;
-     
+
     private String predicate_s_O_NP; // representing predicate as NP between S and O. ex (S is a citizen of O) 
     private String predicate_o_s_VP; // representing predicate as VP between O and S. ex (O protect S) 
     private String predicate_s_O_VP;
-    private String predicate_o_s_NP; 
+    private String predicate_o_s_NP;
 
-    public PredicateNLRepresentation(String predicate, String subject_type, String object_type, 
-            String predicate_s_O_NP, String predicate_o_s_VP, 
+    public PredicateNLRepresentation(String predicate, String subject_type, String object_type,
+            String predicate_s_O_NP, String predicate_o_s_VP,
             String predicate_o_s_NP, String predicate_s_O_VP) {
         this.predicate = predicate;
         this.subject_type = subject_type;
@@ -27,9 +28,6 @@ public class PredicateNLRepresentation {
         this.predicate_o_s_NP = predicate_o_s_NP;
     }
 
-    
-    
-    
     public String getPredicate() {
         return predicate;
     }
@@ -54,17 +52,52 @@ public class PredicateNLRepresentation {
         this.object_type = object_type;
     }
 
-
     public String getPredicate_s_O_NP() {
-        if(predicate_s_O_NP==null)
+        if (predicate_s_O_NP == null) {
             return predicate_s_O_NP;
-        if(predicate_s_O_NP.toLowerCase().startsWith("is ")||
-                predicate_s_O_NP.toLowerCase().startsWith("are ")||
-                predicate_s_O_NP.toLowerCase().startsWith("was ")||
-                predicate_s_O_NP.toLowerCase().startsWith("were "))
-        return predicate_s_O_NP;
-        else 
-            return  "is/are the " + predicate_s_O_NP + " of";
+        }
+        if (predicate_s_O_NP.toLowerCase().startsWith("is ")
+                || predicate_s_O_NP.toLowerCase().startsWith("is/")
+                || predicate_s_O_NP.toLowerCase().startsWith("are ")
+                || predicate_s_O_NP.toLowerCase().startsWith("was ")
+                || predicate_s_O_NP.toLowerCase().startsWith("was/")
+                || predicate_s_O_NP.toLowerCase().startsWith("were ")) {
+            predicate_s_O_NP = predicate_s_O_NP;
+        } else {
+            predicate_s_O_NP = "is the " + predicate_s_O_NP;
+        }
+
+        if (predicate_s_O_NP.toLowerCase().endsWith(" above")
+                || predicate_s_O_NP.toLowerCase().endsWith(" across")
+                || predicate_s_O_NP.toLowerCase().endsWith(" about")
+                || predicate_s_O_NP.toLowerCase().endsWith(" of")
+                || predicate_s_O_NP.toLowerCase().endsWith(" for")
+                || predicate_s_O_NP.toLowerCase().endsWith(" against")
+                || predicate_s_O_NP.toLowerCase().endsWith(" along")
+                || predicate_s_O_NP.toLowerCase().endsWith(" among")
+                || predicate_s_O_NP.toLowerCase().endsWith(" around")
+                || predicate_s_O_NP.toLowerCase().endsWith(" at")
+                || predicate_s_O_NP.toLowerCase().endsWith(" before")
+                || predicate_s_O_NP.toLowerCase().endsWith(" behind")
+                || predicate_s_O_NP.toLowerCase().endsWith(" below")
+                || predicate_s_O_NP.toLowerCase().endsWith(" beneath")
+                || predicate_s_O_NP.toLowerCase().endsWith(" beside")
+                || predicate_s_O_NP.toLowerCase().endsWith(" between")
+                || predicate_s_O_NP.toLowerCase().endsWith(" in")
+                || predicate_s_O_NP.toLowerCase().endsWith(" into")
+                || predicate_s_O_NP.toLowerCase().endsWith(" near")
+                || predicate_s_O_NP.toLowerCase().endsWith(" on")
+                || predicate_s_O_NP.toLowerCase().endsWith(" to")
+                || predicate_s_O_NP.toLowerCase().endsWith(" toward")
+                || predicate_s_O_NP.toLowerCase().endsWith(" under")
+                || predicate_s_O_NP.toLowerCase().endsWith(" upon")
+                || predicate_s_O_NP.toLowerCase().endsWith(" with")
+                || predicate_s_O_NP.toLowerCase().endsWith(" within")) {
+            return predicate_s_O_NP;
+        } else {
+            return predicate_s_O_NP + " of";
+        }
+
     }
 
     public void setPredicate_s_O_NP(String predicate_s_O_NP) {
@@ -88,21 +121,55 @@ public class PredicateNLRepresentation {
     }
 
     public String getPredicate_o_s_NP() {
-        if(predicate_o_s_NP==null)
+        if (predicate_o_s_NP == null) {
             return predicate_o_s_NP;
-        if(predicate_o_s_NP.toLowerCase().startsWith("is ")||
-                predicate_o_s_NP.toLowerCase().startsWith("are ")||
-                predicate_o_s_NP.toLowerCase().startsWith("was ")||
-                predicate_o_s_NP.toLowerCase().startsWith("were "))
-        return predicate_o_s_NP;
-        else 
-            return "is/are the " + predicate_o_s_NP + " of";
+        }
+        if (predicate_o_s_NP.toLowerCase().startsWith("is ")
+                || predicate_o_s_NP.toLowerCase().startsWith("is/")
+                || predicate_o_s_NP.toLowerCase().startsWith("are ")
+                || predicate_o_s_NP.toLowerCase().startsWith("was ")
+                || predicate_o_s_NP.toLowerCase().startsWith("was/")
+                || predicate_o_s_NP.toLowerCase().startsWith("were ")) {
+            predicate_o_s_NP = predicate_o_s_NP;
+        } else {
+            predicate_o_s_NP = "is the " + predicate_o_s_NP;
+        }
+
+        if (predicate_o_s_NP.toLowerCase().endsWith(" above")
+                || predicate_o_s_NP.toLowerCase().endsWith(" across")
+                || predicate_o_s_NP.toLowerCase().endsWith(" about")
+                || predicate_o_s_NP.toLowerCase().endsWith(" of")
+                || predicate_o_s_NP.toLowerCase().endsWith(" for")
+                || predicate_o_s_NP.toLowerCase().endsWith(" against")
+                || predicate_o_s_NP.toLowerCase().endsWith(" along")
+                || predicate_o_s_NP.toLowerCase().endsWith(" among")
+                || predicate_o_s_NP.toLowerCase().endsWith(" around")
+                || predicate_o_s_NP.toLowerCase().endsWith(" at")
+                || predicate_o_s_NP.toLowerCase().endsWith(" before")
+                || predicate_o_s_NP.toLowerCase().endsWith(" behind")
+                || predicate_o_s_NP.toLowerCase().endsWith(" below")
+                || predicate_o_s_NP.toLowerCase().endsWith(" beneath")
+                || predicate_o_s_NP.toLowerCase().endsWith(" beside")
+                || predicate_o_s_NP.toLowerCase().endsWith(" between")
+                || predicate_o_s_NP.toLowerCase().endsWith(" in")
+                || predicate_o_s_NP.toLowerCase().endsWith(" into")
+                || predicate_o_s_NP.toLowerCase().endsWith(" near")
+                || predicate_o_s_NP.toLowerCase().endsWith(" on")
+                || predicate_o_s_NP.toLowerCase().endsWith(" to")
+                || predicate_o_s_NP.toLowerCase().endsWith(" toward")
+                || predicate_o_s_NP.toLowerCase().endsWith(" under")
+                || predicate_o_s_NP.toLowerCase().endsWith(" upon")
+                || predicate_o_s_NP.toLowerCase().endsWith(" with")
+                || predicate_o_s_NP.toLowerCase().endsWith(" within")) {
+            return predicate_o_s_NP;
+        } else {
+            return predicate_o_s_NP + " of";
+        }
+
     }
 
     public void setPredicate_o_s_NP(String predicate_o_s_NP) {
         this.predicate_o_s_NP = predicate_o_s_NP;
     }
 
-    
-    
 }

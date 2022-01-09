@@ -88,7 +88,14 @@ public class DBpedia extends KnowledgeGraph {
             "owl:equivalentClass",
             
             "foaf:name",
-            "foaf:primaryTopic"};
+            "foaf:primaryTopic",
+        
+            "<http://purl.org/linguistics/gold/hypernym>",
+//            "<http://www.w3.org/ns/prov#wasDerivedFrom>"
+        
+        
+        
+        };
         return unwantedProperties;
     }
 

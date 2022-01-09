@@ -113,6 +113,7 @@ public class SingleEdgeQuestion {
         }
         if (s_o_NP != null) {
             questions.add("Who " + s_o_NP + " " + O + "?");
+            questions.add(Request.getRequestPrefix() + " " + s_o_NP + " " + O + "?");
         }
         if (o_s_VP != null) {
             questions.add("Whom " + O + " " + o_s_VP + "?");
@@ -121,7 +122,7 @@ public class SingleEdgeQuestion {
             questions.add("Whose " + O + " " + o_s_NP + "?");
         }
 
-        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery));
+        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery, singleEdgeGraph.toString()));
     }
 
     private void generateQuestionSELECT_e_of_type_Place() {
@@ -130,12 +131,13 @@ public class SingleEdgeQuestion {
 
         if (s_o_NP != null) {
             questions.add("What " + s_o_NP + " " + O + "?");
+            questions.add(Request.getRequestPrefix() + " " + s_o_NP + " " + O + "?");
         }
         if (o_s_VP != null) {
             questions.add("Where " + O + " " + o_s_VP + "?");
         }
 
-        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery));
+        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery, singleEdgeGraph.toString()));
     }
 
     private void generateQuestionSELECT_e_of_type_Entity() {
@@ -147,12 +149,13 @@ public class SingleEdgeQuestion {
         }
         if (s_o_NP != null) {
             questions.add("What " + s_o_NP + " " + O + "?");
+            questions.add(Request.getRequestPrefix() + " " + s_o_NP + " " + O + "?");
         }
         if (s_o_VP != null) {
             questions.add("What " + s_o_VP + " " + O + "?");
         }
 
-        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery));
+        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery, singleEdgeGraph.toString()));
     }
 
     private void generateQuestionSELECT_e_of_type_Number() {
@@ -161,12 +164,13 @@ public class SingleEdgeQuestion {
 
         if (s_o_NP != null) {
             questions.add("What " + s_o_NP + " " + O + "?");
+            questions.add(Request.getRequestPrefix() + " " + s_o_NP + " " + O + "?");
         }
         if (o_s_NP != null) {
             questions.add("How " + o_s_NP + " is " + O + "?");
         }
 
-        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery));
+        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery, singleEdgeGraph.toString()));
     }
 
     private void generateQuestionSELECT_e_of_type_Date() {
@@ -178,21 +182,58 @@ public class SingleEdgeQuestion {
         }
         if (s_o_NP != null) {
             questions.add("What " + s_o_NP + " " + O + "?");
+            questions.add(Request.getRequestPrefix() + " " + s_o_NP + " " + O + "?");
         }
 
-        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery));
+        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery, singleEdgeGraph.toString()));
     }
 
     private void generateQuestionAsk_Correct() {
         //Generate Question
         ArrayList<String> questions = new ArrayList<>();
 
-        if (s_o_NP != null) {
+        if (s_o_NP != null && s_o_NP.startsWith("is/are ")) {
+            s_o_NP = s_o_NP.replace("is/are ", "");
             questions.add("Is " + S + " " + s_o_NP + " " + O + "?");
         }
-        if (o_s_NP != null) {
+        else if (s_o_NP != null && s_o_NP.startsWith("is ")) {
+            s_o_NP = s_o_NP.replace("is ", "");
+            questions.add("Is " + S + " " + s_o_NP + " " + O + "?");
+        }
+        else if (s_o_NP != null && s_o_NP.startsWith("are ")) {
+            s_o_NP = s_o_NP.replace("are ", "");
+            questions.add("Are " + S + " " + s_o_NP + " " + O + "?");
+        }
+        else if (s_o_NP != null && s_o_NP.startsWith("was ")) {
+            s_o_NP = s_o_NP.replace("was ", "");
+            questions.add("Was " + S + " " + s_o_NP + " " + O + "?");
+        }
+        else if (s_o_NP != null && s_o_NP.startsWith("were ")) {
+            s_o_NP = s_o_NP.replace("were ", "");
+            questions.add("Were " + S + " " + s_o_NP + " " + O + "?");
+        }
+        
+        if (o_s_NP != null && o_s_NP.startsWith("is/are ")) {
+            o_s_NP = o_s_NP.replace("is/are ", "");
             questions.add("Is " + O + " " + o_s_NP + " " + S + "?");
         }
+        else if (o_s_NP != null && o_s_NP.startsWith("is ")) {
+            o_s_NP = o_s_NP.replace("is ", "");
+            questions.add("Is " + O + " " + o_s_NP + " " + S + "?");
+        }
+        else if (o_s_NP != null && o_s_NP.startsWith("are ")) {
+            o_s_NP = o_s_NP.replace("are ", "");
+            questions.add("Are " + O + " " + o_s_NP + " " + S + "?");
+        }
+        else if (o_s_NP != null && o_s_NP.startsWith("was ")) {
+            o_s_NP = o_s_NP.replace("was ", "");
+            questions.add("Was " + O + " " + o_s_NP + " " + S + "?");
+        }
+        else if (o_s_NP != null && o_s_NP.startsWith("were ")) {
+            o_s_NP = o_s_NP.replace("were ", "");
+            questions.add("Were " + O + " " + o_s_NP + " " + S + "?");
+        }
+        
         if (s_o_VP != null) {
             questions.add("Does " + S + " " + s_o_VP + " " + O + "?");
         }
@@ -200,19 +241,57 @@ public class SingleEdgeQuestion {
             questions.add("Does " + O + " " + o_s_VP + " " + S + "?");
         }
 
-        allPossibleQuestions.add(new GeneratedQuestion(questions, askQuery_correct));
+        allPossibleQuestions.add(new GeneratedQuestion(questions, askQuery_correct, singleEdgeGraph.toString()));
     }
 
     private void generateQuestionAsk_Wrong() {
         //Generate Question
         ArrayList<String> questions = new ArrayList<>();
+        
+        String s_o_NP_Auxiliary_Verb = ""; 
 
-        if (s_o_NP != null) {
+        if (s_o_NP != null && s_o_NP.startsWith("is/are ")) {
+            s_o_NP = s_o_NP.replace("is/are ", "");
             questions.add("Is " + S + " " + s_o_NP + " " + somethingElseWithoutPrefix + "?");
         }
-        if (o_s_NP != null) {
-            questions.add("Is " + O + " " + o_s_NP + " " + somethingElseWithoutPrefix + "?");
+        else if (s_o_NP != null && s_o_NP.startsWith("is ")) {
+            s_o_NP = s_o_NP.replace("is ", "");
+            questions.add("Is " + S + " " + s_o_NP + " " + somethingElseWithoutPrefix + "?");
         }
+        else if (s_o_NP != null && s_o_NP.startsWith("are ")) {
+            s_o_NP = s_o_NP.replace("are ", "");
+            questions.add("Are " + S + " " + s_o_NP + " " + somethingElseWithoutPrefix + "?");
+        }
+        else if (s_o_NP != null && s_o_NP.startsWith("was ")) {
+            s_o_NP = s_o_NP.replace("was ", "");
+            questions.add("Was " + S + " " + s_o_NP + " " + somethingElseWithoutPrefix + "?");
+        }
+        else if (s_o_NP != null && s_o_NP.startsWith("were ")) {
+            s_o_NP = s_o_NP.replace("were ", "");
+            questions.add("Were " + S + " " + s_o_NP + " " + somethingElseWithoutPrefix + "?");
+        }
+        
+        if (o_s_NP != null && o_s_NP.startsWith("is/are ")) {
+            o_s_NP = o_s_NP.replace("is/are ", "");
+            questions.add("Is " + somethingElseWithoutPrefix + " " + o_s_NP + " " + S + "?");
+        }
+        else if (o_s_NP != null && o_s_NP.startsWith("is ")) {
+            o_s_NP = o_s_NP.replace("is ", "");
+            questions.add("Is " + somethingElseWithoutPrefix + " " + o_s_NP + " " + S + "?");
+        }
+        else if (o_s_NP != null && o_s_NP.startsWith("are ")) {
+            o_s_NP = o_s_NP.replace("are ", "");
+            questions.add("Are " + somethingElseWithoutPrefix + " " + o_s_NP + " " + S + "?");
+        }
+        else if (o_s_NP != null && o_s_NP.startsWith("was ")) {
+            o_s_NP = o_s_NP.replace("was ", "");
+            questions.add("Was " + somethingElseWithoutPrefix + " " + o_s_NP + " " + S + "?");
+        }
+        else if (o_s_NP != null && o_s_NP.startsWith("were ")) {
+            o_s_NP = o_s_NP.replace("were ", "");
+            questions.add("Were " + somethingElseWithoutPrefix + " " + o_s_NP + " " + S + "?");
+        }
+        
         if (s_o_VP != null) {
             questions.add("Does " + S + " " + s_o_VP + " " + somethingElseWithoutPrefix + "?");
         }
@@ -220,7 +299,7 @@ public class SingleEdgeQuestion {
             questions.add("Does " + O + " " + o_s_VP + " " + somethingElseWithoutPrefix + "?");
         }
 
-        allPossibleQuestions.add(new GeneratedQuestion(questions, askQuery_wrong));
+        allPossibleQuestions.add(new GeneratedQuestion(questions, askQuery_wrong, singleEdgeGraph.toString()));
     }
 
 }

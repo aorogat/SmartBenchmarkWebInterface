@@ -336,27 +336,27 @@ public class DBpediaExplorer extends Explorer {
 
     @Override
     public String removePrefix(String node) {
-        node = node.replace("http://dbpedia.org/resource/", "")
-                .replace("http://dbpedia.org/ontology/", "")
-                .replace("http://dbpedia.org/property/", "")
-                .replace("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "type")
-                .replace("<", "")
-                .replace("http://dbpedia.org/class/yago/", "yago:")
-                .replace("http://umbel.org/umbel/rc/", "umbel:")
-                .replace("http://www.w3.org/ns/prov", "")
-                .replace("http://www.w3.org/2002/07/owl", "")
-                .replace("http://www.w3.org/2000/01/rdf-schema", "")
-                .replace("http://www.w3.org/1999/02/22-rdf-syntax-ns", "")
-                .replace("ttp://xmlns.com/foaf/0.1/", "")
-                .replace("ttp://www.w3.org/2004/02/skos/", "")
-                .replace("http://purl.org/dc/terms/", "")
-                .replace("http://purl.org/dc/elements/1.1/", "")
-                .replace("http://www.w3.org/2003/01/geo/wgs84 pos", "")
-                .replace("http://en.wikipedia.org/", "")
-                .replace("http://purl.org/linguistics/gold/", "")
-                //.replace("","")
-                .replace(">", "")
-                .trim().replace('_', ' ');
+//        node = node.replace("http://dbpedia.org/resource/", "")
+//                .replace("http://dbpedia.org/ontology/", "")
+//                .replace("http://dbpedia.org/property/", "")
+//                .replace("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "type")
+//                .replace("<", "")
+//                .replace("http://dbpedia.org/class/yago/", "yago:")
+//                .replace("http://umbel.org/umbel/rc/", "umbel:")
+//                .replace("http://www.w3.org/ns/prov", "")
+//                .replace("http://www.w3.org/2002/07/owl", "")
+//                .replace("http://www.w3.org/2000/01/rdf-schema", "")
+//                .replace("http://www.w3.org/1999/02/22-rdf-syntax-ns", "")
+//                .replace("ttp://xmlns.com/foaf/0.1/", "")
+//                .replace("ttp://www.w3.org/2004/02/skos/", "")
+//                .replace("http://purl.org/dc/terms/", "")
+//                .replace("http://purl.org/dc/elements/1.1/", "")
+//                .replace("http://www.w3.org/2003/01/geo/wgs84 pos", "")
+//                .replace("http://en.wikipedia.org/", "")
+//                .replace("http://purl.org/linguistics/gold/", "")
+//                //.replace("","")
+//                .replace(">", "")
+//                .trim().replace('_', ' ');
         return node;
     }
 
