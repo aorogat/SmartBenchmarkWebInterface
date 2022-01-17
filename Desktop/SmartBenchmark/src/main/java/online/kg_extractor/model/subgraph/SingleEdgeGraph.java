@@ -60,7 +60,7 @@ public class SingleEdgeGraph extends Graph {
                 filter += "FILTER NOT EXISTS { ?s ?p ?m. FILTER(?m != " + seed + ")}. ";
             }
 
-            if (endType == NodeType.IRI) {
+            if (endType == NodeType.URI) {
                 filter += "FILTER isIRI(?s). ";
             } else if (endType == NodeType.NUMBER) {
                 filter += "FILTER isNumeric(?s). ";
@@ -75,7 +75,7 @@ public class SingleEdgeGraph extends Graph {
             if (uniqueProperties) {
                 filter += "FILTER NOT EXISTS { " + seed + " ?p ?m. FILTER(?m != ?o)}. ";
             }
-            if (endType == NodeType.IRI) {
+            if (endType == NodeType.URI) {
                 filter += "FILTER isIRI(?o). ";
             } else if (endType == NodeType.NUMBER) {
                 filter += "FILTER isNumeric(?o). ";
@@ -117,7 +117,7 @@ public class SingleEdgeGraph extends Graph {
             if (uniqueProperties) {
                 filter += "FILTER NOT EXISTS { ?s ?p ?t. FILTER(?t != " + seed + ")}. ";
             }
-            if (endType == NodeType.IRI) {
+            if (endType == NodeType.URI) {
                 filter += "FILTER isIRI(?s). ";
             } else if (endType == NodeType.NUMBER) {
                 filter += "FILTER isNumeric(?s). ";
@@ -133,7 +133,7 @@ public class SingleEdgeGraph extends Graph {
             if (uniqueProperties) {
                 filter += "FILTER NOT EXISTS { " + seed + " ?p ?t. FILTER(?t != ?o)}. ";
             }
-            if (endType == NodeType.IRI) {
+            if (endType == NodeType.URI) {
                 filter += "FILTER isIRI(?o). ";
             } else if (endType == NodeType.NUMBER) {
                 filter += "FILTER isNumeric(?o). ";

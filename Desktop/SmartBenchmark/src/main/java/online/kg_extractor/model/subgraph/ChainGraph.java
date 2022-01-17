@@ -57,12 +57,16 @@ public class ChainGraph extends Graph {
         String triples = "";
         String filter = "";
         String lastVar = "";
+        String lastPredicate = "";
 
         //Predicate not in the unwanted list of the current KG
         String[] unwantedPropertiesList = knowledgeGraph.getUnwantedProperties();
         String unwantedPropertiesString = knowledgeGraph.getUnwantedPropertiesString();
+            if(endType==NodeType.TYPE)
+                unwantedPropertiesString = unwantedPropertiesString.replace("rdf:type,","");
         for (int i = 0; i < chainLength; i++) {
             filter += "FILTER (?p" + (i + 1) + " NOT IN(" + unwantedPropertiesString + ")). ";
+            if(endType==NodeType.TYPE && (i+1)==chainLength) break;
             filter += "FILTER strstarts(str(?p" + (i + 1) + " ), str(dbo:)). ";
         }
 
@@ -70,6 +74,7 @@ public class ChainGraph extends Graph {
             vars += "?o" + i + " " + "?p" + (i + 1) + " " + "?o" + (i + 1) + " ";
             triples += "?o" + i + " " + "?p" + (i + 1) + " " + "?o" + (i + 1) + " . ";
             lastVar = "?o" + (i + 1);
+            lastPredicate = "?p" + (i + 1); 
             filter += "FILTER NOT EXISTS { ?o" + i + "  ?p" + (i + 1) + " ?t" + (i + 1) + ". FILTER(?t" + (i + 1) + " != ?o" + (i + 1) + ")}. ";
             if (uniqueProperties) {
                 filter += "FILTER NOT EXISTS { ?o" + i + "  ?p" + (i + 1) + " ?m" + (i + 1) + ". FILTER(?m" + (i + 1) + " != ?o" + (i + 1) + ")}. ";
@@ -81,7 +86,7 @@ public class ChainGraph extends Graph {
         filter = filter.replace("?o0", seed);
 
         //Return the chain in which the 1st node is the seed
-        if (endType == NodeType.IRI) {
+        if (endType == NodeType.URI) {
             filter += "FILTER isIRI(" + lastVar + "). ";
         } else if (endType == NodeType.NUMBER) {
             filter += "FILTER isNumeric(" + lastVar + "). ";
@@ -89,6 +94,9 @@ public class ChainGraph extends Graph {
             filter += "FILTER isLiteral(" + lastVar + "). ";
         } else if (endType == NodeType.DATE) {
             filter += "FILTER ( datatype(" + lastVar + ") = xsd:dateTime ). ";
+        }
+        else if (endType == NodeType.TYPE) {
+            filter += "FILTER (" + lastPredicate + " = rdf:type). ";
         }
 
         String query = "SELECT REDUCED " + vars + " WHERE { "
@@ -148,7 +156,7 @@ public class ChainGraph extends Graph {
         //Return the chain in which the 1st node is the seed
         if (seedType == NodeType.SUBJECT_ENTITY) {
 
-            if (endType == NodeType.IRI) {
+            if (endType == NodeType.URI) {
                 filter += "FILTER isIRI(?s). ";
             } else if (endType == NodeType.NUMBER) {
                 filter += "FILTER isNumeric(?s). ";

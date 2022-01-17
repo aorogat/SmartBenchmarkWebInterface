@@ -14,7 +14,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import offLine.kg_explorer.explorer.DBpediaExplorer;
 import offLine.kg_explorer.explorer.Database;
 import offLine.kg_explorer.explorer.SPARQL;
 import offLine.kg_explorer.model.Predicate;
@@ -36,7 +35,10 @@ public class Predicate_Representation_Extractor {
         for (Predicate predicate : predicates) {
             try {
                 if (predicate.getLabel().endsWith(" of")) {
-                    Database.storePredicates_NP("NP_S_O", predicate, predicate.getLabel(), 99, 1,1,1);
+                    if(KG_Settings.Triple_NP_Direction==KG_Settings.LABEL_NP_SO)
+                        Database.storePredicates_NP("NP_S_O", predicate, predicate.getLabel(), 99, 1, 1, 1);
+                    else
+                        Database.storePredicates_NP("NP_O_S", predicate, predicate.getLabel(), 99, 1,1,1);
                 } else {
                     Database.storePredicates_VP("VP_S_O", predicate, predicate.getLabel(), 100, 1,1,1);
                 }
@@ -54,7 +56,10 @@ public class Predicate_Representation_Extractor {
                     if (wordPOS(predicate.getLabel()).trim().equals("v")) {
                         Database.storePredicates_VP("VP_S_O", predicate, predicate.getLabel(), 99, 1,1,1);
                     } else if (wordPOS(predicate.getLabel()).trim().equals("n")) {
+                        if(KG_Settings.Triple_NP_Direction==KG_Settings.LABEL_NP_SO)
                         Database.storePredicates_NP("NP_S_O", predicate, predicate.getLabel(), 99, 1,1,1);
+                    else
+                        Database.storePredicates_NP("NP_O_S", predicate, predicate.getLabel(), 99, 1,1,1);
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -101,7 +106,10 @@ public class Predicate_Representation_Extractor {
                         }
                     }
                     if (!hasVerb) {
-                        Database.storePredicates_NP("NP_S_O", predicate, label, 98, 1,1,1);
+                        if(KG_Settings.Triple_NP_Direction==KG_Settings.LABEL_NP_SO)
+                        Database.storePredicates_NP("NP_S_O", predicate, predicate.getLabel(), 98, 1,1,1);
+                    else
+                        Database.storePredicates_NP("NP_O_S", predicate, predicate.getLabel(), 98, 1,1,1);
                     }
 
                 } catch (Exception ex) {
@@ -148,12 +156,12 @@ public class Predicate_Representation_Extractor {
                 phrase.setLabelSimilarity(BasicNLP_FromPython.phraseSimilarity(predicate.getLabel(), phrase.getPhrase()));
                 phrase.setSubjectSimilarity(
                         BasicNLP_FromPython.phraseSimilarity(
-                                SPARQL.getPredicateLabel(KG_Settings.explorer, predicate.getPredicateContext().getSubjectType()), 
+                                SPARQL.getNodeLabel(KG_Settings.explorer, predicate.getPredicateContext().getSubjectType()), 
                                 phrase.getPhrase())
                         );
                 phrase.setObjectSimilarity(
                         BasicNLP_FromPython.phraseSimilarity(
-                                SPARQL.getPredicateLabel(KG_Settings.explorer, predicate.getPredicateContext().getObjectType()), 
+                                SPARQL.getNodeLabel(KG_Settings.explorer, predicate.getPredicateContext().getObjectType()), 
                                 phrase.getPhrase())
                         );
                 phrase.setObjectSimilarity(BasicNLP_FromPython.phraseSimilarity(predicate.getLabel(), phrase.getPhrase()));
@@ -186,8 +194,8 @@ public class Predicate_Representation_Extractor {
                 continue;
             
             boolean s_o_direction = predicate.getNLPattern().indexOf("[s{") < predicate.getNLPattern().indexOf("[o{");
-            String subjectType = SPARQL.getPredicateLabel(KG_Settings.explorer, predicate.getPredicateContext().getSubjectType());
-            String objectType = SPARQL.getPredicateLabel(KG_Settings.explorer, predicate.getPredicateContext().getObjectType());
+            String subjectType = SPARQL.getNodeLabel(KG_Settings.explorer, predicate.getPredicateContext().getSubjectType());
+            String objectType = SPARQL.getNodeLabel(KG_Settings.explorer, predicate.getPredicateContext().getObjectType());
             double labelSimilarity = BasicNLP_FromPython.phraseSimilarity(predicate.getLabel(), np);
             double subjectSimilarity = BasicNLP_FromPython.phraseSimilarity(subjectType, np);
             double objectSimilarity = BasicNLP_FromPython.phraseSimilarity(objectType, np);
@@ -252,7 +260,7 @@ public class Predicate_Representation_Extractor {
         return content.toString();
     }
 
-    private static String getVerbPrepositionsConcatenated(String separator) {
+    public static String getVerbPrepositionsConcatenated(String separator) {
         return "above" + separator
                 + "across" + separator
                 + "about" + separator

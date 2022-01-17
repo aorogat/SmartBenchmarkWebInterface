@@ -104,7 +104,7 @@ public class Test{
     public static void testStar(ArrayList<TriplePattern> ts)
     {
         graph = new StarGraph(ts);
-        ArrayList<GeneratedQuestion> qs = StarQuestion.generateQuestions((StarGraph) graph);
+        ArrayList<GeneratedQuestion> qs = StarQuestion.getAllPossibleQuestions((StarGraph) graph);
         qs.forEach(q -> {q.print();});
         System.out.println("");
         System.out.println("");

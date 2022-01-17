@@ -12,9 +12,8 @@ import online.kg_extractor.model.subgraph.Graph;
  *
  * @author aorogat
  */
-public abstract class Explorer 
-{
-    
+public abstract class Explorer {
+
     public static KnowledgeGraph kg;
     protected static Explorer instance = null;
     public static String endpoint;
@@ -22,15 +21,21 @@ public abstract class Explorer
     public static ArrayList<VariableSet> predicatesTriplesVarSets;
     public static ArrayList<Graph> result = new ArrayList<>();
     protected ArrayList<Predicate> predicateList = new ArrayList<>();
-    
+
     public abstract ListOfPredicates explore(int from, int length);
-    
-    public abstract String removePrefix(String node);
+
+    public String removePrefix(String node) {
+        if (node == null) {
+            return node;
+        }
+
+        String s = "";
+        s = SPARQL.getNodeLabel(this, node);
+        return s;
+    }
 
     public Explorer() {
         predicatesVariableSet = new ArrayList<>();
     }
-     
-    
-    
+
 }

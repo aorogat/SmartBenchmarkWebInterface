@@ -19,7 +19,7 @@ public class TriplePattern {
 
     String s_type;
     String o_type;
-    
+
     String s_type_without_prefix;
     String o_type_without_prefix;
 
@@ -45,6 +45,7 @@ public class TriplePattern {
             }
 
         }
+
         s_type_without_prefix = KG_Settings.explorer.removePrefix(s_type);
         o_type_without_prefix = KG_Settings.explorer.removePrefix(o_type);
     }
@@ -56,8 +57,6 @@ public class TriplePattern {
         this.s_type = s_type;
         this.o_type = o_type;
     }
-
-    
 
     public Variable getSubject() {
         return subject;
@@ -105,7 +104,7 @@ public class TriplePattern {
     }
 
     public String toStringNotSubject() {
-        String s = " ____" + predicate.getValue() + "____ " + object.getValue() + "[" + o_type + "]";
+        String s = " ____" + predicate.getValue() + "____ " + object.getValue() + "[" + o_type_without_prefix + "]";
         return s;
     }
 

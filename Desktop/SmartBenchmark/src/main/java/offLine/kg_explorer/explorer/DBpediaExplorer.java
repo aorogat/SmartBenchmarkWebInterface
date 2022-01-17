@@ -334,8 +334,17 @@ public class DBpediaExplorer extends Explorer {
         return newContexts;
     }
 
-    @Override
-    public String removePrefix(String node) {
+//    @Override
+//    public String removePrefix(String node) {
+//        if(node==null)
+//            return node;
+//        
+//        
+//        String s = "";
+//        s = SPARQL.getNodeLabel(this, node);
+//        if(s!=null)
+//            return s;
+//        
 //        node = node.replace("http://dbpedia.org/resource/", "")
 //                .replace("http://dbpedia.org/ontology/", "")
 //                .replace("http://dbpedia.org/property/", "")
@@ -356,8 +365,10 @@ public class DBpediaExplorer extends Explorer {
 //                .replace("http://purl.org/linguistics/gold/", "")
 //                //.replace("","")
 //                .replace(">", "")
+//                .replace("(", "")
+//                .replace(")", "")
 //                .trim().replace('_', ' ');
-        return node;
-    }
+//        return node;
+//    }
 
 }

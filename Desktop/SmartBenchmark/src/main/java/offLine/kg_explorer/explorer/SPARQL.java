@@ -14,18 +14,37 @@ import system.components.Branch;
  */
 public class SPARQL {
 
-    public static String getPredicateLabel(Explorer explorer, String predicate) {
+    public static String getNodeLabel(Explorer explorer, String node) {
+        if(node.startsWith("<"))
+        {
+            node= node.replace("<", "").replace(">", "");
+        }
         String query = "";
         //get labels
         try {
             query = "SELECT DISTINCT ?l WHERE { ?p rdfs:label ?l. "
-                    + "FILTER(?p=<" + predicate.trim() + ">). "
+                    + "FILTER(?p=<" + node.trim() + ">). "
                     + "FILTER langMatches( lang(?l), \"EN\" )."
                     + "}";
             explorer.predicatesTriplesVarSets = explorer.kg.runQuery(query);
             return explorer.predicatesTriplesVarSets.get(0).getVariables().get(0).toString();
         } catch (Exception e) {
-            return (predicate.trim());
+            return null;
+        }
+    }
+    
+    public static String getSimilarEntity(Explorer explorer, String entity, String entityType) {
+        String query = "";
+        //get labels
+        try {
+            query = "SELECT ?similar WHERE { "
+                    + "?similar rdf:type <"+entityType+">. "
+                    + "FILTER(?similar!=<" + entity.trim() + ">). "
+                    + "} LIMIT 1";
+            explorer.predicatesTriplesVarSets = explorer.kg.runQuery(query);
+            return explorer.predicatesTriplesVarSets.get(0).getVariables().get(0).toString();
+        } catch (Exception e) {
+            return null;
         }
     }
 
