@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import offLine.kg_explorer.explorer.SPARQL;
-import offLine.kg_explorer.ontology.KGOntology;
 import online.kg_extractor.model.TriplePattern;
 import online.kg_extractor.model.subgraph.StarGraph;
 import offLine.scrapping.model.PredicateNLRepresentation;
@@ -14,11 +13,6 @@ import settings.KG_Settings;
 
 public class StarQuestion {
 
-    //public static Map<String, HashSet<String>> starPredicates = new HashMap<>();
-    //public static String seed;
-    //public static String seed_with_Prefix;
-    //public static String type = "";
-    //public static String type_with_Prefix = "";
     StarGraph starGraph;
     ArrayList<GeneratedQuestion> allPossibleQuestions = new ArrayList<>();
     String T;
@@ -64,13 +58,13 @@ public class StarQuestion {
         FCs_OR_NOT = factConstraints_toString(starGraph, CoordinatingConjunction.OR_NOT, starPredicates);
         FCs_NOT_NOT = factConstraints_toString(starGraph, CoordinatingConjunction.NOT_NOT, starPredicates);
 
-        if (starPredicates.size() == 1) {
+        if (starGraph.getStar().size() == 1) {
             selectQuestions(CoordinatingConjunction.AND);
             countQuestions(CoordinatingConjunction.AND);
             askQuestions_true_answer(CoordinatingConjunction.AND);
             askQuestions_false_answer(CoordinatingConjunction.AND);
             
-        } else if (starPredicates.size() == 2) {
+        } else if (starGraph.getStar().size() == 2 && starGraph.getStar().size()==starPredicates.size()) { //no repeated predicates
             selectQuestions(CoordinatingConjunction.AND);
             selectQuestions(CoordinatingConjunction.OR);
             selectQuestions(CoordinatingConjunction.AND_NOT);
@@ -84,18 +78,16 @@ public class StarQuestion {
             countQuestions(CoordinatingConjunction.NOT_NOT);
 
             askQuestions_true_answer(CoordinatingConjunction.AND);
-//            askQuestions_true_answer(CoordinatingConjunction.OR);
-//            askQuestions_true_answer(CoordinatingConjunction.AND_NOT);
-//            askQuestions_true_answer(CoordinatingConjunction.OR_NOT);
-//            askQuestions_true_answer(CoordinatingConjunction.NOT_NOT);
             
             askQuestions_false_answer(CoordinatingConjunction.AND);
-//            askQuestions_false_answer(CoordinatingConjunction.OR);
-//            askQuestions_false_answer(CoordinatingConjunction.AND_NOT);
-//            askQuestions_false_answer(CoordinatingConjunction.OR_NOT);
-//            askQuestions_false_answer(CoordinatingConjunction.NOT_NOT);
 
-        } else if (starPredicates.size() > 2) {
+        } else if (starGraph.getStar().size() == 2 && starGraph.getStar().size()!=starPredicates.size()) { //repeated predicates
+            selectQuestions(CoordinatingConjunction.AND);
+            countQuestions(CoordinatingConjunction.AND);
+            askQuestions_true_answer(CoordinatingConjunction.AND);
+            askQuestions_false_answer(CoordinatingConjunction.AND);
+
+        } else if (starGraph.getStar().size() > 2 && starGraph.getStar().size()==starPredicates.size()) { //no repeated predicates
             selectQuestions(CoordinatingConjunction.AND);
             selectQuestions(CoordinatingConjunction.OR);
 
@@ -103,30 +95,34 @@ public class StarQuestion {
             countQuestions(CoordinatingConjunction.OR);
 
             askQuestions_true_answer(CoordinatingConjunction.AND);
-//            askQuestions_true_answer(CoordinatingConjunction.OR);
             
             askQuestions_false_answer(CoordinatingConjunction.AND);
-//            askQuestions_false_answer(CoordinatingConjunction.OR);
+        }
+        else if (starGraph.getStar().size() > 2 && starGraph.getStar().size()!=starPredicates.size()) { //repeated predicates
+            selectQuestions(CoordinatingConjunction.AND);
+            countQuestions(CoordinatingConjunction.AND);
+            askQuestions_true_answer(CoordinatingConjunction.AND);
+            askQuestions_false_answer(CoordinatingConjunction.AND);
         }
     }
 
-    private String askQuery_true_answer(StarGraph starGraph, String coordinatingConjunction) {
+    public String askQuery_true_answer(StarGraph starGraph, String coordinatingConjunction) {
         return selectQuery(starGraph, coordinatingConjunction)
                 .replace("SELECT DISTINCT ?Seed WHERE{", "ASK WHERE{")
                 .replace("?Seed", "<" + starGraph.getStar().get(0).getSubject().getValueWithPrefix() + ">");
     }
     
-    private String askQuery_false_answer(StarGraph starGraph, String coordinatingConjunction) {
+    public String askQuery_false_answer(StarGraph starGraph, String coordinatingConjunction) {
         return selectQuery(starGraph, coordinatingConjunction)
                 .replace("SELECT DISTINCT ?Seed WHERE{", "ASK WHERE{")
                 .replace("?Seed", "<" + somethingElse + ">");
     }
 
-    private String countQuery(StarGraph starGraph, String coordinatingConjunction) {
+    public String countQuery(StarGraph starGraph, String coordinatingConjunction) {
         return selectQuery(starGraph, coordinatingConjunction).replace("SELECT DISTINCT ?Seed WHERE{", "SELECT (COUNT (?Seed) AS ?count) WHERE{");
     }
 
-    private void countQuestions(String coordinatingConjunction) {
+    public void countQuestions(String coordinatingConjunction) {
         String FCs = "";
         switch (coordinatingConjunction) {
             case CoordinatingConjunction.AND:
@@ -158,7 +154,7 @@ public class StarQuestion {
         }
     }
 
-    private void askQuestions_true_answer(String coordinatingConjunction) {
+    public void askQuestions_true_answer(String coordinatingConjunction) {
         String FCs = "";
         switch (coordinatingConjunction) {
             case CoordinatingConjunction.AND:
@@ -191,7 +187,7 @@ public class StarQuestion {
     }
     
     
-    private void askQuestions_false_answer(String coordinatingConjunction) {
+    public void askQuestions_false_answer(String coordinatingConjunction) {
         String FCs = "";
         switch (coordinatingConjunction) {
             case CoordinatingConjunction.AND:
@@ -224,7 +220,7 @@ public class StarQuestion {
         }
     }
 
-    private void selectQuestions(String coordinatingConjunction) {
+    public void selectQuestions(String coordinatingConjunction) {
         String FCs = "";
         switch (coordinatingConjunction) {
             case CoordinatingConjunction.AND:
@@ -259,7 +255,7 @@ public class StarQuestion {
         }
     }
 
-    private String selectWhichQuestions(String coordinatingConjunction) {
+    public String selectWhichQuestions(String coordinatingConjunction) {
         String FCs = "";
         switch (coordinatingConjunction) {
             case CoordinatingConjunction.AND:
@@ -287,7 +283,7 @@ public class StarQuestion {
         return null;
     }
 
-    private String selectQuery(StarGraph starGraph, String coordinatingConjunction) {
+    public String selectQuery(StarGraph starGraph, String coordinatingConjunction) {
         String query = "";
         String triples = "";
         ArrayList<TriplePattern> star = starGraph.getStar();
@@ -336,257 +332,7 @@ public class StarQuestion {
         return query;
     }
 
-//    public static ArrayList<GeneratedQuestion> getAllPossibleQuestions(StarGraph g) {
-//
-//        seed = g.getStar().get(0).getSubject().getValue();
-//        seed_with_Prefix = g.getStar().get(0).getSubject().getValueWithPrefix();
-//
-//        //get type - Fill starPredicates map
-////        for (TriplePattern triple : g.getStar()) {
-////            String typeLabel = triple.getPredicate().getValue();
-////            String s = triple.getSubject().getValue();
-////            String o = triple.getObject().getValue();
-////
-////            if (typeLabel.equals("rdf:type") || typeLabel.equals("a")) {
-////                type = triple.getObject().getValue();
-////                continue;
-////            }
-////            if (!starPredicates.containsKey(typeLabel)) {
-////                HashSet<String> objects = new HashSet<>();
-////                objects.add(o);
-////                starPredicates.put(typeLabel, objects);
-////            } else {
-////                starPredicates.get(typeLabel).add(o);
-////            }
-////        }
-//        ArrayList<GeneratedQuestion> questions = new ArrayList<>();
-//
-//        questions.add(generate_WithAnd_Question(g, QuestionType.which));// also include request
-//        questions.add(generate_WithAnd_Question(g, QuestionType.how_many));
-//        questions.add(generate_WithAnd_Question(g, QuestionType.yes_no));
-//
-//        if (starPredicates.size() > 1) {
-//            questions.add(generate_WithOr_Question(g, QuestionType.which));
-//            questions.add(generate_WithOr_Question(g, QuestionType.how_many));
-//            questions.add(generate_WithOr_Question(g, QuestionType.yes_no));
-//        }
-//
-//        //To remove duplicates
-//        return new ArrayList<>(new HashSet<>(questions));
-//    }
-//    private static GeneratedQuestion generate_WithAnd_Question(StarGraph g, int questionType) {
-//        ArrayList<String> questionStrings = new ArrayList<>();
-//        String seedValue = g.getStar().get(0).getSubject().getValue();
-//        String seedValueWithPrefix = g.getStar().get(0).getSubject().getValueWithPrefix();
-//
-//        //Construct the Question Strings
-//        switch (questionType) {
-//            case QuestionType.which:
-//            case QuestionType.request:
-//                questionStrings.add("Which " + type + starPredicates_NP_ToString("and") + "?");
-//                questionStrings.add("Which " + type + starPredicates_VP_ToString("and") + "?");
-//                String requestPrefix = Request.getRequestPrefix();
-//                questionStrings.add(requestPrefix + " " + type + " that" + starPredicates_NP_ToString("and") + "?");
-//                questionStrings.add(requestPrefix + " " + type + " that" + starPredicates_VP_ToString("and") + "?");
-//                break;
-//            case QuestionType.how_many:
-//                questionStrings.add("How many " + type + starPredicates_NP_ToString("and") + "?");
-//                questionStrings.add("How many " + type + starPredicates_VP_ToString("and") + "?");
-//                break;
-//            case QuestionType.yes_no:
-//                questionStrings.add("Is " + seedValue + starPredicates_NP_ToString("and").replace(" is ", " ") + "?");
-//                questionStrings.add("Does " + seedValue + starPredicates_VP_ToString_Yes_No_direction("and") + "?");
-//                break;
-//            default:;
-//        }
-//
-//        //Construct the Query
-//        String query = "";
-//        String triples = "";
-//        ArrayList<TriplePattern> star = g.getStar();
-//        for (TriplePattern triple : star) {
-//            triples += "\n\t" + triple.toQueryTriplePattern() + ". ";
-//        }
-//
-//        triples = triples.replace(seedValueWithPrefix, "?Seed");
-//        switch (questionType) {
-//            case QuestionType.which:
-//            case QuestionType.request:
-//                query = "SELECT DISTINCT ?Seed WHERE{" + triples + "\n}";
-//                break;
-//            case QuestionType.how_many:
-//                query = "SELECT (COUNT(DISTINCT ?Seed) as ?count) WHERE{" + triples + "\n}";
-//                break;
-//            case QuestionType.yes_no:
-//                query = "ASK WHERE{" + triples.replace("?Seed", seedValueWithPrefix) + "\n}";
-//                break;
-//            default:
-//                query = "";
-//        }
-//        return new GeneratedQuestion(questionStrings, query, g.toString());
-//    }
-//    private static GeneratedQuestion generate_WithOr_Question(StarGraph g, int questionType) {
-//        String seedValue = g.getStar().get(0).getSubject().getValue();
-//        String seedValueWithPrefix = g.getStar().get(0).getSubject().getValueWithPrefix();
-//        Map<String, HashSet<String>> starPredicatesTriples = new HashMap<>();
-//        ArrayList<String> questionStrings = new ArrayList<>();
-//        String query = "";
-//
-//        //Construct the Question Strings
-//        switch (questionType) {
-//            case QuestionType.which:
-//            case QuestionType.request:
-//                questionStrings.add("Which " + type + starPredicates_NP_ToString("or") + "?");
-//                questionStrings.add("Which " + type + starPredicates_VP_ToString("or") + "?");
-//                String requestPrefix = Request.getRequestPrefix();
-//                questionStrings.add(requestPrefix + " " + type + " that" + starPredicates_NP_ToString("or") + "?");
-//                questionStrings.add(requestPrefix + " " + type + " that" + starPredicates_VP_ToString("or") + "?");
-//                break;
-//            case QuestionType.how_many:
-//                questionStrings.add("How many " + type + starPredicates_NP_ToString("or") + "?");
-//                questionStrings.add("How many " + type + starPredicates_VP_ToString("or") + "?");
-//                break;
-//            case QuestionType.yes_no:
-//                questionStrings.add("Is " + seedValue + starPredicates_NP_ToString("or").replace(" is ", " ") + "?");
-//                questionStrings.add("Does " + type + starPredicates_VP_ToString_Yes_No_direction("or") + "?");
-//                break;
-//            default:;
-//        }
-//
-//        String triples = "";
-//        ArrayList<TriplePattern> star = g.getStar();
-//
-//        for (TriplePattern triple : star) {
-//            String typeLabel = triple.getPredicate().getValueWithPrefix();
-//            String s = triple.getSubject().getValueWithPrefix();
-//            String tripleString = triple.toQueryTriplePattern();
-//            if (!starPredicatesTriples.containsKey(typeLabel)) {
-//                HashSet<String> objects = new HashSet<>();
-//                objects.add(tripleString);
-//                starPredicatesTriples.put(typeLabel, objects);
-//            } else {
-//                starPredicatesTriples.get(typeLabel).add(tripleString);
-//            }
-//        }
-//
-//        //iterate over the map
-//        //get type triple
-//        String typeTriple = "";
-//        for (Map.Entry<String, HashSet<String>> entry : starPredicatesTriples.entrySet()) {
-//            ArrayList<String> sharedpredicateTriples = new ArrayList<>(entry.getValue());
-//            if (entry.getKey().equals("rdf:type") || entry.getKey().equals("a")) {
-//                typeTriple = sharedpredicateTriples.get(0);
-//            }
-//        }
-//
-//        for (Map.Entry<String, HashSet<String>> entry : starPredicatesTriples.entrySet()) {
-//            String triplesGroup = "\n\t\t" + typeTriple + ".";
-//            ArrayList<String> sharedpredicateTriples = new ArrayList<>(entry.getValue());
-//            if (!(entry.getKey().equals("rdf:type") || entry.getKey().equals("a"))) {
-//                for (String triple : sharedpredicateTriples) {
-//                    triplesGroup += "\n\t\t" + triple + ". ";
-//                }
-//                triples += "\n\t{" + triplesGroup + "\n\t} UNION ";
-//            }
-//        }
-//
-//        triples = triples.subSequence(0, triples.length() - 6) + " ";
-//
-//        triples = triples.replace(seedValueWithPrefix, "?Seed");
-//
-//        switch (questionType) {
-//            case QuestionType.which:
-//            case QuestionType.request:
-//                query = "SELECT DISTINCT ?Seed WHERE{" + triples + "\n}";
-//                break;
-//            case QuestionType.how_many:
-//                query = "SELECT (COUNT(DISTINCT ?Seed) as ?count) WHERE{" + triples + "\n}";
-//                break;
-//            case QuestionType.yes_no:
-//                query = "ASK WHERE{" + triples.replace("?Seed", seedValueWithPrefix) + "\n}";
-//                break;
-//            default:
-//                query = "";
-//        }
-//
-//        return new GeneratedQuestion(questionStrings, query, g.toString());
-//    }
-//    private static String starPredicates_NP_ToString(String conjenction) {
-//        try {
-//            String starString = "";
-//            conjenction = ", " + conjenction;
-//            String objectsList = "";
-//            boolean firstIteration = true;
-//            for (String p : starPredicates.keySet()) {
-//                if (starPredicates.size() <= 1) {
-//                    conjenction = "";
-//                }
-//                if (!firstIteration) {
-//                    starString += conjenction;
-//                }
-//                ArrayList<String> objects = new ArrayList<>(starPredicates.get(p));
-//                String o = objects.get(0);
-//                objectsList = objectListToString(objects);
-//                PredicateNLRepresentation predicateNL = PredicatesLexicon.getPredicateNL(p, KGOntology.getType(seed), KGOntology.getType(o));
-//                starString += " is the " + predicateNL.getPredicate_s_O_NP() + " of " + objectsList;
-//
-//                firstIteration = false;
-//            }
-//            return starString;
-//        } catch (Exception e) {
-//            return "";
-//        }
-//    }
-//    private static String starPredicates_VP_ToString(String conjenction) {
-//        try {
-//            String starString = "";
-//            conjenction = ", " + conjenction;
-//            boolean firstIteration = true;
-//            String objectsList = "";
-//            for (String p : starPredicates.keySet()) {
-//                if (starPredicates.size() <= 1) {
-//                    conjenction = "";
-//                }
-//                if (!firstIteration) {
-//                    starString += conjenction;
-//                }
-//                ArrayList<String> objects = new ArrayList<>(starPredicates.get(p));
-//                objectsList = objectListToString(objects);
-//                String o = objects.get(0);
-//                PredicateNLRepresentation predicateNL = PredicatesLexicon.getPredicateNL(p, KGOntology.getType(seed), KGOntology.getType(o));
-//                starString += " " + objectsList + " " + predicateNL.getPredicate_o_s_VP();
-//                firstIteration = false;
-//            }
-//            return starString;
-//        } catch (Exception e) {
-//            return "";
-//        }
-//    }
-//    private static String starPredicates_VP_ToString_Yes_No_direction(String conjenction) {
-//        try {
-//            String starString = "";
-//            conjenction = ", " + conjenction;
-//            boolean firstIteration = true;
-//            String objectsList = "";
-//            for (String p : starPredicates.keySet()) {
-//                if (starPredicates.size() <= 1) {
-//                    conjenction = "";
-//                }
-//                if (!firstIteration) {
-//                    starString += conjenction;
-//                }
-//                ArrayList<String> objects = new ArrayList<>(starPredicates.get(p));
-//                objectsList = objectListToString(objects);
-//                String o = objects.get(0);
-//                PredicateNLRepresentation predicateNL = PredicatesLexicon.getPredicateNL(p, KGOntology.getType(seed), KGOntology.getType(o));
-//                starString += " " + predicateNL.getPredicate_o_s_VP() + " " + objectsList;
-//                firstIteration = false;
-//            }
-//            return starString;
-//        } catch (Exception e) {
-//            return "";
-//        }
-//    }
+
     public static String objectListToString(ArrayList<String> objects) {
         String objectsList = "";
         if (objects.size() == 1) {
@@ -596,7 +342,6 @@ public class StarQuestion {
             String o2 = objects.get(1);
             objectsList = "both " + o1 + " and " + o2;
         } else if (objects.size() > 2) {
-
             //represent objectsList
             objectsList += objects.get(0);
             for (int i = 1; i < objects.size() - 1; i++) {
@@ -618,30 +363,7 @@ public class StarQuestion {
     public static String factConstraints_toString(StarGraph starGraph, String coorinatingConjunction, Map<String, HashSet<String>> starPredicates) {
         ArrayList<String> FCs_Representation = new ArrayList<>();
         ArrayList<TriplePattern> branches = starGraph.getStar();
-        
 
-//        for (String p : starPredicates.keySet()) {
-//
-//            ArrayList<String> objects = new ArrayList<>(starPredicates.get(p));
-//            String objectsList = objectListToString(objects);
-//            String p_with_Prefix = branch.getPredicate().getValueWithPrefix();
-//            String s_type = branch.getS_type();
-//            String o_type = branch.getO_type();
-//            String O = branch.getObject().getValue();
-//
-//            if (starPredicates.size() <= 1) {
-//                conjenction = "";
-//            }
-//            if (!firstIteration) {
-//                starString += conjenction;
-//            }
-//            ArrayList<String> objects = new ArrayList<>(starPredicates.get(p));
-//            objectsList = objectListToString(objects);
-//            String o = objects.get(0);
-//            PredicateNLRepresentation predicateNL = PredicatesLexicon.getPredicateNL(p, KGOntology.getType(seed), KGOntology.getType(o));
-//            starString += " " + predicateNL.getPredicate_o_s_VP() + " " + objectsList;
-//            firstIteration = false;
-//        }
 
         ArrayList<String> processedPredicates = new ArrayList<>();
         for (TriplePattern branch : branches) {
@@ -649,7 +371,6 @@ public class StarQuestion {
             String p = branch.getPredicate().getValue();
             String s_type = branch.getS_type();
             String o_type = branch.getO_type();
-//            String O = branch.getObject().getValue();
             ArrayList<String> objects = new ArrayList<>(starPredicates.get(p));
             String O = objectListToString(objects);
             
@@ -671,7 +392,11 @@ public class StarQuestion {
                     FCs_Representation.add(" " + O + " " + p_OS_VP);
                 } else if (predicateNL.getPredicate_o_s_NP() != null) {
                     String p_OS_NP = PhraseRepresentationProcessing.NP_only(predicateNL.getPredicate_o_s_NP());
-                    FCs_Representation.add(" its " + p_OS_NP + " is " + O);
+                    if (SPARQL.isASubtypeOf(KG_Settings.explorer, starGraph.getSeedType(), KG_Settings.Person)) {
+                        FCs_Representation.add(" his/her " + p_OS_NP + " is " + O);
+                    }
+                    else
+                        FCs_Representation.add(" its " + p_OS_NP + " is " + O);
                 } else {
                     return null;
                 }
@@ -720,6 +445,31 @@ public class StarQuestion {
                 break;
         }
         return FCs;
+    }
+    
+    public String getFCs_with_T_COO_is_AND()
+    {
+        return T + FCs_AND;
+    }
+    
+    public String getFCs_with_T_COO_is_OR()
+    {
+        return T + FCs_OR;
+    }
+    
+    public String getFCs_with_T_COO_is_AND_NOT()
+    {
+        return T + FCs_AND_NOT;
+    }
+    
+    public String getFCs_with_T_COO_is_OR_NOT()
+    {
+        return T + FCs_OR_NOT;
+    }
+    
+    public String getFCs_with_T_COO_is_NOT_NOT()
+    {
+        return T + FCs_NOT_NOT;
     }
 
 }

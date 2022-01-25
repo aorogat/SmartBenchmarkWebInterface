@@ -6,14 +6,21 @@ import online.kg_extractor.model.NodeType;
 import online.kg_extractor.model.TriplePattern;
 import online.kg_extractor.model.Variable;
 import online.kg_extractor.model.subgraph.ChainGraph;
+import online.kg_extractor.model.subgraph.CycleGraph;
+import online.kg_extractor.model.subgraph.FlowerGraph;
 import online.kg_extractor.model.subgraph.Graph;
 import online.kg_extractor.model.subgraph.SingleEdgeGraph;
 import online.kg_extractor.model.subgraph.StarGraph;
+import online.kg_extractor.model.subgraph.TreeGraph;
 import online.nl_generation.ChainQuestion;
+import online.nl_generation.CycleGeneralQuestion;
+import online.nl_generation.CycleQuestion;
+import online.nl_generation.FlowerQuestion;
 import online.nl_generation.GeneratedQuestion;
 import online.nl_generation.SingleEdgeQuestion;
 import online.nl_generation.StarQuestion;
 import static online.nl_generation.Test.graph;
+import online.nl_generation.TreeQuestion;
 import settings.KG_Settings;
 
 /**
@@ -41,19 +48,13 @@ public class ShapesGenerator {
 //            testSingleEdge(branch);
 //            testChain(branch, 2);
 //            testChain(branch, 3);
-            testStar(branch, 2);
+//            testStar(branch, 2);
+//            testStar(branch, 3);
+//            testTree(branch, 2);
+//            testCycle(branch);
+//            testCycleGeneral(branch);
+            testFlower(branch, 2);
 
-            //ArrayList<Graph> graphs = singleEdgeGraph.generate(KG_Settings.knowledgeGraph, "<" + seed.seed + ">", NodeType.SUBJECT_ENTITY, NodeType.ANY, false, false);
-//            for (Graph graph : graphs) {
-//                System.out.println(graph.toString());
-//                graph = (SingleEdgeGraph) graph;
-//                SingleEdgeQuestion singleEdgeQuestion = new SingleEdgeQuestion(singleEdgeGraph, S_type_withPrefix, O_type_withPrefix)
-//                ArrayList<GeneratedQuestion> qs = singleEdgeQuestion.generateAllPossibleSingleEdgeQuestions();
-//                qs.forEach(q -> {
-//                    q.print();
-//                });
-//                System.out.println("");
-//            }
         }
     }
 
@@ -63,10 +64,13 @@ public class ShapesGenerator {
                 new Variable("o", branch.o, branch.o_type),
                 new Variable("l", branch.p, "_"));
         SingleEdgeGraph singleEdgeGraph = new SingleEdgeGraph(t0);
-        SingleEdgeQuestion singleEdgeQuestion = new SingleEdgeQuestion(singleEdgeGraph, branch.s_type, branch.o_type);
-        generatedQuestions = singleEdgeQuestion.getAllPossibleQuestions();
-        for (GeneratedQuestion generatedQuestion : generatedQuestions) {
-            generatedQuestion.print();
+        String graphString = singleEdgeGraph.toString();
+        if (!graphString.contains("UNKONWN") && !graphString.contains("null")) {
+            SingleEdgeQuestion singleEdgeQuestion = new SingleEdgeQuestion(singleEdgeGraph, branch.s_type, branch.o_type);
+            generatedQuestions = singleEdgeQuestion.getAllPossibleQuestions();
+            for (GeneratedQuestion generatedQuestion : generatedQuestions) {
+                generatedQuestion.print();
+            }
         }
     }
 
@@ -92,26 +96,141 @@ public class ShapesGenerator {
     }
 
     public static void testStar(Branch branch, int n) {
-        System.out.println("============================= Star (n=" + n + ") Questions for ("+branch.s+")==================================");
-        //Chain - Length 2
+        System.out.println("============================= Star (n=" + n + " + 1 type branch) Questions for (" + branch.s + ")==================================");
         StarGraph starGraph = new StarGraph();
         int[] ends = new int[]{NodeType.URI, NodeType.URI, NodeType.URI};
-        ArrayList<StarGraph> starGraphs = starGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, ends, n, 1, 50);
-//        ArrayList<Graph> starGraphs = starGraph.generate_OBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, ends, n, 1, 50);
+        ArrayList<StarGraph> starGraphs = starGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, ends, n, 1, 50);//try 50 graphs because probability of failure increase
+
         for (StarGraph currentStarGraph : starGraphs) {
             String graphString = currentStarGraph.toString();
             if (!graphString.contains("UNKONWN") && !graphString.contains("null")) { //if it contains null, this means one of the objects not belonging to contexts in the DB: i.e, its type not start with dbo:
                 System.out.println(currentStarGraph.getSeedType());
                 System.out.println(graphString);
                 StarQuestion starQuestion = new StarQuestion(currentStarGraph);
-                    generatedQuestions = starQuestion.getAllPossibleQuestions();
+                generatedQuestions = starQuestion.getAllPossibleQuestions();
+                for (GeneratedQuestion generatedQuestion : generatedQuestions) {
+                    generatedQuestion.print();
+                }
+            }
+
+        }
+    }
+
+    public static void testTree(Branch branch, int n) {
+        System.out.println("============================= Tree (n=" + n + " + 1 type branch) Questions for (" + branch.s + ")==================================");
+        StarGraph starGraph = new StarGraph();
+        int[] ends = new int[]{NodeType.URI, NodeType.URI, NodeType.URI};
+        ArrayList<StarGraph> rootStarGraphs = starGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, ends, n, 1, 50);//try 50 graphs because probability of failure increase
+
+        for (StarGraph currentStarGraph : rootStarGraphs) {
+            try {
+                ArrayList<StarGraph> tree_starGraphs = new ArrayList<>();
+                tree_starGraphs.add(currentStarGraph);
+                //add other
+                int[] star2_ends = new int[]{NodeType.URI};
+                StarGraph secondaryStarGraph = starGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, currentStarGraph.getStar().get(0).getObject().getValueWithPrefix(),
+                        star2_ends, 1, 1, 6).get(0);
+                tree_starGraphs.add(secondaryStarGraph);
+
+                TreeGraph treeGraph = new TreeGraph(tree_starGraphs);
+
+                String graphString = treeGraph.toString();
+                if (!graphString.contains("UNKONWN") && !graphString.contains("null")) { //if it contains null, this means one of the objects not belonging to contexts in the DB: i.e, its type not start with dbo:
+                    TreeQuestion treeQuestion = new TreeQuestion(treeGraph);
+
+                    generatedQuestions = treeQuestion.getAllPossibleQuestions();
+                    System.out.println(treeGraph.getSeedType());
+                    System.out.println(graphString);
                     for (GeneratedQuestion generatedQuestion : generatedQuestions) {
                         generatedQuestion.print();
                     }
 //
+                }
+
+            } catch (Exception e) {
+                System.out.println("");
+            }
+        }
+
+    }
+
+    public static void testCycle(Branch branch) {
+        System.out.println("============================= Cycle Questions ==================================");
+        //Cycle 
+        CycleGraph cycleGraph = new CycleGraph();
+        ArrayList<CycleGraph> graphs = cycleGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, NodeType.SUBJECT_ENTITY, 50); //For one or many answers questions
+        for (CycleGraph currecntCycleGraph : graphs) {
+            String graphString = currecntCycleGraph.toString();
+            if (!graphString.contains("UNKONWN") && !graphString.contains("null")) {
+                System.out.println(graphString);
+                CycleQuestion question = new CycleQuestion(currecntCycleGraph);
+                generatedQuestions = question.getAllPossibleQuestions();
+                for (GeneratedQuestion generatedQuestion : generatedQuestions) {
+                    generatedQuestion.print();
+                }
+
             }
 
         }
+    }
+
+    public static void testCycleGeneral(Branch branch) {
+        System.out.println("============================= Cycle General Questions ==================================");
+        //Cycle 
+        CycleGraph cycleGraph = new CycleGraph();
+        ArrayList<CycleGraph> graphs = cycleGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, NodeType.SUBJECT_ENTITY, 50); //For one or many answers questions
+        for (CycleGraph currecntCycleGraph : graphs) {
+            String graphString = currecntCycleGraph.toString();
+            if (!graphString.contains("UNKONWN") && !graphString.contains("null")) {
+                System.out.println(graphString);
+                CycleGeneralQuestion question = new CycleGeneralQuestion(currecntCycleGraph);
+                generatedQuestions = question.getAllPossibleQuestions();
+                for (GeneratedQuestion generatedQuestion : generatedQuestions) {
+                    generatedQuestion.print();
+                }
+
+            }
+
+        }
+    }
+
+    public static void testFlower(Branch branch, int n) {
+        System.out.println("============================= Flower (n=" + n + " + 1 type branch) Questions for (" + branch.s + ")==================================");
+        StarGraph starGraph = new StarGraph();
+        int[] ends = new int[]{NodeType.URI, NodeType.URI, NodeType.URI};
+        ArrayList<StarGraph> rootStarGraphs = starGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, ends, n, 1, 50);//try 50 graphs because probability of failure increase
+
+        for (StarGraph currentStarGraph : rootStarGraphs) {
+            try {
+                String starPredicates = "";
+                for (TriplePattern tp : currentStarGraph.getStar()) {
+                    starPredicates += "<" + tp.getPredicate().getValueWithPrefix() + ">, ";
+                }
+                
+                CycleGraph cycleGraph = new CycleGraph();
+                cycleGraph.setUnwantedPropertiesString(starPredicates);
+                
+                
+                ArrayList<CycleGraph> graphs = cycleGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, NodeType.SUBJECT_ENTITY, 50); //For one or many answers questions
+                for (CycleGraph currecntCycleGraph : graphs) {
+                    FlowerGraph flowerGraph = new FlowerGraph(currentStarGraph, currecntCycleGraph);
+                    String graphString = flowerGraph.toString();
+                    if (!graphString.contains("UNKONWN") && !graphString.contains("null")) {
+                        System.out.println(graphString);
+                        FlowerQuestion question = new FlowerQuestion(flowerGraph);
+                        generatedQuestions = question.getAllPossibleQuestions();
+                        for (GeneratedQuestion generatedQuestion : generatedQuestions) {
+                            generatedQuestion.print();
+                        }
+                    }
+
+                }
+            } catch (Exception e) {
+//                e.printStackTrace();
+                System.out.println("");
+            }
+        }
+
     }
 
 }

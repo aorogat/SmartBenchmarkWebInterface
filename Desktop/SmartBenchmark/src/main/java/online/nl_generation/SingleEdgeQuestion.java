@@ -44,14 +44,12 @@ public class SingleEdgeQuestion {
     ArrayList<GeneratedQuestion> allPossibleQuestions = new ArrayList<>();
 
     public SingleEdgeQuestion(SingleEdgeGraph singleEdgeGraph, String S_type_withPrefix, String O_type_withPrefix) {
-        
 
         intialize_Seed_is_S(singleEdgeGraph, S_type_withPrefix, O_type_withPrefix);
         intialize_Seed_is_O(singleEdgeGraph, S_type_withPrefix, O_type_withPrefix);
     }
-    
-    void intialize_Seed_is_S(SingleEdgeGraph singleEdgeGraph, String S_type_withPrefix, String O_type_withPrefix)
-    {
+
+    void intialize_Seed_is_S(SingleEdgeGraph singleEdgeGraph, String S_type_withPrefix, String O_type_withPrefix) {
         this.singleEdgeGraph = singleEdgeGraph;
         this.S_type_withPrefix = S_type_withPrefix;
         this.O_type_withPrefix = O_type_withPrefix;
@@ -65,7 +63,7 @@ public class SingleEdgeQuestion {
 
         somethingElse = SPARQL.getSimilarEntity(KG_Settings.explorer, S_withPrefix, this.S_type_withPrefix);
         somethingElseWithoutPrefix = KG_Settings.explorer.removePrefix(somethingElse);
-        
+
         PredicateNLRepresentation predicateNL = PredicatesLexicon.getPredicateNL(P_withPrefix, S_type_withPrefix, O_type_withPrefix);
         s_o_VP = predicateNL.getPredicate_s_O_VP();
         s_o_NP = predicateNL.getPredicate_s_O_NP();
@@ -89,9 +87,8 @@ public class SingleEdgeQuestion {
 
         generateAllPossibleSingleEdgeQuestions();
     }
-    
-    void intialize_Seed_is_O(SingleEdgeGraph singleEdgeGraph, String S_type_withPrefix, String O_type_withPrefix)
-    {
+
+    void intialize_Seed_is_O(SingleEdgeGraph singleEdgeGraph, String S_type_withPrefix, String O_type_withPrefix) {
         //Relace each s by o and o by s ////////////////////////////////////////////////////////
         this.singleEdgeGraph = singleEdgeGraph;
         this.O_type_withPrefix = S_type_withPrefix;
@@ -103,24 +100,23 @@ public class SingleEdgeQuestion {
         O_withPrefix = singleEdgeGraph.getTriplePattern().getSubject().getValueWithPrefix();
         P_withPrefix = singleEdgeGraph.getTriplePattern().getPredicate().getValueWithPrefix();
         S_withPrefix = singleEdgeGraph.getTriplePattern().getObject().getValueWithPrefix();
-        
+
         somethingElse = SPARQL.getSimilarEntity(KG_Settings.explorer, S_withPrefix, this.S_type_withPrefix);
         somethingElseWithoutPrefix = KG_Settings.explorer.removePrefix(somethingElse);
 
         PredicateNLRepresentation predicateNL = PredicatesLexicon.getPredicateNL(P_withPrefix, S_type_withPrefix, O_type_withPrefix); //except this one
-        
-        
+
         o_s_VP = predicateNL.getPredicate_s_O_VP();
         o_s_NP = predicateNL.getPredicate_s_O_NP();
         s_o_VP = predicateNL.getPredicate_o_s_VP();
         s_o_NP = predicateNL.getPredicate_o_s_NP();
         ///////////////////////////////////////////////////////////////////////////////////////////
-        
-        s_o_NP_without_verb= null;
+
+        s_o_NP_without_verb = null;
         o_s_NP_without_verb = null;
         s_o_NP_only = null;
         o_s_NP_only = null;
-        
+
         if (s_o_NP != null) {
             s_o_NP_without_verb = PhraseRepresentationProcessing.NP_without_verb(s_o_NP);
             s_o_NP_only = PhraseRepresentationProcessing.NP_only(s_o_NP);
@@ -174,9 +170,12 @@ public class SingleEdgeQuestion {
     }
 
     public String generateAskQuery_Wrong() {
-        String triple = singleEdgeGraph.getTriplePattern().toQueryTriplePattern()
-                .replace(S_withPrefix, somethingElse) + " .";
-        return "ASK WHERE{\n\t" + triple + "\n}";
+        String triple = singleEdgeGraph.getTriplePattern().toQueryTriplePattern();
+        if (triple != null) {
+            triple = triple.replace(S_withPrefix, somethingElse) + " .";
+            return "ASK WHERE{\n\t" + triple + "\n}";
+        }
+        return null;
     }
 
     private void generateQuestionSELECT_e_of_type_Person() {
@@ -300,7 +299,6 @@ public class SingleEdgeQuestion {
 //            o_s_NP_without_verb = o_s_NP.replace("were ", "");
 //            questions.add("Were " + O + " " + o_s_NP_without_verb + " " + S + "?");
 //        }
-
         if (s_o_VP != null) {
             questions.add("Does " + S + " " + s_o_VP + " " + O + "?");
         }
@@ -317,7 +315,7 @@ public class SingleEdgeQuestion {
 
         String s_o_NP_Auxiliary_Verb = "";
 
-         if (s_o_NP != null && s_o_NP.startsWith("is/are ")) {
+        if (s_o_NP != null && s_o_NP.startsWith("is/are ")) {
             s_o_NP_without_verb = s_o_NP.replace("is/are ", "");
             questions.add("Is " + somethingElseWithoutPrefix + " " + s_o_NP_without_verb + " " + O + "?");
         } else if (s_o_NP != null && s_o_NP.startsWith("is ")) {
@@ -350,7 +348,6 @@ public class SingleEdgeQuestion {
 //            o_s_NP_without_verb = o_s_NP.replace("were ", "");
 //            questions.add("Were " + somethingElseWithoutPrefix + " " + o_s_NP_without_verb + " " + S + "?");
 //        }
-
         if (s_o_VP != null) {
             questions.add("Does " + somethingElseWithoutPrefix + " " + s_o_VP + " " + O + "?");
         }
@@ -369,7 +366,4 @@ public class SingleEdgeQuestion {
         this.allPossibleQuestions = allPossibleQuestions;
     }
 
-    
-    
-    
 }

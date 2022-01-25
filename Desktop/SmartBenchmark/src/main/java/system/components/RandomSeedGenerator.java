@@ -23,7 +23,7 @@ public class RandomSeedGenerator
         System.out.println("==============================================");
         int count = 0;
         for (Predicate p : availablePredicates) {
-            count += 20; if(count>=2000) break;
+            count += 1; if(count>=300) break;
             //Get some examples
             Branch branch = SPARQL.getBranchOfType_SType_connectTo_OType(KG_Settings.explorer, p.getPredicateContext().getSubjectType(),
                     p.getPredicateContext().getObjectType(), p.getPredicateURI(), 0);

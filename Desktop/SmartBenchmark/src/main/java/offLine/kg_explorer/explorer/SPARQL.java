@@ -26,8 +26,8 @@ public class SPARQL {
                     + "FILTER(?p=<" + node.trim() + ">). "
                     + "FILTER langMatches( lang(?l), \"EN\" )."
                     + "}";
-            explorer.predicatesTriplesVarSets = explorer.kg.runQuery(query);
-            return explorer.predicatesTriplesVarSets.get(0).getVariables().get(0).toString();
+            ArrayList<VariableSet> varSet = explorer.kg.runQuery(query);
+            return varSet.get(0).getVariables().get(0).toString();
         } catch (Exception e) {
             return null;
         }
@@ -41,8 +41,8 @@ public class SPARQL {
                     + "?similar rdf:type <"+entityType+">. "
                     + "FILTER(?similar!=<" + entity.trim() + ">). "
                     + "} LIMIT 1";
-            explorer.predicatesTriplesVarSets = explorer.kg.runQuery(query);
-            return explorer.predicatesTriplesVarSets.get(0).getVariables().get(0).toString();
+            ArrayList<VariableSet> varSet = explorer.kg.runQuery(query);
+            return varSet.get(0).getVariables().get(0).toString();
         } catch (Exception e) {
             return null;
         }
@@ -68,8 +68,8 @@ public class SPARQL {
                     + "\n"
                     + "    FILTER strstarts(str(?s_type ), str(dbo:))"
                     + "}";
-            explorer.predicatesTriplesVarSets = explorer.kg.runQuery(query);
-            return explorer.predicatesTriplesVarSets.get(0).getVariables().get(0).toString();
+            ArrayList<VariableSet> varSet = explorer.kg.runQuery(query);
+            return varSet.get(0).getVariables().get(0).toString();
         } catch (Exception e) {
             return "UNKONWN";
         }
@@ -167,8 +167,8 @@ public class SPARQL {
             query = "ASK WHERE {\n"
                     + "  " + child + " rdfs:subClassOf* " + parent + ".\n"
                     + "}";
-            explorer.predicatesTriplesVarSets = explorer.kg.runQuery(query);
-            String answer = explorer.predicatesTriplesVarSets.get(0).getVariables().get(0).getValue();
+            ArrayList<VariableSet> varSet = explorer.kg.runQuery(query);
+            String answer = varSet.get(0).getVariables().get(0).getValueWithPrefix();
             if (answer.equals("true")) {
                 return true;
             } else {

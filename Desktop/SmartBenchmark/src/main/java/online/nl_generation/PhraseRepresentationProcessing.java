@@ -18,6 +18,11 @@ public class PhraseRepresentationProcessing {
                 .replaceAll("(" + Predicate_Representation_Extractor.getVerbPrepositionsConcatenated("\\b|\\b") + ")", "").trim();
     }
     
+    public static String NP_without_Preposition(String NP)
+    {
+        return NP.replaceAll("(" + Predicate_Representation_Extractor.getVerbPrepositionsConcatenated("\\b|\\b") + ")", "").trim();
+    }
+    
     public static String NP_without_verb___first(String NP)
     {
         return NP.replaceFirst("(\\bis/are\\b|\\bis\\b|\\bare\\b|\\bwas\\b|\\bwere\\b) ", "").trim();

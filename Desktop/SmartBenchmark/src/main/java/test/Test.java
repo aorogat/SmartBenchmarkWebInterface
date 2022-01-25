@@ -60,12 +60,12 @@ public class Test {
     {
         //Test Star
         StarGraph starGraph = new StarGraph();
-        ArrayList<Graph> star_graphs = starGraph.generate(kg, seed, new int[]{NodeType.LITERAL, NodeType.NUMBER, NodeType.NUMBER}, 4, 1);
+//        ArrayList<Graph> star_graphs = starGraph.generate(kg, seed, new int[]{NodeType.LITERAL, NodeType.NUMBER, NodeType.NUMBER}, 4, 1);
 
-        System.out.println("Size: " + star_graphs.size());
-        for (Graph graph : star_graphs) {
-            System.out.println(graph.toString());
-        }
+//        System.out.println("Size: " + star_graphs.size());
+//        for (Graph graph : star_graphs) {
+//            System.out.println(graph.toString());
+//        }
         //////////////////////////////////////////
     }
 }

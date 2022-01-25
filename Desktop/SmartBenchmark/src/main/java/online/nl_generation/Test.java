@@ -103,27 +103,27 @@ public class Test{
     
     public static void testStar(ArrayList<TriplePattern> ts)
     {
-        graph = new StarGraph(ts);
-        ArrayList<GeneratedQuestion> qs = StarQuestion.getAllPossibleQuestions((StarGraph) graph);
-        qs.forEach(q -> {q.print();});
-        System.out.println("");
-        System.out.println("");
+//        graph = new StarGraph(ts);
+//        ArrayList<GeneratedQuestion> qs = StarQuestion.getAllPossibleQuestions((StarGraph) graph);
+//        qs.forEach(q -> {q.print();});
+//        System.out.println("");
+//        System.out.println("");
     }
     
     public static void testChain(ArrayList<TriplePattern> ts)
     {
-        graph = new ChainGraph(ts);
-        ArrayList<GeneratedQuestion> qs = ChainQuestion.generateQuestions((ChainGraph) graph);
-        qs.forEach(q -> {q.print();});
-        System.out.println("");
+//        graph = new ChainGraph(ts);
+//        ArrayList<GeneratedQuestion> qs = ChainQuestion.generateQuestions((ChainGraph) graph);
+//        qs.forEach(q -> {q.print();});
+//        System.out.println("");
     }
     
     public static void testSingleEdge(TriplePattern t)
     {
-        graph = new SingleEdgeGraph(t);
-        ArrayList<GeneratedQuestion> qs = SingleEdgeQuestion.generateQuestions((SingleEdgeGraph) graph);
-        qs.forEach(q -> {q.print();});
-        System.out.println("");
+//        graph = new SingleEdgeGraph(t);
+//        ArrayList<GeneratedQuestion> qs = SingleEdgeQuestion.generateQuestions((SingleEdgeGraph) graph);
+//        qs.forEach(q -> {q.print();});
+//        System.out.println("");
     }
     
     

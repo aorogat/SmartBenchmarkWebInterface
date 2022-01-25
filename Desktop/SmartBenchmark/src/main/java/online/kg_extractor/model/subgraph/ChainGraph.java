@@ -79,6 +79,9 @@ public class ChainGraph extends Graph {
             if (uniqueProperties) {
                 filter += "FILTER NOT EXISTS { ?o" + i + "  ?p" + (i + 1) + " ?m" + (i + 1) + ". FILTER(?m" + (i + 1) + " != ?o" + (i + 1) + ")}. ";
             }
+            for (int j = 0; j < i; j++) {
+                filter += "FILTER (?o" + i + "!=?o" + j + "). ";
+            }
         }
 
         vars = vars.replace("?o0", seed);
@@ -143,6 +146,9 @@ public class ChainGraph extends Graph {
         String unwantedPropertiesString = knowledgeGraph.getUnwantedPropertiesString();
         for (int i = 0; i < chainLength; i++) {
             filter += "FILTER (?p" + (i + 1) + " NOT IN(" + unwantedPropertiesString + ")). ";
+            for (int j = 0; j < i; j++) {
+                filter += "FILTER (?o" + i + "!=?o" + j + "). ";
+            }
         }
 
         for (int i = 0; i < chainLength; i++) {

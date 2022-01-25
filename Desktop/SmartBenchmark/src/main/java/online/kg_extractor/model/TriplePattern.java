@@ -113,4 +113,22 @@ public class TriplePattern {
         return s;
     }
 
+    public String getS_type_without_prefix() {
+        return s_type_without_prefix;
+    }
+
+    public void setS_type_without_prefix(String s_type_without_prefix) {
+        this.s_type_without_prefix = s_type_without_prefix;
+    }
+
+    public String getO_type_without_prefix() {
+        return o_type_without_prefix;
+    }
+
+    public void setO_type_without_prefix(String o_type_without_prefix) {
+        this.o_type_without_prefix = o_type_without_prefix;
+    }
+
+    
+    
 }
