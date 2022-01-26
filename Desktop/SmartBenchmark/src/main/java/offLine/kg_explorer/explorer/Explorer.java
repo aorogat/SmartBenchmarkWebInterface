@@ -28,6 +28,9 @@ public abstract class Explorer {
         if (node == null) {
             return node;
         }
+        
+        if(node.equals("true")||node.equals("false"))
+            return node;
 
         String s = "";
         s = SPARQL.getNodeLabel(this, node);

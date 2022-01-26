@@ -19,7 +19,6 @@ import online.nl_generation.FlowerQuestion;
 import online.nl_generation.GeneratedQuestion;
 import online.nl_generation.SingleEdgeQuestion;
 import online.nl_generation.StarQuestion;
-import static online.nl_generation.Test.graph;
 import online.nl_generation.TreeQuestion;
 import settings.KG_Settings;
 
@@ -45,15 +44,22 @@ public class ShapesGenerator {
         for (Branch branch : branchs) {
 
             //Single-Edge
-//            testSingleEdge(branch);
-//            testChain(branch, 2);
-//            testChain(branch, 3);
-//            testStar(branch, 2);
-//            testStar(branch, 3);
-//            testTree(branch, 2);
-//            testCycle(branch);
-//            testCycleGeneral(branch);
+            testSingleEdge(branch);
+            testChain(branch, 2);
+            testChain(branch, 3);
+            testStar(branch, 2);
+            testStar(branch, 3);
+            testStar(branch, 4);
+            testStar(branch, 5);
+            testStar(branch, 6);
+            testTree(branch, 2);
+            testTree(branch, 3);
+            testTree(branch, 4);
+            testCycle(branch);
+            testCycleGeneral(branch);
             testFlower(branch, 2);
+            testFlower(branch, 3);
+            testFlower(branch, 4);
 
         }
     }
@@ -99,8 +105,8 @@ public class ShapesGenerator {
         System.out.println("============================= Star (n=" + n + " + 1 type branch) Questions for (" + branch.s + ")==================================");
         StarGraph starGraph = new StarGraph();
         int[] ends = new int[]{NodeType.URI, NodeType.URI, NodeType.URI};
-        ArrayList<StarGraph> starGraphs = starGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, ends, n, 1, 50);//try 50 graphs because probability of failure increase
-
+        ArrayList<StarGraph> starGraphs = starGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, ends, n, 1, 10);//try 10 graphs because probability of failure increase
+        int succededGraphs = 0;
         for (StarGraph currentStarGraph : starGraphs) {
             String graphString = currentStarGraph.toString();
             if (!graphString.contains("UNKONWN") && !graphString.contains("null")) { //if it contains null, this means one of the objects not belonging to contexts in the DB: i.e, its type not start with dbo:
@@ -108,6 +114,12 @@ public class ShapesGenerator {
                 System.out.println(graphString);
                 StarQuestion starQuestion = new StarQuestion(currentStarGraph);
                 generatedQuestions = starQuestion.getAllPossibleQuestions();
+                if (generatedQuestions.size() > 0) {
+                    succededGraphs++;
+                    if (succededGraphs >= 3) {
+                        break;
+                    }
+                }
                 for (GeneratedQuestion generatedQuestion : generatedQuestions) {
                     generatedQuestion.print();
                 }
@@ -120,8 +132,8 @@ public class ShapesGenerator {
         System.out.println("============================= Tree (n=" + n + " + 1 type branch) Questions for (" + branch.s + ")==================================");
         StarGraph starGraph = new StarGraph();
         int[] ends = new int[]{NodeType.URI, NodeType.URI, NodeType.URI};
-        ArrayList<StarGraph> rootStarGraphs = starGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, ends, n, 1, 50);//try 50 graphs because probability of failure increase
-
+        ArrayList<StarGraph> rootStarGraphs = starGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, ends, n, 1, 10);//try 10 graphs because probability of failure increase
+        int succededGraphs = 0;
         for (StarGraph currentStarGraph : rootStarGraphs) {
             try {
                 ArrayList<StarGraph> tree_starGraphs = new ArrayList<>();
@@ -139,6 +151,12 @@ public class ShapesGenerator {
                     TreeQuestion treeQuestion = new TreeQuestion(treeGraph);
 
                     generatedQuestions = treeQuestion.getAllPossibleQuestions();
+                    if (generatedQuestions.size() > 0) {
+                        succededGraphs++;
+                        if (succededGraphs >= 3) {
+                            break;
+                        }
+                    }
                     System.out.println(treeGraph.getSeedType());
                     System.out.println(graphString);
                     for (GeneratedQuestion generatedQuestion : generatedQuestions) {
@@ -158,13 +176,21 @@ public class ShapesGenerator {
         System.out.println("============================= Cycle Questions ==================================");
         //Cycle 
         CycleGraph cycleGraph = new CycleGraph();
-        ArrayList<CycleGraph> graphs = cycleGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, NodeType.SUBJECT_ENTITY, 50); //For one or many answers questions
+        ArrayList<CycleGraph> graphs = cycleGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, NodeType.SUBJECT_ENTITY, 10); //For one or many answers questions
+        int succededGraphs = 0;
         for (CycleGraph currecntCycleGraph : graphs) {
             String graphString = currecntCycleGraph.toString();
             if (!graphString.contains("UNKONWN") && !graphString.contains("null")) {
                 System.out.println(graphString);
                 CycleQuestion question = new CycleQuestion(currecntCycleGraph);
+                question.generateQuestions();
                 generatedQuestions = question.getAllPossibleQuestions();
+                if (generatedQuestions.size() > 0) {
+                    succededGraphs++;
+                    if (succededGraphs >= 3) {
+                        break;
+                    }
+                }
                 for (GeneratedQuestion generatedQuestion : generatedQuestions) {
                     generatedQuestion.print();
                 }
@@ -178,13 +204,21 @@ public class ShapesGenerator {
         System.out.println("============================= Cycle General Questions ==================================");
         //Cycle 
         CycleGraph cycleGraph = new CycleGraph();
-        ArrayList<CycleGraph> graphs = cycleGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, NodeType.SUBJECT_ENTITY, 50); //For one or many answers questions
+        ArrayList<CycleGraph> graphs = cycleGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, NodeType.SUBJECT_ENTITY, 10); //For one or many answers questions
+        int succededGraphs = 0;
         for (CycleGraph currecntCycleGraph : graphs) {
             String graphString = currecntCycleGraph.toString();
             if (!graphString.contains("UNKONWN") && !graphString.contains("null")) {
                 System.out.println(graphString);
                 CycleGeneralQuestion question = new CycleGeneralQuestion(currecntCycleGraph);
+                question.generateQuestions();
                 generatedQuestions = question.getAllPossibleQuestions();
+                if (generatedQuestions.size() > 0) {
+                    succededGraphs++;
+                    if (succededGraphs >= 3) {
+                        break;
+                    }
+                }
                 for (GeneratedQuestion generatedQuestion : generatedQuestions) {
                     generatedQuestion.print();
                 }
@@ -198,7 +232,7 @@ public class ShapesGenerator {
         System.out.println("============================= Flower (n=" + n + " + 1 type branch) Questions for (" + branch.s + ")==================================");
         StarGraph starGraph = new StarGraph();
         int[] ends = new int[]{NodeType.URI, NodeType.URI, NodeType.URI};
-        ArrayList<StarGraph> rootStarGraphs = starGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, ends, n, 1, 50);//try 50 graphs because probability of failure increase
+        ArrayList<StarGraph> rootStarGraphs = starGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, ends, n, 1, 10);//try 10 graphs because probability of failure increase
 
         for (StarGraph currentStarGraph : rootStarGraphs) {
             try {
@@ -206,12 +240,12 @@ public class ShapesGenerator {
                 for (TriplePattern tp : currentStarGraph.getStar()) {
                     starPredicates += "<" + tp.getPredicate().getValueWithPrefix() + ">, ";
                 }
-                
+
                 CycleGraph cycleGraph = new CycleGraph();
                 cycleGraph.setUnwantedPropertiesString(starPredicates);
-                
-                
-                ArrayList<CycleGraph> graphs = cycleGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, NodeType.SUBJECT_ENTITY, 50); //For one or many answers questions
+
+                ArrayList<CycleGraph> graphs = cycleGraph.generate_SUBJECT_ENTITY(KG_Settings.knowledgeGraph, branch.s, NodeType.SUBJECT_ENTITY, 10); //For one or many answers questions
+                int succededGraphs = 0;
                 for (CycleGraph currecntCycleGraph : graphs) {
                     FlowerGraph flowerGraph = new FlowerGraph(currentStarGraph, currecntCycleGraph);
                     String graphString = flowerGraph.toString();
@@ -219,6 +253,12 @@ public class ShapesGenerator {
                         System.out.println(graphString);
                         FlowerQuestion question = new FlowerQuestion(flowerGraph);
                         generatedQuestions = question.getAllPossibleQuestions();
+                        if (generatedQuestions.size() > 0) {
+                            succededGraphs++;
+                            if (succededGraphs >= 3) {
+                                break;
+                            }
+                        }
                         for (GeneratedQuestion generatedQuestion : generatedQuestions) {
                             generatedQuestion.print();
                         }
@@ -227,7 +267,7 @@ public class ShapesGenerator {
                 }
             } catch (Exception e) {
 //                e.printStackTrace();
-                System.out.println("");
+                System.out.print(".");
             }
         }
 

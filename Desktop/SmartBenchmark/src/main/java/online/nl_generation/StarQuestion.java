@@ -21,7 +21,7 @@ public class StarQuestion {
     String FCs_AND_NOT;
     String FCs_OR_NOT;
     String FCs_NOT_NOT;
-    
+
     private String somethingElse = "http://AnnyOther";
     private String somethingElseWithoutPrefix = "AnnyOther";
 
@@ -29,12 +29,12 @@ public class StarQuestion {
 
     public StarQuestion(StarGraph starGraph) {
         this.starGraph = starGraph;
-        
+
         somethingElse = SPARQL.getSimilarEntity(KG_Settings.explorer, starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type());
         somethingElseWithoutPrefix = KG_Settings.explorer.removePrefix(somethingElse);
 
         T = KG_Settings.explorer.removePrefix(starGraph.getSeedType()).toLowerCase();
-        
+
         Map<String, HashSet<String>> starPredicates = new HashMap<>();
 
         //Fill starPredicates map to make star as (p1, O1.1, O1.2,...), ..... (P2, O2.1,O2.2,...)
@@ -63,8 +63,8 @@ public class StarQuestion {
             countQuestions(CoordinatingConjunction.AND);
             askQuestions_true_answer(CoordinatingConjunction.AND);
             askQuestions_false_answer(CoordinatingConjunction.AND);
-            
-        } else if (starGraph.getStar().size() == 2 && starGraph.getStar().size()==starPredicates.size()) { //no repeated predicates
+
+        } else if (starGraph.getStar().size() == 2 && starGraph.getStar().size() == starPredicates.size()) { //no repeated predicates
             selectQuestions(CoordinatingConjunction.AND);
             selectQuestions(CoordinatingConjunction.OR);
             selectQuestions(CoordinatingConjunction.AND_NOT);
@@ -78,16 +78,16 @@ public class StarQuestion {
             countQuestions(CoordinatingConjunction.NOT_NOT);
 
             askQuestions_true_answer(CoordinatingConjunction.AND);
-            
+
             askQuestions_false_answer(CoordinatingConjunction.AND);
 
-        } else if (starGraph.getStar().size() == 2 && starGraph.getStar().size()!=starPredicates.size()) { //repeated predicates
+        } else if (starGraph.getStar().size() == 2 && starGraph.getStar().size() != starPredicates.size()) { //repeated predicates
             selectQuestions(CoordinatingConjunction.AND);
             countQuestions(CoordinatingConjunction.AND);
             askQuestions_true_answer(CoordinatingConjunction.AND);
             askQuestions_false_answer(CoordinatingConjunction.AND);
 
-        } else if (starGraph.getStar().size() > 2 && starGraph.getStar().size()==starPredicates.size()) { //no repeated predicates
+        } else if (starGraph.getStar().size() > 2 && starGraph.getStar().size() == starPredicates.size()) { //no repeated predicates
             selectQuestions(CoordinatingConjunction.AND);
             selectQuestions(CoordinatingConjunction.OR);
 
@@ -95,10 +95,9 @@ public class StarQuestion {
             countQuestions(CoordinatingConjunction.OR);
 
             askQuestions_true_answer(CoordinatingConjunction.AND);
-            
+
             askQuestions_false_answer(CoordinatingConjunction.AND);
-        }
-        else if (starGraph.getStar().size() > 2 && starGraph.getStar().size()!=starPredicates.size()) { //repeated predicates
+        } else if (starGraph.getStar().size() > 2 && starGraph.getStar().size() != starPredicates.size()) { //repeated predicates
             selectQuestions(CoordinatingConjunction.AND);
             countQuestions(CoordinatingConjunction.AND);
             askQuestions_true_answer(CoordinatingConjunction.AND);
@@ -111,7 +110,7 @@ public class StarQuestion {
                 .replace("SELECT DISTINCT ?Seed WHERE{", "ASK WHERE{")
                 .replace("?Seed", "<" + starGraph.getStar().get(0).getSubject().getValueWithPrefix() + ">");
     }
-    
+
     public String askQuery_false_answer(StarGraph starGraph, String coordinatingConjunction) {
         return selectQuery(starGraph, coordinatingConjunction)
                 .replace("SELECT DISTINCT ?Seed WHERE{", "ASK WHERE{")
@@ -143,14 +142,11 @@ public class StarQuestion {
             default:
         }
         if (FCs != null) {
-            ArrayList<String> questions = new ArrayList<>();
-            String whichQuestion = selectWhichQuestions(coordinatingConjunction).replaceFirst("Which", "How many");
-            questions.add(whichQuestion);
-
             String countQuery = countQuery(starGraph, coordinatingConjunction);
-
-            GeneratedQuestion generatedQuestion = new GeneratedQuestion(questions, countQuery, starGraph.toString());
-            allPossibleQuestions.add(generatedQuestion);
+            String whichQuestion = selectWhichQuestions(coordinatingConjunction).replaceFirst("Which", "How many");
+            String question = whichQuestion;
+            allPossibleQuestions.add(new GeneratedQuestion(starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type(), question, countQuery, starGraph.toString(), starGraph.getStar().size()+1, GeneratedQuestion.QT_HOW_MANY, GeneratedQuestion.SH_STAR));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, countQuery, starGraph.toString()));
         }
     }
 
@@ -175,18 +171,14 @@ public class StarQuestion {
             default:
         }
         if (FCs != null) {
-            ArrayList<String> questions = new ArrayList<>();
             String whichQuestion = selectWhichQuestions(coordinatingConjunction).replaceFirst("Which", "Is " + starGraph.getStar().get(0).getSubject().getValue());
-            questions.add(whichQuestion);
-
+            String question = whichQuestion;
             String askQuery = askQuery_true_answer(starGraph, coordinatingConjunction);
-
-            GeneratedQuestion generatedQuestion = new GeneratedQuestion(questions, askQuery, starGraph.toString());
-            allPossibleQuestions.add(generatedQuestion);
+            allPossibleQuestions.add(new GeneratedQuestion(starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type(), question, askQuery, starGraph.toString(), starGraph.getStar().size()+1, GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_STAR));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, askQuery, starGraph.toString()));
         }
     }
-    
-    
+
     public void askQuestions_false_answer(String coordinatingConjunction) {
         String FCs = "";
         switch (coordinatingConjunction) {
@@ -208,15 +200,13 @@ public class StarQuestion {
             default:
         }
         if (FCs != null) {
-            ArrayList<String> questions = new ArrayList<>();
             String whichQuestion = selectWhichQuestions(coordinatingConjunction).replaceFirst("Which", "Is " + somethingElseWithoutPrefix)
                     .replace(FCs, FCs);
-            questions.add(whichQuestion);
-
+            String question = whichQuestion;
             String askQuery = askQuery_false_answer(starGraph, coordinatingConjunction);
+                        allPossibleQuestions.add(new GeneratedQuestion(starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type(), question, askQuery, starGraph.toString(), starGraph.getStar().size()+1, GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_STAR));
 
-            GeneratedQuestion generatedQuestion = new GeneratedQuestion(questions, askQuery, starGraph.toString());
-            allPossibleQuestions.add(generatedQuestion);
+//            allPossibleQuestions.add(new GeneratedQuestion(question, askQuery, starGraph.toString()));
         }
     }
 
@@ -241,17 +231,17 @@ public class StarQuestion {
             default:
         }
         if (FCs != null) {
-            ArrayList<String> questions = new ArrayList<>();
             String whichQuestion = selectWhichQuestions(coordinatingConjunction);
-            questions.add(whichQuestion);
+            String question = whichQuestion;
+            String selectQuery = selectQuery(starGraph, coordinatingConjunction);
+                        allPossibleQuestions.add(new GeneratedQuestion(starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type(), question, selectQuery, starGraph.toString(), starGraph.getStar().size()+1, GeneratedQuestion.QT_WHICH, GeneratedQuestion.SH_STAR));
+
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, starGraph.toString()));
 
             String requestQuestion = whichQuestion.replace("Which ", Request.getRequestPrefix().trim() + " which ");
-            questions.add(requestQuestion);
+                                    allPossibleQuestions.add(new GeneratedQuestion(starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type(), question, selectQuery, starGraph.toString(), starGraph.getStar().size()+1, GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_STAR));
 
-            String selectQuery = selectQuery(starGraph, coordinatingConjunction);
-
-            GeneratedQuestion generatedQuestion = new GeneratedQuestion(questions, selectQuery, starGraph.toString());
-            allPossibleQuestions.add(generatedQuestion);
+//            allPossibleQuestions.add(new GeneratedQuestion(requestQuestion, selectQuery, starGraph.toString()));
         }
     }
 
@@ -332,7 +322,6 @@ public class StarQuestion {
         return query;
     }
 
-
     public static String objectListToString(ArrayList<String> objects) {
         String objectsList = "";
         if (objects.size() == 1) {
@@ -364,7 +353,6 @@ public class StarQuestion {
         ArrayList<String> FCs_Representation = new ArrayList<>();
         ArrayList<TriplePattern> branches = starGraph.getStar();
 
-
         ArrayList<String> processedPredicates = new ArrayList<>();
         for (TriplePattern branch : branches) {
             String p_with_Prefix = branch.getPredicate().getValueWithPrefix();
@@ -373,10 +361,11 @@ public class StarQuestion {
             String o_type = branch.getO_type();
             ArrayList<String> objects = new ArrayList<>(starPredicates.get(p));
             String O = objectListToString(objects);
-            
-            if(processedPredicates.contains(p))
+
+            if (processedPredicates.contains(p)) {
                 continue;
-            
+            }
+
             processedPredicates.add(p);
 
             PredicateNLRepresentation predicateNL = PredicatesLexicon.getPredicateNL(p_with_Prefix, s_type, o_type);
@@ -394,9 +383,9 @@ public class StarQuestion {
                     String p_OS_NP = PhraseRepresentationProcessing.NP_only(predicateNL.getPredicate_o_s_NP());
                     if (SPARQL.isASubtypeOf(KG_Settings.explorer, starGraph.getSeedType(), KG_Settings.Person)) {
                         FCs_Representation.add(" his/her " + p_OS_NP + " is " + O);
-                    }
-                    else
+                    } else {
                         FCs_Representation.add(" its " + p_OS_NP + " is " + O);
+                    }
                 } else {
                     return null;
                 }
@@ -446,29 +435,24 @@ public class StarQuestion {
         }
         return FCs;
     }
-    
-    public String getFCs_with_T_COO_is_AND()
-    {
+
+    public String getFCs_with_T_COO_is_AND() {
         return T + FCs_AND;
     }
-    
-    public String getFCs_with_T_COO_is_OR()
-    {
+
+    public String getFCs_with_T_COO_is_OR() {
         return T + FCs_OR;
     }
-    
-    public String getFCs_with_T_COO_is_AND_NOT()
-    {
+
+    public String getFCs_with_T_COO_is_AND_NOT() {
         return T + FCs_AND_NOT;
     }
-    
-    public String getFCs_with_T_COO_is_OR_NOT()
-    {
+
+    public String getFCs_with_T_COO_is_OR_NOT() {
         return T + FCs_OR_NOT;
     }
-    
-    public String getFCs_with_T_COO_is_NOT_NOT()
-    {
+
+    public String getFCs_with_T_COO_is_NOT_NOT() {
         return T + FCs_NOT_NOT;
     }
 

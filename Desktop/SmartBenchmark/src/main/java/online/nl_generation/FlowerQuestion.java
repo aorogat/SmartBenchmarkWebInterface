@@ -24,18 +24,20 @@ public class FlowerQuestion {
         String starQuestionString = starQuestion.selectWhichQuestions(CoordinatingConjunction.AND);
         starQuestionString = starQuestionString.substring(0, starQuestionString.length()-1) + " ";
         
-        if(starQuestionString==null | starQuestionString.contains("null"))
+        if(starQuestionString==null || starQuestionString.contains("null"))
             return;
         
         question = starQuestionString;
         cycleQuestion.direction = CycleQuestion.FORWARD;
         String cycleQuestionString = cycleQuestion.selectWh_Questions(CoordinatingConjunction.AND,  "NP");
-        if(cycleQuestionString==null | cycleQuestionString.contains("null"))
-            return;
-        question += cycleQuestionString.replaceAll("\\b(What|Where)\\b", ", as well it").replaceAll("\\b(Who|Whose|Whom)\\b", ", as well he/she");
-        ArrayList<String> questions = new ArrayList<>();
-        questions.add(question);
-        
+        if(cycleQuestionString==null || cycleQuestionString.contains("null"))
+        {
+            cycleQuestionString = cycleQuestion.selectWh_Questions(CoordinatingConjunction.AND,  "VP");
+            if(cycleQuestionString==null || cycleQuestionString.contains("null"))
+                return;
+        }
+        question += cycleQuestionString.replaceAll("\\b(What|Where)\\b", ", as well it").replaceAll("\\b(Who|Whose|Whom)\\b", ", as well he/she").replace(" ,", "");
+
         String queryString = starQuestion.selectQuery(flowerGraph.getStar(), CoordinatingConjunction.AND);
         queryString = queryString.substring(0,queryString.length()-1);
         
@@ -43,9 +45,22 @@ public class FlowerQuestion {
         
         String graphString = flowerGraph.toString();
         
+        String QT = "";
+        if(question.toLowerCase().startsWith("is")||
+                question.toLowerCase().startsWith("was")||
+                question.toLowerCase().startsWith("are")||
+                question.toLowerCase().startsWith("were"))
+            QT = GeneratedQuestion.QT_YES_NO_IS;
+        else if(question.toLowerCase().startsWith("which"))
+            QT = GeneratedQuestion.QT_WHICH;
+        else if(question.toLowerCase().startsWith("how many"))
+            QT = GeneratedQuestion.QT_HOW_MANY;
+        else
+            QT = GeneratedQuestion.QT_REQUEST;
         
-        GeneratedQuestion generatedQuestion = new GeneratedQuestion(questions, queryString, graphString);
-        allPossibleQuestions.add(generatedQuestion);
+        allPossibleQuestions.add(new GeneratedQuestion(flowerGraph.getStar().getStar().get(0).getSubject().getValueWithPrefix(), flowerGraph.getStar().getStar().get(0).getS_type(), question, queryString, flowerGraph.toString(), flowerGraph.getStar().getStar().size()+1+2, QT, GeneratedQuestion.SH_FLOWER));
+//        GeneratedQuestion generatedQuestion = new GeneratedQuestion(question, queryString, graphString);
+//        allPossibleQuestions.add(generatedQuestion);
     }
 
     public FlowerGraph getFlowerGraph() {

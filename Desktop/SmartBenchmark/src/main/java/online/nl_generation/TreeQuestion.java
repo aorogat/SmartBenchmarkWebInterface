@@ -63,12 +63,11 @@ public class TreeQuestion {
             }
             rootWhichQuestion = rootWhichQuestion.replace(seed_1_0, star_1_0_NL);
 
-//            String rootSELECTQuery = starQuestion_0_0.selectQuery(starGraph_0_0, CoordinatingConjunction.AND);
-            ArrayList<String> questions = new ArrayList<>();
-            questions.add(rootWhichQuestion);
+            String question = rootWhichQuestion;
+            allPossibleQuestions.add(new GeneratedQuestion(this.treeGraph.getSeed(), this.treeGraph.getSeedType(), question, rootWhichQuery, this.treeGraph.toString(), treeGraph.getSize(), GeneratedQuestion.QT_WHICH, GeneratedQuestion.SH_TREE));
 
-            GeneratedQuestion generatedQuestion = new GeneratedQuestion(questions, rootWhichQuery, treeGraph.toString());
-            allPossibleQuestions.add(generatedQuestion);
+//            GeneratedQuestion generatedQuestion = new GeneratedQuestion(question, rootWhichQuery, treeGraph.toString());
+//            allPossibleQuestions.add(generatedQuestion);
         }
     }
 

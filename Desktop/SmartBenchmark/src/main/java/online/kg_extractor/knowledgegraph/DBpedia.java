@@ -153,7 +153,7 @@ public class DBpedia extends KnowledgeGraph {
                         if (json.getBoolean("boolean")) {
                             variableSet.getVariables().add(new Variable("v", "true", "boolean"));
                         } else {
-                            variableSet.getVariables().add(new Variable("v", "flase", "boolean"));
+                            variableSet.getVariables().add(new Variable("v", "false", "boolean"));
                         }
                         queryResult.add(variableSet);
                     } catch (Exception et) {

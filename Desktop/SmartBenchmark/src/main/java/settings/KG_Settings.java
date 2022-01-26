@@ -13,6 +13,8 @@ public class KG_Settings {
     
     public static final byte LABEL_NP_SO = 1;
     public static final byte LABEL_NP_OS = 2;
+    
+    public static final byte maxAnswerCardinalityAllowed = 20;
 
     public static String name = "DBpedia";
     public static String url = "https://dbpedia.org/sparql";

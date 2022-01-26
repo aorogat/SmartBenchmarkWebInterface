@@ -7,7 +7,6 @@ import online.kg_extractor.model.subgraph.SingleEdgeGraph;
 import offLine.scrapping.model.PredicateNLRepresentation;
 import offLine.scrapping.model.PredicatesLexicon;
 import settings.KG_Settings;
-import system.components.Predicate_Representation_Extractor;
 
 public class SingleEdgeQuestion {
 
@@ -139,7 +138,6 @@ public class SingleEdgeQuestion {
         generateQuestionAsk_Correct();
         generateQuestionAsk_Wrong();
 
-        // generateCountQuery(); //Not possible here  (Require a type branch)
         if (KGOntology.isSubtypeOf(S_type_withPrefix, KG_Settings.Person)) {
             generateQuestionSELECT_e_of_type_Person();
         } else if (KGOntology.isSubtypeOf(S_type_withPrefix, KG_Settings.Place)) {
@@ -180,182 +178,174 @@ public class SingleEdgeQuestion {
 
     private void generateQuestionSELECT_e_of_type_Person() {
         //Generate Question
-        ArrayList<String> questions = new ArrayList<>();
-
         if (s_o_VP != null) {
-            questions.add("Who " + s_o_VP + " " + O + "?");
+            String question = "Who " + s_o_VP + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_WHO, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
         }
         if (s_o_NP != null) {
-            questions.add("Who " + s_o_NP + " " + O + "?");
-            questions.add(Request.getRequestPrefix() + " " + s_o_NP_without_verb + " " + O + "?");
+            String question = "Who " + s_o_NP + " " + O + "?";
+                        allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_WHO, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
+             question = Request.getRequestPrefix() + " " + s_o_NP_without_verb + " " + O + "?";
+                         allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
         }
         if (o_s_VP != null) {
-            questions.add("Whom " + O + " " + o_s_VP + "?");
+            String question = "Whom " + O + " " + o_s_VP + "?";
+                        allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_WHOM, GeneratedQuestion.SH_SINGLE_EDGE));
+
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
         }
         if (o_s_NP != null) {
-            questions.add("Whose " + O + " " + o_s_NP_only + "?");
-        }
+            String question = "Whose " + O + " " + o_s_NP_only + "?";
+                        allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_WHOSE, GeneratedQuestion.SH_SINGLE_EDGE));
 
-        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery, singleEdgeGraph.toString()));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
+        }
     }
 
     private void generateQuestionSELECT_e_of_type_Place() {
         //Generate Question
-        ArrayList<String> questions = new ArrayList<>();
-
         if (s_o_NP != null) {
-            questions.add("What " + s_o_NP + " " + O + "?");
-            questions.add(Request.getRequestPrefix() + " " + s_o_NP_without_verb + " " + O + "?");
+            String question = "What " + s_o_NP + " " + O + "?";
+                        allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_WHAT, GeneratedQuestion.SH_SINGLE_EDGE));
+
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
+             question = Request.getRequestPrefix() + " " + s_o_NP_without_verb + " " + O + "?";
+                         allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_SINGLE_EDGE));
+
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
         }
         if (o_s_VP != null) {
-            questions.add("Where " + O + " " + o_s_VP + "?");
-        }
+            String question = "Where " + O + " " + o_s_VP + "?";
+                        allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_WHERE, GeneratedQuestion.SH_SINGLE_EDGE));
 
-        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery, singleEdgeGraph.toString()));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
+        }
     }
 
     private void generateQuestionSELECT_e_of_type_Entity() {
         //Generate Question
-        ArrayList<String> questions = new ArrayList<>();
-
-//        if (o_s_VP != null) {
-//            questions.add("What " + O + " " + o_s_VP + "?");
-//        }
         if (s_o_NP != null) {
-            questions.add("What " + s_o_NP + " " + O + "?");
-            questions.add(Request.getRequestPrefix() + " " + s_o_NP_without_verb + " " + O + "?");
+            String question = "What " + s_o_NP + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_WHAT, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
+             question = Request.getRequestPrefix() + " " + s_o_NP_without_verb + " " + O + "?";
+             allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
         }
         if (s_o_VP != null) {
-            questions.add("What " + s_o_VP + " " + O + "?");
+            String question = "What " + s_o_VP + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_WHAT, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
         }
-
-        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery, singleEdgeGraph.toString()));
     }
 
     private void generateQuestionSELECT_e_of_type_Number() {
-        //Generate Question
-        ArrayList<String> questions = new ArrayList<>();
-
         if (s_o_NP != null) {
-            questions.add("What " + s_o_NP + " " + O + "?");
-            questions.add(Request.getRequestPrefix() + " " + s_o_NP_without_verb + " " + O + "?");
+            String question = "What " + s_o_NP + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_WHAT, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
+             question = Request.getRequestPrefix() + " " + s_o_NP_without_verb + " " + O + "?";
+             allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
         }
         if (o_s_NP != null) {
-            questions.add("How " + o_s_NP + " is " + O + "?");
+            String question = "How " + o_s_NP + " is " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_HOW_ADJ, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
         }
-
-        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery, singleEdgeGraph.toString()));
     }
 
     private void generateQuestionSELECT_e_of_type_Date() {
         //Generate Question
-        ArrayList<String> questions = new ArrayList<>();
-
         if (o_s_VP != null) {
-            questions.add("When did " + O + " " + o_s_VP + "?");
+            String question = "When did " + O + " " + o_s_VP + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_WHEN, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
         }
         if (s_o_NP != null) {
-            questions.add("What " + s_o_NP + " " + O + "?");
-            questions.add(Request.getRequestPrefix() + " " + s_o_NP_without_verb + " " + O + "?");
+            String question = "What " + s_o_NP + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_WHAT, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
+             question = Request.getRequestPrefix() + " " + s_o_NP_without_verb + " " + O + "?";
+             allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, selectQuery, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, singleEdgeGraph.toString()));
         }
-
-        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery, singleEdgeGraph.toString()));
     }
 
     private void generateQuestionAsk_Correct() {
         //Generate Question
-        ArrayList<String> questions = new ArrayList<>();
-
         if (s_o_NP != null && s_o_NP.startsWith("is/are ")) {
             s_o_NP_without_verb = s_o_NP.replace("is/are ", "");
-            questions.add("Is " + S + " " + s_o_NP_without_verb + " " + O + "?");
+            String question = "Is " + S + " " + s_o_NP_without_verb + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, askQuery_correct, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, askQuery_correct, singleEdgeGraph.toString()));
         } else if (s_o_NP != null && s_o_NP.startsWith("is ")) {
             s_o_NP_without_verb = s_o_NP.replace("is ", "");
-            questions.add("Is " + S + " " + s_o_NP_without_verb + " " + O + "?");
+            String question = "Is " + S + " " + s_o_NP_without_verb + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, askQuery_correct, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, askQuery_correct, singleEdgeGraph.toString()));
         } else if (s_o_NP != null && s_o_NP.startsWith("are ")) {
             s_o_NP_without_verb = s_o_NP.replace("are ", "");
-            questions.add("Are " + S + " " + s_o_NP_without_verb + " " + O + "?");
+            String question = "Are " + S + " " + s_o_NP_without_verb + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, askQuery_correct, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, askQuery_correct, singleEdgeGraph.toString()));
         } else if (s_o_NP != null && s_o_NP.startsWith("was ")) {
             s_o_NP_without_verb = s_o_NP.replace("was ", "");
-            questions.add("Was " + S + " " + s_o_NP_without_verb + " " + O + "?");
+            String question = "Was " + S + " " + s_o_NP_without_verb + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, askQuery_correct, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, askQuery_correct, singleEdgeGraph.toString()));
         } else if (s_o_NP != null && s_o_NP.startsWith("were ")) {
             s_o_NP_without_verb = s_o_NP.replace("were ", "");
-            questions.add("Were " + S + " " + s_o_NP_without_verb + " " + O + "?");
+            String question = "Were " + S + " " + s_o_NP_without_verb + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, askQuery_correct, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, askQuery_correct, singleEdgeGraph.toString()));
         }
 
-//        if (o_s_NP != null && o_s_NP.startsWith("is/are ")) {
-//            o_s_NP_without_verb = o_s_NP.replace("is/are ", "");
-//            questions.add("Is " + O + " " + o_s_NP_without_verb + " " + S + "?");
-//        } else if (o_s_NP != null && o_s_NP.startsWith("is ")) {
-//            o_s_NP_without_verb = o_s_NP.replace("is ", "");
-//            questions.add("Is " + O + " " + o_s_NP_without_verb + " " + S + "?");
-//        } else if (o_s_NP != null && o_s_NP.startsWith("are ")) {
-//            o_s_NP_without_verb = o_s_NP.replace("are ", "");
-//            questions.add("Are " + O + " " + o_s_NP_without_verb + " " + S + "?");
-//        } else if (o_s_NP != null && o_s_NP.startsWith("was ")) {
-//            o_s_NP_without_verb = o_s_NP.replace("was ", "");
-//            questions.add("Was " + O + " " + o_s_NP_without_verb + " " + S + "?");
-//        } else if (o_s_NP != null && o_s_NP.startsWith("were ")) {
-//            o_s_NP_without_verb = o_s_NP.replace("were ", "");
-//            questions.add("Were " + O + " " + o_s_NP_without_verb + " " + S + "?");
-//        }
         if (s_o_VP != null) {
-            questions.add("Does " + S + " " + s_o_VP + " " + O + "?");
+            String question = "Does " + S + " " + s_o_VP + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, askQuery_correct, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_YES_NO_DO, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, askQuery_correct, singleEdgeGraph.toString()));
         }
-//        if (o_s_VP != null) {
-//            questions.add("Does " + O + " " + o_s_VP + " " + S + "?");
-//        }
-
-        allPossibleQuestions.add(new GeneratedQuestion(questions, askQuery_correct, singleEdgeGraph.toString()));
     }
 
     private void generateQuestionAsk_Wrong() {
         //Generate Question
-        ArrayList<String> questions = new ArrayList<>();
-
         String s_o_NP_Auxiliary_Verb = "";
 
         if (s_o_NP != null && s_o_NP.startsWith("is/are ")) {
             s_o_NP_without_verb = s_o_NP.replace("is/are ", "");
-            questions.add("Is " + somethingElseWithoutPrefix + " " + s_o_NP_without_verb + " " + O + "?");
+            String question = "Is " + somethingElseWithoutPrefix + " " + s_o_NP_without_verb + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, askQuery_wrong, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, askQuery_wrong, singleEdgeGraph.toString()));
         } else if (s_o_NP != null && s_o_NP.startsWith("is ")) {
             s_o_NP_without_verb = s_o_NP.replace("is ", "");
-            questions.add("Is " + somethingElseWithoutPrefix + " " + s_o_NP_without_verb + " " + O + "?");
+            String question = "Is " + somethingElseWithoutPrefix + " " + s_o_NP_without_verb + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, askQuery_wrong, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, askQuery_wrong, singleEdgeGraph.toString()));
         } else if (s_o_NP != null && s_o_NP.startsWith("are ")) {
             s_o_NP_without_verb = s_o_NP.replace("are ", "");
-            questions.add("Are " + somethingElseWithoutPrefix + " " + s_o_NP_without_verb + " " + O + "?");
+            String question = "Are " + somethingElseWithoutPrefix + " " + s_o_NP_without_verb + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, askQuery_wrong, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, askQuery_wrong, singleEdgeGraph.toString()));
         } else if (s_o_NP != null && s_o_NP.startsWith("was ")) {
             s_o_NP_without_verb = s_o_NP.replace("was ", "");
-            questions.add("Was " + somethingElseWithoutPrefix + " " + s_o_NP_without_verb + " " + O + "?");
+            String question = "Was " + somethingElseWithoutPrefix + " " + s_o_NP_without_verb + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, askQuery_wrong, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, askQuery_wrong, singleEdgeGraph.toString()));
         } else if (s_o_NP != null && s_o_NP.startsWith("were ")) {
             s_o_NP_without_verb = s_o_NP.replace("were ", "");
-            questions.add("Were " + somethingElseWithoutPrefix + " " + s_o_NP_without_verb + " " + O + "?");
+            String question = "Were " + somethingElseWithoutPrefix + " " + s_o_NP_without_verb + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, askQuery_wrong, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, askQuery_wrong, singleEdgeGraph.toString()));
         }
-
-//        if (o_s_NP != null && o_s_NP.startsWith("is/are ")) {
-//            o_s_NP_without_verb = o_s_NP.replace("is/are ", "");
-//            questions.add("Is " + somethingElseWithoutPrefix + " " + o_s_NP_without_verb + " " + S + "?");
-//        } else if (o_s_NP != null && o_s_NP.startsWith("is ")) {
-//            o_s_NP_without_verb = o_s_NP.replace("is ", "");
-//            questions.add("Is " + somethingElseWithoutPrefix + " " + o_s_NP_without_verb + " " + S + "?");
-//        } else if (o_s_NP != null && o_s_NP.startsWith("are ")) {
-//            o_s_NP_without_verb = o_s_NP.replace("are ", "");
-//            questions.add("Are " + somethingElseWithoutPrefix + " " + o_s_NP_without_verb + " " + S + "?");
-//        } else if (o_s_NP != null && o_s_NP.startsWith("was ")) {
-//            o_s_NP_without_verb = o_s_NP.replace("was ", "");
-//            questions.add("Was " + somethingElseWithoutPrefix + " " + o_s_NP_without_verb + " " + S + "?");
-//        } else if (o_s_NP != null && o_s_NP.startsWith("were ")) {
-//            o_s_NP_without_verb = o_s_NP.replace("were ", "");
-//            questions.add("Were " + somethingElseWithoutPrefix + " " + o_s_NP_without_verb + " " + S + "?");
-//        }
         if (s_o_VP != null) {
-            questions.add("Does " + somethingElseWithoutPrefix + " " + s_o_VP + " " + O + "?");
+            String question = "Does " + somethingElseWithoutPrefix + " " + s_o_VP + " " + O + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S, S_type_withPrefix, question, askQuery_wrong, singleEdgeGraph.toString(), 1, GeneratedQuestion.QT_YES_NO_DO, GeneratedQuestion.SH_SINGLE_EDGE));
+//            allPossibleQuestions.add(new GeneratedQuestion(question, askQuery_wrong, singleEdgeGraph.toString()));
         }
-//        if (o_s_VP != null) {
-//            questions.add("Does " + O + " " + o_s_VP + " " + somethingElseWithoutPrefix + "?");
-//        }
-
-        allPossibleQuestions.add(new GeneratedQuestion(questions, askQuery_wrong, singleEdgeGraph.toString()));
     }
 
     public ArrayList<GeneratedQuestion> getAllPossibleQuestions() {

@@ -353,23 +353,25 @@ public class ChainQuestion {
         }
 
         //Generate Question
-        ArrayList<String> questions = new ArrayList<>();
-
         if (P0_SO_VP != null) {
-            questions.add("Who " + P0_SO_VP + " " + P1_to_n_SO_PN_series + " " + O_Final + "?");
+            String question = "Who " + P0_SO_VP + " " + P1_to_n_SO_PN_series + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_WHO, GeneratedQuestion.SH_CHAIN));
         }
         if (P0_SO_NP != null) {
-            questions.add("Who " + P0_SO_NP + " " + P1_to_n_SO_PN_series + " " + O_Final + "?");
-            questions.add(Request.getRequestPrefix() + " " + P0_SO_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "Who " + P0_SO_NP + " " + P1_to_n_SO_PN_series + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_WHO, GeneratedQuestion.SH_CHAIN));
+            question = Request.getRequestPrefix() + " " + P0_SO_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_CHAIN));
         }
         if (P0_OS_VP != null) {
-            questions.add("Whom " + P1_to_n_SO_PN_series + " " + O_Final + " " + P0_OS_VP + "?");
+            String question = "Whom " + P1_to_n_SO_PN_series + " " + O_Final + " " + P0_OS_VP + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_WHOM, GeneratedQuestion.SH_CHAIN));
         }
         if (P0_OS_NP != null) {
-            questions.add("Whose " + P1_to_n_SO_PN_series + " " + O_Final + " " + P0_OS_NP + "?");
+            String question = "Whose " + P1_to_n_SO_PN_series + " " + O_Final + " " + P0_OS_NP + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_WHOSE, GeneratedQuestion.SH_CHAIN));
         }
 
-        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery, chainGraph.toString()));
     }
 
     private void generateQuestionSELECT_e_of_type_Place() {
@@ -379,17 +381,17 @@ public class ChainQuestion {
         }
 
         //Generate Question
-        ArrayList<String> questions = new ArrayList<>();
-
         if (P1_to_n_SO_PN_series != null) {
-            questions.add("What " + P0_SO_NP + " " + P1_to_n_SO_PN_series + " " + O_Final + "?");
-            questions.add(Request.getRequestPrefix() + " " + P0_SO_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "What " + P0_SO_NP + " " + P1_to_n_SO_PN_series + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_WHAT, GeneratedQuestion.SH_CHAIN));
+            question = Request.getRequestPrefix() + " " + P0_SO_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_CHAIN));
         }
         if (P0_OS_VP != null) {
-            questions.add("Where " + P1_to_n_SO_PN_series + " " + O_Final + " " + P0_OS_VP + "?");
+            String question = "Where " + P1_to_n_SO_PN_series + " " + O_Final + " " + P0_OS_VP + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_WHERE, GeneratedQuestion.SH_CHAIN));
         }
 
-        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery, chainGraph.toString()));
     }
 
     private void generateQuestionSELECT_e_of_type_Entity() {
@@ -399,20 +401,21 @@ public class ChainQuestion {
         }
 
         //Generate Question
-        ArrayList<String> questions = new ArrayList<>();
-
         if (P0_OS_VP != null) {
-            questions.add("What " + P1_to_n_SO_PN_series + " " + O_Final + " " + P0_OS_VP + "?");
+            String question = "What " + P1_to_n_SO_PN_series + " " + O_Final + " " + P0_OS_VP + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_WHAT, GeneratedQuestion.SH_CHAIN));
         }
         if (P1_to_n_SO_PN_series != null) {
-            questions.add("What " + P0_SO_NP + " " + P1_to_n_SO_PN_series + " " + O_Final + "?");
-            questions.add(Request.getRequestPrefix() + " " + P0_SO_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "What " + P0_SO_NP + " " + P1_to_n_SO_PN_series + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_WHAT, GeneratedQuestion.SH_CHAIN));
+            question = Request.getRequestPrefix() + " " + P0_SO_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_CHAIN));
         }
         if (P0_SO_VP != null) {
-            questions.add("What " + P0_SO_VP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "What " + P0_SO_VP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_WHAT, GeneratedQuestion.SH_CHAIN));
         }
 
-        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery, chainGraph.toString()));
     }
 
     private void generateQuestionSELECT_e_of_type_Number() {
@@ -422,17 +425,16 @@ public class ChainQuestion {
         }
 
         //Generate Question
-        ArrayList<String> questions = new ArrayList<>();
-
         if (P1_to_n_SO_PN_series != null) {
-            questions.add("What " + P0_SO_NP + " " + P1_to_n_SO_PN_series + " " + O_Final + "?");
-            questions.add(Request.getRequestPrefix() + " " + P0_SO_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "What " + P0_SO_NP + " " + P1_to_n_SO_PN_series + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_WHAT, GeneratedQuestion.SH_CHAIN));
+            question = Request.getRequestPrefix() + " " + P0_SO_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_CHAIN));
         }
         if (P0_OS_NP != null) {
-            questions.add("How " + P0_OS_NP + " is " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "How " + P0_OS_NP + " is " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_HOW_ADJ, GeneratedQuestion.SH_CHAIN));
         }
-
-        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery, chainGraph.toString()));
     }
 
     private void generateQuestionSELECT_e_of_type_Date() {
@@ -442,17 +444,15 @@ public class ChainQuestion {
         }
 
         //Generate Question
-        ArrayList<String> questions = new ArrayList<>();
-
         if (P0_OS_VP != null) {
-            questions.add("When did " + P1_to_n_SO_PN_series + " " + O_Final + " " + P0_OS_VP + "?");
+            String question = "When did " + P1_to_n_SO_PN_series + " " + O_Final + " " + P0_OS_VP + "?";
         }
         if (P1_to_n_SO_PN_series != null) {
-            questions.add("What " + P0_SO_NP + " " + P1_to_n_SO_PN_series + " " + O_Final + "?");
-            questions.add(Request.getRequestPrefix() + " " + P0_SO_NP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "What " + P0_SO_NP + " " + P1_to_n_SO_PN_series + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_WHAT, GeneratedQuestion.SH_CHAIN));
+            question = Request.getRequestPrefix() + " " + P0_SO_NP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_CHAIN));
         }
-
-        allPossibleQuestions.add(new GeneratedQuestion(questions, selectQuery, chainGraph.toString()));
     }
 
     private void generateQuestionAsk_Correct() {
@@ -462,45 +462,53 @@ public class ChainQuestion {
         }
 
         //Generate Question
-        ArrayList<String> questions = new ArrayList<>();
-
         if (P1_to_n_SO_PN_series != null && P1_to_n_SO_PN_series.startsWith("is/are ")) {
-            questions.add("Is " + S0_Seed + " " + P0_SO_NP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "Is " + S0_Seed + " " + P0_SO_NP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_correct, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         } else if (P1_to_n_SO_PN_series != null && P1_to_n_SO_PN_series.startsWith("is ")) {
-            questions.add("Is " + S0_Seed + " " + P0_SO_NP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "Is " + S0_Seed + " " + P0_SO_NP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_correct, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         } else if (P1_to_n_SO_PN_series != null && P1_to_n_SO_PN_series.startsWith("are ")) {
-            questions.add("Are " + S0_Seed + " " + P0_SO_NP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "Are " + S0_Seed + " " + P0_SO_NP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_correct, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         } else if (P1_to_n_SO_PN_series != null && P1_to_n_SO_PN_series.startsWith("was ")) {
-            questions.add("Was " + S0_Seed + " " + P0_SO_NP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "Was " + S0_Seed + " " + P0_SO_NP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_correct, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         } else if (P1_to_n_SO_PN_series != null && P1_to_n_SO_PN_series.startsWith("were ")) {
-            questions.add("Were " + S0_Seed + " " + P0_SO_NP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "Were " + S0_Seed + " " + P0_SO_NP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_correct, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         }
 
         if (P0_OS_NP != null && P0_OS_NP.startsWith("is/are ")) {
             P0_OS_NP = P0_OS_NP.replace("is/are ", "");
-            questions.add("Is " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + S0_Seed + "?");
+            String question = "Is " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + S0_Seed + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_correct, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         } else if (P0_OS_NP != null && P0_OS_NP.startsWith("is ")) {
             P0_OS_NP = P0_OS_NP.replace("is ", "");
-            questions.add("Is " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + S0_Seed + "?");
+            String question = "Is " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + S0_Seed + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_correct, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         } else if (P0_OS_NP != null && P0_OS_NP.startsWith("are ")) {
             P0_OS_NP = P0_OS_NP.replace("are ", "");
-            questions.add("Are " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + S0_Seed + "?");
+            String question = "Are " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + S0_Seed + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_correct, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         } else if (P0_OS_NP != null && P0_OS_NP.startsWith("was ")) {
             P0_OS_NP = P0_OS_NP.replace("was ", "");
-            questions.add("Was " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + S0_Seed + "?");
+            String question = "Was " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + S0_Seed + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_correct, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         } else if (P0_OS_NP != null && P0_OS_NP.startsWith("were ")) {
             P0_OS_NP = P0_OS_NP.replace("were ", "");
-            questions.add("Were " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + S0_Seed + "?");
+            String question = "Were " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + S0_Seed + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_correct, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         }
 
         if (P0_SO_VP != null) {
-            questions.add("Does " + S0_Seed + " " + P0_SO_VP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "Does " + S0_Seed + " " + P0_SO_VP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_correct, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_DO, GeneratedQuestion.SH_CHAIN));
         }
         if (P0_OS_VP != null) {
-            questions.add("Does " + O_Final + " " + P0_OS_VP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "Does " + O_Final + " " + P0_OS_VP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_correct, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_DO, GeneratedQuestion.SH_CHAIN));
         }
-
-        allPossibleQuestions.add(new GeneratedQuestion(questions, askQuery_correct, chainGraph.toString()));
     }
 
     private void generateQuestionAsk_Wrong() {
@@ -510,47 +518,55 @@ public class ChainQuestion {
         }
 
         //Generate Question
-        ArrayList<String> questions = new ArrayList<>();
-
         String s_o_NP_Auxiliary_Verb = "";
 
         if (P1_to_n_SO_PN_series != null && P1_to_n_SO_PN_series.startsWith("is/are ")) {
-            questions.add("Is " + somethingElseWithoutPrefix + " " + P0_OS_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "Is " + somethingElseWithoutPrefix + " " + P0_OS_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_wrong, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         } else if (P1_to_n_SO_PN_series != null && P1_to_n_SO_PN_series.startsWith("is ")) {
-            questions.add("Is " + somethingElseWithoutPrefix + " " + P0_OS_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "Is " + somethingElseWithoutPrefix + " " + P0_OS_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_wrong, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         } else if (P1_to_n_SO_PN_series != null && P1_to_n_SO_PN_series.startsWith("are ")) {
-            questions.add("Are " + somethingElseWithoutPrefix + " " + P0_OS_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "Are " + somethingElseWithoutPrefix + " " + P0_OS_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_wrong, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         } else if (P1_to_n_SO_PN_series != null && P1_to_n_SO_PN_series.startsWith("was ")) {
-            questions.add("Was " + somethingElseWithoutPrefix + " " + P0_OS_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "Was " + somethingElseWithoutPrefix + " " + P0_OS_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_wrong, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         } else if (P1_to_n_SO_PN_series != null && P1_to_n_SO_PN_series.startsWith("were ")) {
-            questions.add("Were " + somethingElseWithoutPrefix + " " + P0_OS_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "Were " + somethingElseWithoutPrefix + " " + P0_OS_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_wrong, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         }
 
         if (P0_OS_NP != null && P0_OS_NP.startsWith("is/are ")) {
             P0_OS_NP = P0_OS_NP.replace("is/are ", "");
-            questions.add("Is " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + somethingElseWithoutPrefix + "?");
+            String question = "Is " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + somethingElseWithoutPrefix + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_wrong, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         } else if (P0_OS_NP != null && P0_OS_NP.startsWith("is ")) {
             P0_OS_NP = P0_OS_NP.replace("is ", "");
-            questions.add("Is " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + somethingElseWithoutPrefix + "?");
+            String question = "Is " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + somethingElseWithoutPrefix + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_wrong, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         } else if (P0_OS_NP != null && P0_OS_NP.startsWith("are ")) {
             P0_OS_NP = P0_OS_NP.replace("are ", "");
-            questions.add("Are " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + somethingElseWithoutPrefix + "?");
+            String question = "Are " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + somethingElseWithoutPrefix + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_wrong, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         } else if (P0_OS_NP != null && P0_OS_NP.startsWith("was ")) {
             P0_OS_NP = P0_OS_NP.replace("was ", "");
-            questions.add("Was " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + somethingElseWithoutPrefix + "?");
+            String question = "Was " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + somethingElseWithoutPrefix + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_wrong, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         } else if (P0_OS_NP != null && P0_OS_NP.startsWith("were ")) {
             P0_OS_NP = P0_OS_NP.replace("were ", "");
-            questions.add("Were " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + somethingElseWithoutPrefix + "?");
+            String question = "Were " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_OS_NP + " " + somethingElseWithoutPrefix + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_wrong, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_CHAIN));
         }
 
         if (P0_SO_VP != null) {
-            questions.add("Does " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_SO_VP + " " + somethingElseWithoutPrefix + "?");
+            String question = "Does " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + " " + P0_SO_VP + " " + somethingElseWithoutPrefix + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_wrong, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_DO, GeneratedQuestion.SH_CHAIN));
         }
         if (P0_OS_VP != null) {
-            questions.add("Does " + somethingElseWithoutPrefix + " " + P0_OS_VP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?");
+            String question = "Does " + somethingElseWithoutPrefix + " " + P0_OS_VP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, askQuery_wrong, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_YES_NO_DO, GeneratedQuestion.SH_CHAIN));
         }
-
-        allPossibleQuestions.add(new GeneratedQuestion(questions, askQuery_wrong, chainGraph.toString()));
     }
 
     public ArrayList<GeneratedQuestion> getAllPossibleQuestions() {

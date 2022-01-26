@@ -42,19 +42,14 @@ public class CycleQuestion {
 
         somethingElse = SPARQL.getSimilarEntity(KG_Settings.explorer, cycleGraph.getPath_1().getSubject().getValueWithPrefix(), cycleGraph.getPath_1().getS_type());
         somethingElseWithoutPrefix = KG_Settings.explorer.removePrefix(somethingElse);
-
-//        FCs_AND = factConstraints_toString(cycleGraph, CoordinatingConjunction.AND);
-//        FCs_OR = factConstraints_toString(cycleGraph, CoordinatingConjunction.OR);
-        direction = FORWARD;
+    }
+    
+    public void generateQuestions()
+    {
+         direction = FORWARD;
         selectQuestions(CoordinatingConjunction.AND);
-//        countQuestions(CoordinatingConjunction.AND);
-//        askQuestions_true_answer(CoordinatingConjunction.AND);
-//        askQuestions_false_answer(CoordinatingConjunction.AND);
 
         selectQuestions(CoordinatingConjunction.OR);
-//        countQuestions(CoordinatingConjunction.OR);
-//        askQuestions_true_answer(CoordinatingConjunction.OR);
-//        askQuestions_false_answer(CoordinatingConjunction.OR);
 
         direction = BACKWARD;
         selectQuestions(CoordinatingConjunction.AND);
@@ -108,20 +103,28 @@ public class CycleQuestion {
 
         ArrayList<String> questions = new ArrayList<>();
         String whQuestion = selectWh_Questions(coordinatingConjunction, "NP");
+        String selectQuery = selectQuery(cycleGraph, coordinatingConjunction);
+        
+        String QT = "";
+        if(whQuestion.toLowerCase().startsWith("what"))
+            QT = GeneratedQuestion.QT_WHAT;
+        else if(whQuestion.toLowerCase().startsWith("who"))
+            QT = GeneratedQuestion.QT_WHO;
+        else if(whQuestion.toLowerCase().startsWith("where"))
+            QT = GeneratedQuestion.QT_WHERE;
+        else if(whQuestion.toLowerCase().startsWith("when"))
+            QT = GeneratedQuestion.QT_WHEN;
+        
+        
         if (whQuestion != null && !whQuestion.contains("null")) {
-            questions.add(whQuestion);
+            allPossibleQuestions.add(new GeneratedQuestion(cycleGraph.getPath_1().getSubject().getValueWithPrefix(), cycleGraph.getPath_1().getS_type(), whQuestion, selectQuery, cycleGraph.toString(), 2, QT, GeneratedQuestion.SH_CYCLE));
+//            GeneratedQuestion generatedQuestion = new GeneratedQuestion(whQuestion, whQuestion, cycleGraph.toString());
         }
 
         whQuestion = selectWh_Questions(coordinatingConjunction, "VP");
         if (whQuestion != null && !whQuestion.contains("null")) {
-            questions.add(whQuestion);
-        }
-
-        if (questions.size() >= 1) {
-            String selectQuery = selectQuery(cycleGraph, coordinatingConjunction);
-
-            GeneratedQuestion generatedQuestion = new GeneratedQuestion(questions, selectQuery, cycleGraph.toString());
-            allPossibleQuestions.add(generatedQuestion);
+            allPossibleQuestions.add(new GeneratedQuestion(cycleGraph.getPath_1().getSubject().getValueWithPrefix(), cycleGraph.getPath_1().getS_type(), whQuestion, selectQuery, cycleGraph.toString(), 2, QT, GeneratedQuestion.SH_CYCLE));
+//            GeneratedQuestion generatedQuestion = new GeneratedQuestion(whQuestion, whQuestion, cycleGraph.toString());
         }
     }
 
@@ -129,8 +132,14 @@ public class CycleQuestion {
         String FCs = "";
         if (direction == FORWARD) {
             if (KGOntology.isSubtypeOf(seed_type_withPrefix, KG_Settings.Person)) {
-                if (phrase.equals("NP") || phrase.equals("VP")) {
+                if (phrase.equals("VP")) {
                     FCs = factConstraints_toString_VP_forward(cycleGraph, coordinatingConjunction);
+                    if (FCs == null || FCs.contains("null")) {
+                        return null;
+                    }
+                    return "Who " + FCs + "?";
+                } else if (phrase.equals("NP")) {
+                    FCs = factConstraints_toString_NP_forward(cycleGraph, coordinatingConjunction);
                     if (FCs == null || FCs.contains("null")) {
                         return null;
                     }
@@ -177,20 +186,37 @@ public class CycleQuestion {
                     return "What " + FCs + "?";
                 }
             } else {
-                FCs = factConstraints_toString_NP_forward(cycleGraph, coordinatingConjunction);
+                if (phrase.equals("NP")) {
+                    FCs = factConstraints_toString_NP_forward(cycleGraph, coordinatingConjunction);
 
-                if (FCs == null || FCs.contains("null")) {
-                    return null;
+                    if (FCs == null || FCs.contains("null")) {
+                        return null;
+                    }
+                    return "What " + FCs + "?";
+                } else if (phrase.equals("VP")) {
+                    FCs = factConstraints_toString_VP_forward(cycleGraph, coordinatingConjunction);
+
+                    if (FCs == null || FCs.contains("null")) {
+                        return null;
+                    }
+                    return "What " + FCs + "?";
                 }
-                return "What " + FCs + "?";
             }
 
         } else if (direction == BACKWARD) {
             String O_type = SPARQL.getType(KG_Settings.explorer, cycleGraph.getPath_1().getObject().getValueWithPrefix());
             if (KGOntology.isSubtypeOf(O_type, KG_Settings.Person)) {
-                if (phrase.equals("NP") || phrase.equals("VP")) {
+                if (phrase.equals("VP")) {
 
                     FCs = factConstraints_toString_VP_reverse(cycleGraph, coordinatingConjunction);
+
+                    if (FCs == null || FCs.contains("null")) {
+                        return null;
+                    }
+                    return "Who " + FCs + "?";
+                } else if (phrase.equals("NP")) {
+
+                    FCs = factConstraints_toString_NP_revers(cycleGraph, coordinatingConjunction);
 
                     if (FCs == null || FCs.contains("null")) {
                         return null;
@@ -244,13 +270,23 @@ public class CycleQuestion {
                     return "What " + FCs + "?";
                 }
             } else {
+                if (phrase.equals("NP")) {
 
-                FCs = factConstraints_toString_NP_revers(cycleGraph, coordinatingConjunction);
+                    FCs = factConstraints_toString_NP_revers(cycleGraph, coordinatingConjunction);
 
-                if (FCs == null || FCs.contains("null")) {
-                    return null;
+                    if (FCs == null || FCs.contains("null")) {
+                        return null;
+                    }
+                    return "What " + FCs + "?";
+                } else if (phrase.equals("VP")) {
+
+                    FCs = factConstraints_toString_NP_revers(cycleGraph, coordinatingConjunction);
+
+                    if (FCs == null || FCs.contains("null")) {
+                        return null;
+                    }
+                    return "What " + FCs + "?";
                 }
-                return "What " + FCs + "?";
             }
 
         }
@@ -308,9 +344,16 @@ public class CycleQuestion {
 
             String p1_OS_VP = predicateNL_Path1.getPredicate_o_s_VP();
             String p2_OS_VP = predicateNL_Path2.getPredicate_o_s_VP();
+            
+            String p1_SO_VP = predicateNL_Path1.getPredicate_s_O_VP();
+            String p2_SO_VP = predicateNL_Path2.getPredicate_s_O_VP();
+
 
             if (p1_OS_VP != null && p2_OS_VP != null) {
                 return p1_OS_VP + " " + coorinatingConjunction + " " + p2_OS_VP + " " + cycleGraph.getPath_1().getSubject().getValue();
+            }
+            else if (p1_SO_VP != null && p2_SO_VP != null) {
+                return cycleGraph.getPath_1().getSubject().getValue() + " " + p1_SO_VP + " " + coorinatingConjunction + " " + p2_SO_VP;
             }
 
         }
@@ -364,9 +407,21 @@ public class CycleQuestion {
 
             String p1_OS_NP = predicateNL_Path1.getPredicate_o_s_NP();
             String p2_OS_NP = predicateNL_Path2.getPredicate_o_s_NP();
+            
+            String p1_SO_NP = predicateNL_Path1.getPredicate_s_O_NP();
+            String p2_SO_NP = predicateNL_Path2.getPredicate_s_O_NP();
+
 
             if (p1_OS_NP != null && p2_OS_NP != null) {
                 return PhraseRepresentationProcessing.NP_without_Preposition(p1_OS_NP) + " " + coorinatingConjunction + " " + PhraseRepresentationProcessing.NP_without_verb___first(p2_OS_NP) + " " + cycleGraph.getPath_1().getSubject().getValue();
+            }
+            else if (p1_SO_NP != null && p2_SO_NP != null) {
+                String stype = cycleGraph.getPath_1().getS_type();
+                if(KGOntology.isSubtypeOf(stype, KG_Settings.Place))
+                    return cycleGraph.getPath_1().getSubject().getValue() + " is his/her " + PhraseRepresentationProcessing.NP_only(p1_SO_NP) + " " + coorinatingConjunction + " " + PhraseRepresentationProcessing.NP_only(p2_SO_NP);
+                else
+                    return cycleGraph.getPath_1().getSubject().getValue() + " is its " + PhraseRepresentationProcessing.NP_only(p1_SO_NP) + " " + coorinatingConjunction + " " + PhraseRepresentationProcessing.NP_only(p2_SO_NP);
+               
             }
         }
         return null;

@@ -64,4 +64,12 @@ public class TreeGraph {
         return s;
     }
     
+    public int getSize(){
+        int s =0 ;
+        for (StarGraph starGraph : treeGraph) {
+            s += starGraph.getStar().size();
+        }
+        return s;
+    }
+    
 }

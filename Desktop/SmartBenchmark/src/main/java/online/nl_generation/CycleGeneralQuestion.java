@@ -43,13 +43,20 @@ public class CycleGeneralQuestion {
         somethingElse = SPARQL.getSimilarEntity(KG_Settings.explorer, cycleGraph.getPath_1().getSubject().getValueWithPrefix(), cycleGraph.getPath_1().getS_type());
         somethingElseWithoutPrefix = KG_Settings.explorer.removePrefix(somethingElse);
 
-        
+    }
+    
+    
+    public void generateQuestions() {
         direction = FORWARD;
         selectQuestions(CoordinatingConjunction.AND);
 
         direction = BACKWARD;
         selectQuestions(CoordinatingConjunction.AND);
     }
+    
+    
+    
+    
 
     public String selectQuery(CycleGraph cycleGraph, String coordinatingConjunction) {
         String query = "";
@@ -95,24 +102,30 @@ public class CycleGeneralQuestion {
     }
 
     public void selectQuestions(String coordinatingConjunction) {
-
-        ArrayList<String> questions = new ArrayList<>();
+        String selectQuery = selectQuery(cycleGraph, coordinatingConjunction);
         String whQuestion = selectWh_Questions(coordinatingConjunction, "NP");
+        String QT = "";
+        if(whQuestion.toLowerCase().startsWith("what"))
+            QT = GeneratedQuestion.QT_WHAT;
+        else if(whQuestion.toLowerCase().startsWith("who"))
+            QT = GeneratedQuestion.QT_WHO;
+        else if(whQuestion.toLowerCase().startsWith("where"))
+            QT = GeneratedQuestion.QT_WHERE;
+        else if(whQuestion.toLowerCase().startsWith("when"))
+            QT = GeneratedQuestion.QT_WHEN;
+        
+        
         if (whQuestion != null && !whQuestion.contains("null")) {
-            questions.add(whQuestion);
+            allPossibleQuestions.add(new GeneratedQuestion(cycleGraph.getPath_1().getSubject().getValueWithPrefix(), cycleGraph.getPath_1().getS_type(), whQuestion, selectQuery, cycleGraph.toString(), 3, QT, GeneratedQuestion.SH_CYCLE_GENERAL));
+//            allPossibleQuestions.add(new GeneratedQuestion(whQuestion, selectQuery, cycleGraph.toString()));
         }
 
         whQuestion = selectWh_Questions(coordinatingConjunction, "VP");
         if (whQuestion != null && !whQuestion.contains("null")) {
-            questions.add(whQuestion);
+            allPossibleQuestions.add(new GeneratedQuestion(cycleGraph.getPath_1().getSubject().getValueWithPrefix(), cycleGraph.getPath_1().getS_type(), whQuestion, selectQuery, cycleGraph.toString(), 3, QT, GeneratedQuestion.SH_CYCLE_GENERAL));
+//            allPossibleQuestions.add(new GeneratedQuestion(whQuestion, selectQuery, cycleGraph.toString()));
         }
 
-        if (questions.size() >= 1) {
-            String selectQuery = selectQuery(cycleGraph, coordinatingConjunction);
-
-            GeneratedQuestion generatedQuestion = new GeneratedQuestion(questions, selectQuery, cycleGraph.toString());
-            allPossibleQuestions.add(generatedQuestion);
-        }
     }
 
     public String selectWh_Questions(String coordinatingConjunction, String phrase) {
@@ -367,5 +380,7 @@ public class CycleGeneralQuestion {
         }
         return null;
     }
+
+    
 
 }
