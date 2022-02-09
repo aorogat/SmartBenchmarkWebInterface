@@ -76,6 +76,10 @@ public class DBpedia extends KnowledgeGraph {
             "dbo:wikiPageDisambiguates",
             "dbo:thumbnail",
             
+            "dbo:population_as_of",
+            
+            "<http://dbpedia.org/ontology/wikiPageRevisionID>",
+            
             "dbo:wikiPageWikiLink",
             "<http://dbpedia.org/ontology/wikiPageWikiLink>",
             

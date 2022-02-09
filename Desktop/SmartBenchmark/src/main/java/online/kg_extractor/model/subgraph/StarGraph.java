@@ -21,7 +21,6 @@ public class StarGraph extends Graph {
     //Constructors
     public StarGraph() {
     }
-    
 
     public StarGraph(ArrayList<TriplePattern> star) {
         this.star = star;
@@ -97,12 +96,25 @@ public class StarGraph extends Graph {
 
         for (VariableSet queryResult1 : queryResult) {
             star = new ArrayList<TriplePattern>();
-
+            int o_index = 0;
+            TriplePattern triplePattern;
             for (int i = 0; i < noOfBranches * 2; i = i + 2) {
-                TriplePattern triplePattern = new TriplePattern(
-                        new Variable("?so", seed, "URI"),
-                        queryResult1.getVariables().get(i + 1),
-                        queryResult1.getVariables().get(i));
+                if (endsType[o_index] == NodeType.NUMBER) {
+                    triplePattern = new TriplePattern(
+                            new Variable("?so", seed, "URI"),
+                            queryResult1.getVariables().get(i + 1),
+                            queryResult1.getVariables().get(i), SPARQL.getType(KG_Settings.explorer, seed), KG_Settings.Number);
+                } else if (endsType[o_index] == NodeType.DATE) {
+                    triplePattern = new TriplePattern(
+                            new Variable("?so", seed, "URI"),
+                            queryResult1.getVariables().get(i + 1),
+                            queryResult1.getVariables().get(i), SPARQL.getType(KG_Settings.explorer, seed), KG_Settings.Date);
+                } else {
+                    triplePattern = new TriplePattern(
+                            new Variable("?so", seed, "URI"),
+                            queryResult1.getVariables().get(i + 1),
+                            queryResult1.getVariables().get(i));
+                }
                 star.add(triplePattern);
             }
 
@@ -120,7 +132,6 @@ public class StarGraph extends Graph {
 
         return result;
     }
-
 
     public String toString() {
         String s = star.get(0).getSubject().getValue() + " ____ " + "type" + " ____ " + KG_Settings.explorer.removePrefix(seedType);

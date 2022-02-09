@@ -7,6 +7,7 @@ import offLine.kg_explorer.model.Predicate;
 import online.kg_extractor.knowledgegraph.KnowledgeGraph;
 import online.kg_extractor.model.VariableSet;
 import online.kg_extractor.model.subgraph.Graph;
+import settings.KG_Settings;
 
 /**
  *
@@ -29,11 +30,12 @@ public abstract class Explorer {
             return node;
         }
         
-        if(node.equals("true")||node.equals("false"))
+        if(node.equals("true")||node.equals("false")||node.equals(KG_Settings.Number)||node.equals(KG_Settings.Date))
             return node;
 
         String s = "";
         s = SPARQL.getNodeLabel(this, node);
+         
         return s;
     }
 

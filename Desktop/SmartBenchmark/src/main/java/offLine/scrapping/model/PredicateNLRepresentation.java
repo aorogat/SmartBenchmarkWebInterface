@@ -19,13 +19,15 @@ public class PredicateNLRepresentation {
         this.subject_type = subject_type;
         this.object_type = object_type;
         // S is the ... of O
-        this.predicate_s_O_NP = predicate_s_O_NP;
+        this.predicate_s_O_NP = predicate_s_O_NP.replaceAll("\\(.*\\)", "");
         // O .... S
-        this.predicate_o_s_VP = predicate_o_s_VP;
+        this.predicate_o_s_VP = predicate_o_s_VP.replaceAll("\\(.*\\)", "");
         // S .... O
-        this.predicate_s_O_VP = predicate_s_O_VP;
+        this.predicate_s_O_VP = predicate_s_O_VP.replaceAll("\\(.*\\)", "");
         // O is the .... of S
-        this.predicate_o_s_NP = predicate_o_s_NP;
+        this.predicate_o_s_NP = predicate_o_s_NP.replaceAll("\\(.*\\)", "");
+        
+        
     }
 
     public String getPredicate() {

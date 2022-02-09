@@ -27,8 +27,11 @@ public class TriplePattern {
         this.subject = source;
         this.object = destination;
         this.predicate = label;
-//        this.s_type = SPARQL.getType(KG_Settings.explorer, subject.getValueWithPrefix());
-//        this.o_type = SPARQL.getType(KG_Settings.explorer, object.getValueWithPrefix());
+        setContext();
+
+    }
+
+    private void setContext() {
         ArrayList<PredicateContext> allPossibleContexts = SPARQL.getPredicateContextFromTripleExample(subject.getValueWithPrefix(),
                 predicate.getValueWithPrefix(),
                 object.getValueWithPrefix());
@@ -38,16 +41,30 @@ public class TriplePattern {
             for (PredicateNLRepresentation predicateNLRepresentation : predicatesNL) {
                 if (possibleContext.getSubjectType().equals(predicateNLRepresentation.getSubject_type())
                         && possibleContext.getObjectType().equals(predicateNLRepresentation.getObject_type())) {
-                    this.s_type = possibleContext.getSubjectType();
-                    this.o_type = possibleContext.getObjectType();
+                    if(this.s_type == null)
+                        this.s_type = possibleContext.getSubjectType();
+                    if(this.o_type == null)
+                        this.o_type = possibleContext.getObjectType();
                     break;
                 }
             }
 
         }
 
-        s_type_without_prefix = KG_Settings.explorer.removePrefix(s_type);
-        o_type_without_prefix = KG_Settings.explorer.removePrefix(o_type);
+        if (s_type == null || o_type == null) {
+            return;
+        }
+
+        if (o_type.equals(KG_Settings.Number)) {
+            s_type_without_prefix = KG_Settings.explorer.removePrefix(s_type);
+            o_type_without_prefix = KG_Settings.Number;
+        } else if (o_type.equals(KG_Settings.Date)) {
+            s_type_without_prefix = KG_Settings.explorer.removePrefix(s_type);
+            o_type_without_prefix = KG_Settings.Date;
+        } else {
+            s_type_without_prefix = KG_Settings.explorer.removePrefix(s_type);
+            o_type_without_prefix = KG_Settings.explorer.removePrefix(o_type);
+        }
     }
 
     public TriplePattern(Variable subject, Variable object, Variable predicate, String s_type, String o_type) {
@@ -56,6 +73,16 @@ public class TriplePattern {
         this.predicate = predicate;
         this.s_type = s_type;
         this.o_type = o_type;
+        if (o_type.equals(KG_Settings.Number)) {
+            s_type_without_prefix = KG_Settings.explorer.removePrefix(s_type);
+            o_type_without_prefix = KG_Settings.Number;
+        } else if (o_type.equals(KG_Settings.Date)) {
+            s_type_without_prefix = KG_Settings.explorer.removePrefix(s_type);
+            o_type_without_prefix = KG_Settings.Date;
+        } else {
+            s_type_without_prefix = KG_Settings.explorer.removePrefix(s_type);
+            o_type_without_prefix = KG_Settings.explorer.removePrefix(o_type);
+        }
     }
 
     public Variable getSubject() {
@@ -99,17 +126,43 @@ public class TriplePattern {
     }
 
     public String toString() {
-        String s = subject.getValue() + "[" + s_type_without_prefix + "]" + " ____" + predicate.getValue() + "____ " + object.getValue() + "[" + o_type_without_prefix + "]";
+        String s = "";
+        if (s_type == null || o_type == null) {
+            setContext();
+        }
+        if (s_type == null || o_type == null || o_type_without_prefix == null || s_type_without_prefix == null) {
+            return null;
+        }
+        if (o_type_without_prefix.equals(KG_Settings.Number) || o_type_without_prefix.equals(KG_Settings.Date)) {
+            s = subject.getValue() + "[" + s_type_without_prefix + "]" + " ____" + predicate.getValue() + "____ " + object.getValueWithPrefix() + "[" + o_type_without_prefix + "]";
+        } else {
+            s = subject.getValue() + "[" + s_type_without_prefix + "]" + " ____" + predicate.getValue() + "____ " + object.getValue() + "[" + o_type_without_prefix + "]";
+        }
         return s;
     }
 
     public String toStringNotSubject() {
+        if (s_type == null || o_type == null || o_type_without_prefix == null) {
+            setContext();
+        }
+        if (s_type == null || o_type == null || o_type_without_prefix == null) {
+            return null;
+        }
         String s = " ____" + predicate.getValue() + "____ " + object.getValue() + "[" + o_type_without_prefix + "]";
         return s;
     }
 
     public String toQueryTriplePattern() {
-        String s = "<" + subject + ">\t<" + predicate + ">\t<" + object + ">";
+        if (s_type == null || o_type == null) {
+            setContext();
+        }
+        String o = "";
+        if (object.getValueWithPrefix().startsWith("http")) {
+            o = "<" + object.getValueWithPrefix() + ">";
+        } else {
+            o = object + "";
+        }
+        String s = "<" + subject + ">\t<" + predicate + ">\t" + o + "";
         return s;
     }
 
@@ -129,6 +182,4 @@ public class TriplePattern {
         this.o_type_without_prefix = o_type_without_prefix;
     }
 
-    
-    
 }

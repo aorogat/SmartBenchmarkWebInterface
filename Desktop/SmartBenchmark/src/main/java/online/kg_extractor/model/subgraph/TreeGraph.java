@@ -67,7 +67,7 @@ public class TreeGraph {
     public int getSize(){
         int s =0 ;
         for (StarGraph starGraph : treeGraph) {
-            s += starGraph.getStar().size();
+            s += starGraph.getStar().size()+1;
         }
         return s;
     }

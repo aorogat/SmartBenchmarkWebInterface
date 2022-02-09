@@ -123,6 +123,11 @@ public class ChainQuestion {
             if (predicateNL != null) {
                 s_o_NP = predicateNL.getPredicate_s_O_NP();
                 o_s_NP = predicateNL.getPredicate_o_s_NP();
+
+                System.out.println("predicate_s_O_NP: " + s_o_NP);
+//                System.out.println("predicate_s_O_VP: " + s_o_VP);
+                System.out.println("predicate_O_S_NP: " + o_s_NP);
+//                System.out.println("predicate_O_S_VP: " + o_s_VP);
             }
             //NL representation of intermediate predicates
             if (s_o_NP != null && !s_o_NP.equals("")) {
@@ -146,6 +151,11 @@ public class ChainQuestion {
 
         P0_SO_NP = predicateNL_for_P0.getPredicate_o_s_NP();
         P0_OS_NP = predicateNL_for_P0.getPredicate_s_O_NP();
+        
+        System.out.println("predicate_0_s_O_NP: " + P0_SO_NP);
+//        System.out.println("predicate_0_s_O_VP: " + s_o_VP);
+        System.out.println("predicate_0_O_S_NP: " + P0_OS_NP);
+//        System.out.println("predicate_0_O_S_VP: " + o_s_VP);
 
         selectQuery = generateSELECTQuery();
         countQuery = generateCountQuery();
@@ -192,6 +202,12 @@ public class ChainQuestion {
 
         P0_OS_NP = predicateNL_for_P0.getPredicate_s_O_NP();
         P0_OS_VP = predicateNL_for_P0.getPredicate_s_O_VP();
+        
+        
+        System.out.println("predicate_0_s_O_NP: " + P0_SO_NP);
+        System.out.println("predicate_0_s_O_VP: " + P0_SO_VP);
+        System.out.println("predicate_0_O_S_NP: " + P0_OS_NP);
+        System.out.println("predicate_0_O_S_VP: " + P0_OS_VP);
 
         ArrayList<TriplePattern> chain = chainGraph.getChain();
         query_GP_triples = "";
@@ -342,6 +358,7 @@ public class ChainQuestion {
             }
         }
 
+        if(triples==null) return null;
         triples = triples.replace(S0_withPrefix, somethingElse);
         return "ASK WHERE{" + triples + "\n}";
     }
@@ -362,6 +379,9 @@ public class ChainQuestion {
             allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_WHO, GeneratedQuestion.SH_CHAIN));
             question = Request.getRequestPrefix() + " " + P0_SO_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
             allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_CHAIN));
+            question = P0_SO_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_TOPICAL_PRUNE, GeneratedQuestion.SH_CHAIN));
+
         }
         if (P0_OS_VP != null) {
             String question = "Whom " + P1_to_n_SO_PN_series + " " + O_Final + " " + P0_OS_VP + "?";
@@ -386,6 +406,9 @@ public class ChainQuestion {
             allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_WHAT, GeneratedQuestion.SH_CHAIN));
             question = Request.getRequestPrefix() + " " + P0_SO_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
             allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_CHAIN));
+            question = P0_SO_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_TOPICAL_PRUNE, GeneratedQuestion.SH_CHAIN));
+
         }
         if (P0_OS_VP != null) {
             String question = "Where " + P1_to_n_SO_PN_series + " " + O_Final + " " + P0_OS_VP + "?";
@@ -410,6 +433,8 @@ public class ChainQuestion {
             allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_WHAT, GeneratedQuestion.SH_CHAIN));
             question = Request.getRequestPrefix() + " " + P0_SO_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
             allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_CHAIN));
+            question = P0_SO_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_TOPICAL_PRUNE, GeneratedQuestion.SH_CHAIN));
         }
         if (P0_SO_VP != null) {
             String question = "What " + P0_SO_VP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
@@ -430,6 +455,8 @@ public class ChainQuestion {
             allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_WHAT, GeneratedQuestion.SH_CHAIN));
             question = Request.getRequestPrefix() + " " + P0_SO_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
             allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_CHAIN));
+            question = P0_SO_NP_without_verb + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_TOPICAL_PRUNE, GeneratedQuestion.SH_CHAIN));
         }
         if (P0_OS_NP != null) {
             String question = "How " + P0_OS_NP + " is " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
@@ -452,6 +479,9 @@ public class ChainQuestion {
             allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_WHAT, GeneratedQuestion.SH_CHAIN));
             question = Request.getRequestPrefix() + " " + P0_SO_NP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
             allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_CHAIN));
+            question = P0_SO_NP + " " + P1_to_n_SO_PN_series_without_verb + " " + O_Final + "?";
+            allPossibleQuestions.add(new GeneratedQuestion(S0_withPrefix, S0_type_withPrefix, question, selectQuery, chainGraph.toString(), chainGraph.getChain().size(), GeneratedQuestion.QT_TOPICAL_PRUNE, GeneratedQuestion.SH_CHAIN));
+
         }
     }
 

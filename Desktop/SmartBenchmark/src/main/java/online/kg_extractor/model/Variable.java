@@ -39,6 +39,8 @@ public class Variable {
     }
 
     public String getValue() {
+        if(value.equals(KG_Settings.Number)||value.equals(KG_Settings.Date))
+            return value;
         return KG_Settings.explorer.removePrefix(value);
     }
 

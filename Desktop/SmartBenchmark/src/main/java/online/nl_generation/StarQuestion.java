@@ -146,7 +146,6 @@ public class StarQuestion {
             String whichQuestion = selectWhichQuestions(coordinatingConjunction).replaceFirst("Which", "How many");
             String question = whichQuestion;
             allPossibleQuestions.add(new GeneratedQuestion(starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type(), question, countQuery, starGraph.toString(), starGraph.getStar().size()+1, GeneratedQuestion.QT_HOW_MANY, GeneratedQuestion.SH_STAR));
-//            allPossibleQuestions.add(new GeneratedQuestion(question, countQuery, starGraph.toString()));
         }
     }
 
@@ -175,7 +174,6 @@ public class StarQuestion {
             String question = whichQuestion;
             String askQuery = askQuery_true_answer(starGraph, coordinatingConjunction);
             allPossibleQuestions.add(new GeneratedQuestion(starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type(), question, askQuery, starGraph.toString(), starGraph.getStar().size()+1, GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_STAR));
-//            allPossibleQuestions.add(new GeneratedQuestion(question, askQuery, starGraph.toString()));
         }
     }
 
@@ -234,18 +232,17 @@ public class StarQuestion {
             String whichQuestion = selectWhichQuestions(coordinatingConjunction);
             String question = whichQuestion;
             String selectQuery = selectQuery(starGraph, coordinatingConjunction);
-                        allPossibleQuestions.add(new GeneratedQuestion(starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type(), question, selectQuery, starGraph.toString(), starGraph.getStar().size()+1, GeneratedQuestion.QT_WHICH, GeneratedQuestion.SH_STAR));
+            allPossibleQuestions.add(new GeneratedQuestion(starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type(), question, selectQuery, starGraph.toString(), starGraph.getStar().size()+1, GeneratedQuestion.QT_WHICH, GeneratedQuestion.SH_STAR));
 
-//            allPossibleQuestions.add(new GeneratedQuestion(question, selectQuery, starGraph.toString()));
-
-            String requestQuestion = whichQuestion.replace("Which ", Request.getRequestPrefix().trim() + " which ");
-                                    allPossibleQuestions.add(new GeneratedQuestion(starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type(), question, selectQuery, starGraph.toString(), starGraph.getStar().size()+1, GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_STAR));
-
-//            allPossibleQuestions.add(new GeneratedQuestion(requestQuestion, selectQuery, starGraph.toString()));
+            String requestQuestion = whichQuestion.replaceFirst("Which ", Request.getRequestPrefix().trim() + " which ");
+            allPossibleQuestions.add(new GeneratedQuestion(starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type(), question, selectQuery, starGraph.toString(), starGraph.getStar().size()+1, GeneratedQuestion.QT_REQUEST, GeneratedQuestion.SH_STAR));
+            
+            requestQuestion = whichQuestion.replaceFirst("Which ", "");
+            allPossibleQuestions.add(new GeneratedQuestion(starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type(), question, selectQuery, starGraph.toString(), starGraph.getStar().size()+1, GeneratedQuestion.QT_TOPICAL_PRUNE, GeneratedQuestion.SH_STAR));
         }
     }
 
-    public String selectWhichQuestions(String coordinatingConjunction) {
+     public String selectWhichQuestions(String coordinatingConjunction) {
         String FCs = "";
         switch (coordinatingConjunction) {
             case CoordinatingConjunction.AND:

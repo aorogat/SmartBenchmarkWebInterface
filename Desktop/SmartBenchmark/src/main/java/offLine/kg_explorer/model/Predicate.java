@@ -3,6 +3,7 @@ package offLine.kg_explorer.model;
 import java.util.ArrayList;
 import java.util.List;
 import offLine.kg_explorer.explorer.Explorer;
+import offLine.kg_explorer.explorer.SPARQL;
 
 /**
  *
@@ -57,6 +58,8 @@ public class Predicate {
     }
 
     public long getWeight() {
+//        if(weight<=0)
+//            weight = SPARQL.getPredicateWeight(predicate, predicateContext.getSubjectType(), predicateContext.getObjectType());
         return weight;
     }
 

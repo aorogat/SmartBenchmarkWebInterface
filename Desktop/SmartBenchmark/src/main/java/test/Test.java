@@ -48,12 +48,12 @@ public class Test {
     {
         ChainGraph chainGraph = new ChainGraph();
         //Test Chain
-        ArrayList<Graph> chain_graphs = chainGraph.generate(kg, seed, NodeType.SUBJECT_ENTITY, NodeType.ANY, 3, true);
+//        ArrayList<Graph> chain_graphs = chainGraph.generate(kg, seed, NodeType.SUBJECT_ENTITY, NodeType.ANY, 3, true);
 
-        System.out.println("Size: " + chain_graphs.size());
-        for (Graph graph : chain_graphs) {
-            System.out.println(graph.toString());
-        }
+//        System.out.println("Size: " + chain_graphs.size());
+//        for (Graph graph : chain_graphs) {
+//            System.out.println(graph.toString());
+//        }
     }
     
     public static void testStar(KnowledgeGraph kg, String seed)

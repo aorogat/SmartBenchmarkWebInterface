@@ -61,7 +61,7 @@ public class CycleGraph { //Only support paths of length 1
         filter += "\n\t FILTER strstarts(str(?p2), str(dbo:)).";
         filter += "\n\t FILTER (?p1!=?p2). \n";
 
-        unwantedPropertiesString += knowledgeGraph.getUnwantedPropertiesString();
+        unwantedPropertiesString = knowledgeGraph.getUnwantedPropertiesString();
         
         filter += "\n\t FILTER (?p1 NOT IN(" + unwantedPropertiesString + ")). ";
         filter += "\n\t FILTER (?p2 NOT IN(" + unwantedPropertiesString + ")). ";

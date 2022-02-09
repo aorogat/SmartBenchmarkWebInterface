@@ -110,6 +110,8 @@ public class SingleEdgeGraph extends Graph {
     private ArrayList<Graph> generateEndedSingleEdge(KnowledgeGraph knowledgeGraph, String seed, int seedType, int endType, boolean uniqueProperties) {
         ArrayList<Graph> result = new ArrayList<>();
         String filter = "";
+        if(seed.startsWith("http"))
+            seed = "<" + seed + ">";
 
         if (seedType == NodeType.OBJECT_ENTITY) {
             filter = "FILTER NOT EXISTS { ?s ?x ?m }. ";
@@ -176,8 +178,8 @@ public class SingleEdgeGraph extends Graph {
 
         String query = "SELECT ?p ?o WHERE { "
                 + seed
-                + "?p "
-                + "?o"
+                + " ?p "
+                + " ?o "
                 + " " + filter
                 + "}";
         

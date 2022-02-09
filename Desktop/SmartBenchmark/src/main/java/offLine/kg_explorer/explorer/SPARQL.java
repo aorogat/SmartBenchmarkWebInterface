@@ -2,6 +2,7 @@ package offLine.kg_explorer.explorer;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import static offLine.kg_explorer.explorer.Explorer.kg;
 import offLine.kg_explorer.model.PredicateContext;
 import offLine.kg_explorer.model.PredicateTripleExample;
 import online.kg_extractor.model.VariableSet;
@@ -13,11 +14,12 @@ import system.components.Branch;
  * @author aorogat
  */
 public class SPARQL {
+    
+    
 
     public static String getNodeLabel(Explorer explorer, String node) {
-        if(node.startsWith("<"))
-        {
-            node= node.replace("<", "").replace(">", "");
+        if (node.startsWith("<")) {
+            node = node.replace("<", "").replace(">", "");
         }
         String query = "";
         //get labels
@@ -27,18 +29,53 @@ public class SPARQL {
                     + "FILTER langMatches( lang(?l), \"EN\" )."
                     + "}";
             ArrayList<VariableSet> varSet = explorer.kg.runQuery(query);
-            return varSet.get(0).getVariables().get(0).toString();
+            String n = varSet.get(0).getVariables().get(0).toString();
+
+            return n;
         } catch (Exception e) {
             return null;
         }
     }
+
     
+    public static String getTopEntity(String T, String P, boolean top) {
+        
+        String order = "";
+        if(top)
+            order = "DESC";
+        else
+            order = "ASC";
+                    
+        
+        if (T.startsWith("<")) {
+            T = T.replace("<", "").replace(">", "");
+        }
+        String query = "";
+        //get labels
+        try {
+            query = "select ?o ?n where\n"
+                    + "{\n"
+                    + "    ?o rdf:type <"+T+">.\n"
+                    + "    ?o <"+P+"> ?n\n"
+                    + "} \n"
+                    + "ORDER BY "+order+"(?n)\n"
+                    + "LIMIT 1\n"
+                    + "OFFSET " + KG_Settings.SET_QUESTION_TOP_ENTITY;
+            ArrayList<VariableSet> varSet = KG_Settings.explorer.kg.runQuery(query);
+            String o = varSet.get(0).getVariables().get(0).toString();
+
+            return o;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public static String getSimilarEntity(Explorer explorer, String entity, String entityType) {
         String query = "";
         //get labels
         try {
             query = "SELECT ?similar WHERE { "
-                    + "?similar rdf:type <"+entityType+">. "
+                    + "?similar rdf:type <" + entityType + ">. "
                     + "FILTER(?similar!=<" + entity.trim() + ">). "
                     + "} LIMIT 1";
             ArrayList<VariableSet> varSet = explorer.kg.runQuery(query);
@@ -74,10 +111,7 @@ public class SPARQL {
             return "UNKONWN";
         }
     }
-    
-    
-    
-    
+
     public static ArrayList<PredicateContext> getPredicateContextFromTripleExample(String subjectURI, String predicateURI, String objectURI) {
         String unwantedPropertiesString = KG_Settings.knowledgeGraph.getUnwantedPropertiesString();
         long weight = 0;
@@ -89,9 +123,9 @@ public class SPARQL {
                 + "SELECT DISTINCT ?s_type  ?o_type  \n"
                 //                + "SELECT DISTINCT SAMPLE(?s) SAMPLE(?o) ?s_type    ?o_type \n"
                 + "WHERE{\n"
-                + "<"+subjectURI+">      rdf:type              ?s_type.\n"
+                + "<" + subjectURI + ">      rdf:type              ?s_type.\n"
                 + "    FILTER NOT EXISTS {\n"
-                + "      <"+subjectURI+"> rdf:type ?type1 .\n"
+                + "      <" + subjectURI + "> rdf:type ?type1 .\n"
                 + "      ?type1 rdfs:subClassOf ?s_type.\n"
                 + "      FILTER NOT EXISTS {\n"
                 + "         ?type1 owl:equivalentClass ?s_type.\n"
@@ -99,12 +133,12 @@ public class SPARQL {
                 + "    }.\n"
                 + "    FILTER EXISTS {\n"
                 + "      ?s_type rdfs:subClassOf ?superType1 .\n"
-                + "      <"+subjectURI+"> rdf:type ?superType1 .\n"
+                + "      <" + subjectURI + "> rdf:type ?superType1 .\n"
                 + "    }.\n"
                 + "\n"
-                + "   <"+objectURI+">      rdf:type              ?o_type.\n"
+                + "   <" + objectURI + ">      rdf:type              ?o_type.\n"
                 + "    FILTER NOT EXISTS {\n"
-                + "      <"+objectURI+"> rdf:type ?type2 .\n"
+                + "      <" + objectURI + "> rdf:type ?type2 .\n"
                 + "      ?type2 rdfs:subClassOf ?o_type.\n"
                 + "      FILTER NOT EXISTS {\n"
                 + "         ?type2 owl:equivalentClass ?o_type.\n"
@@ -112,7 +146,7 @@ public class SPARQL {
                 + "    }.\n"
                 + "    FILTER EXISTS {\n"
                 + "      ?o_type rdfs:subClassOf ?superType2 .\n"
-                + "      <"+objectURI+"> rdf:type ?superType2 .\n"
+                + "      <" + objectURI + "> rdf:type ?superType2 .\n"
                 + "    }.\n"
                 + "  FILTER strstarts(str(?s_type ), str(dbo:)).\n"
                 + "  FILTER strstarts(str(?o_type ), str(dbo:)).\n"
@@ -131,16 +165,26 @@ public class SPARQL {
         return predicateContexts;
 
     }
-    
-    
-    
+
     public static Branch getBranchOfType_SType_connectTo_OType(Explorer explorer, String S_type, String O_type, String predicateURI, int offset) {
         String query = "";
         //get labels
         try {
-            query = "SELECT DISTINCT ?s ?o WHERE { "
-                    + "  ?s <" + predicateURI + "> ?o.  ?s rdf:type <" + S_type + ">.  ?o rdf:type <" + O_type + ">.  "
-                    + "} OFFSET " + offset;
+            if (O_type.equals("Number") || O_type.equals("Date")) {
+                query = "SELECT DISTINCT ?s ?o WHERE {\n "
+                        + "  ?s <" + predicateURI + "> ?o.  ?s rdf:type <" + S_type + ">." + KG_Settings.popularityFilter
+                        + "\n}\n "
+                        + KG_Settings.popularityORDER
+                        + "OFFSET " + offset
+                        ;
+            } else {
+                query = "SELECT DISTINCT ?s ?o WHERE {\n "
+                        + "  ?s <" + predicateURI + "> ?o.  ?s rdf:type <" + S_type + ">.  ?o rdf:type <" + O_type + ">.  " + KG_Settings.popularityFilter
+                        + "\n}\n "
+                        + KG_Settings.popularityORDER
+                        + "OFFSET " + offset
+                        ;
+            }
             explorer.predicatesTriplesVarSets = explorer.kg.runQuery(query);
 
             String s = explorer.predicatesTriplesVarSets.get(0).getVariables().get(0).toString();
@@ -376,4 +420,53 @@ public class SPARQL {
 //        }
 //        return newContexts;
 //    }
+    
+    
+    public static long getPredicateWeight(String predicate, String sType, String oType) {
+        String query = "";
+        
+    ArrayList<VariableSet> predicatesTriplesVarSets = new ArrayList<>();
+        //get weights
+        try {
+            query = "SELECT (count(?p) as ?count) WHERE { ?s ?p ?o . "
+                    + "?s rdf:type <" + sType + ">. "
+                    + "?o rdf:type <" + oType + ">. "
+                    + "FILTER(?p=<" + predicate.trim() + ">)."
+                    + ""
+                    + "    FILTER NOT EXISTS {\n"
+                    + "      ?s rdf:type ?type1 .\n"
+                    + "      ?type1 rdfs:subClassOf <" + sType + ">.\n"
+                    + "      FILTER NOT EXISTS {\n"
+                    + "         ?type1 owl:equivalentClass <" + sType + ">.\n"
+                    + "      }\n"
+                    + "    }.\n"
+                    + "    FILTER EXISTS {\n"
+                    + "      <" + sType + "> rdfs:subClassOf ?superType1 .\n"
+                    + "      ?s rdf:type ?superType1 .\n"
+                    + "    }.\n"
+                    + "\n"
+                    + "   ?o      rdf:type              <" + oType + ">.\n"
+                    + "    FILTER NOT EXISTS {\n"
+                    + "      ?o rdf:type ?type2 .\n"
+                    + "      ?type2 rdfs:subClassOf <" + oType + ">.\n"
+                    + "      FILTER NOT EXISTS {\n"
+                    + "         ?type2 owl:equivalentClass <" + oType + ">.\n"
+                    + "      }\n"
+                    + "    }.\n"
+                    + "    FILTER EXISTS {\n"
+                    + "      <" + oType + "> rdfs:subClassOf ?superType2 .\n"
+                    + "      ?o rdf:type ?superType2 .\n"
+                    + "    }.\n"
+                    + "  FILTER strstarts(str(<" + sType + ">  ), str(dbo:)).\n"
+                    + "  FILTER strstarts(str(<" + oType + "> ), str(dbo:)).\n"
+                    + ""
+                    + "}";
+            predicatesTriplesVarSets = kg.runQuery(query);
+            return Long.valueOf(predicatesTriplesVarSets.get(0).getVariables().get(0).toString());
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+    
+    
 }

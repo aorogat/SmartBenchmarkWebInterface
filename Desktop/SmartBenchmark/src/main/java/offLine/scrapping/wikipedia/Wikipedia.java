@@ -39,8 +39,8 @@ public class Wikipedia {
             //https://stackoverflow.com/questions/2687012/split-string-into-sentences
             //https://unicode-org.github.io/icu-docs/#/icu4j/com/ibm/icu/text/BreakIterator.html
 
-            startString = startString.toLowerCase();
-            endString = endString.toLowerCase();
+            startString = startString.toLowerCase().replaceAll("\\(.*\\)", "");
+            endString = endString.toLowerCase().replaceAll("\\(.*\\)", "");
 
             String docString = doc.getElementsByTag("p").text();
             //docString += doc.getElementsByClass("infobox").text();

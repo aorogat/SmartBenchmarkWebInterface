@@ -21,7 +21,7 @@ public class GeneratedQuestion {
     public static final String QT_REQUEST = "Requests";
     public static final String QT_TOPICAL_EMPH = "Topical-Emphasize";
     public static final String QT_TOPICAL_PRUNE = "Topical-Prune";
-    
+
     public static final String SH_SINGLE_EDGE = "SINGLE_EDGE";
     public static final String SH_CHAIN = "CHAIN";
     public static final String SH_STAR = "STAR";
@@ -30,24 +30,24 @@ public class GeneratedQuestion {
     public static final String SH_PETAL = "PETAL";
     public static final String SH_FLOWER = "FLOWER";
     public static final String SH_SET = "SET";
+    public static final String SH_STAR_MODIFIED = "STAR_MODIFIED";
+    public static final String SH_SET_MODIFIED = "SET_MODIFIED";
     public static final String SH_CYCLE_GENERAL = "CYCLE_GENERAL";
-    
-    
-    
+
     private String seed_withPrefix;
     private String seedType_withPrefix;
-    
+
     private String questionString;
     private String query;
     private String graphString;
-    
+
     private int noOfTriples;
     private String QuestionType;
     private String ShapeType;
     private ArrayList<String> answers;
     private int answerCardinality;
     private int noOfTokens;
-    private int qustionComplexity;
+    private double qustionComplexity;
 
     public GeneratedQuestion() {
     }
@@ -57,19 +57,18 @@ public class GeneratedQuestion {
 //        this.query = query;
 //        this.graphString = graphString;
 //    }
-
     public GeneratedQuestion(String seed_withPrefix, String seedType_withPrefix, String questionString, String query, String graphString, int noOfTriples, String QuestionType, String ShapeType) {
         this.seed_withPrefix = seed_withPrefix;
         this.seedType_withPrefix = seedType_withPrefix;
-        this.questionString = questionString;
+        this.questionString = questionString.replace("(", "").replace(")", "").replace("  ", " ");
         this.query = query;
         this.graphString = graphString;
         this.noOfTriples = noOfTriples;
         this.QuestionType = QuestionType;
         this.ShapeType = ShapeType;
+        
+        print();
     }
-    
-    
 
     public String getQuestionString() {
         return questionString;
@@ -107,10 +106,15 @@ public class GeneratedQuestion {
             StringTokenizer st = new StringTokenizer(questionString, " ");
             noOfTokens = st.countTokens();
 
-            qustionComplexity = noOfTokens * noOfTriples;
+            qustionComplexity = (noOfTokens * noOfTriples * get_K_length()) / (double) (20 * 6 * 5);
+            if (qustionComplexity > 1) {
+                qustionComplexity = 1;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
+        if(answerCardinality<=0) return;
 
         System.out.println(graphString);
         System.out.println(query);
@@ -121,9 +125,8 @@ public class GeneratedQuestion {
         System.out.println("#Tokens: " + noOfTokens);
         System.out.println("#Question Complexity: " + qustionComplexity);
         System.out.println("QT: " + QuestionType);
-        System.out.println("Shape: " + ShapeType + " (#Triple Patterns: "+noOfTriples+")");
+        System.out.println("Shape: " + ShapeType + " (#Triple Patterns: " + noOfTriples + ")");
         System.out.println("");
-
     }
 
     public String getGraphString() {
@@ -174,12 +177,6 @@ public class GeneratedQuestion {
         this.ShapeType = ShapeType;
     }
 
-   
-
-    
-
-    
-
     public ArrayList<String> getAnswers() {
         return answers;
     }
@@ -204,12 +201,72 @@ public class GeneratedQuestion {
         this.noOfTokens = noOfTokens;
     }
 
-    public int getQustionComplexity() {
+    public double getQustionComplexity() {
         return qustionComplexity;
     }
 
-    public void setQustionComplexity(int qustionComplexity) {
+    public void setQustionComplexity(double qustionComplexity) {
         this.qustionComplexity = qustionComplexity;
+    }
+
+    private int get_K_length() {
+        int k = 0;
+        String q = query.toLowerCase().replace("\n", "").replace("\r", "").replaceAll(" ", "");
+
+        if (q.contains("select")) {
+            k++;
+        }
+        if (q.contains("ask")) {
+            k++;
+        }
+        if (q.contains("distinct")) {
+            k++;
+        }
+        if (q.contains("limit")) {
+            k++;
+        }
+        if (q.contains("offset")) {
+            k++;
+        }
+        if (q.contains("orderby")) {
+            k++;
+        }
+        if (q.contains("filter")) {
+            k++;
+        }
+        if (q.contains("union{")) {
+            k++;
+        }
+        if (q.contains("notexists{")) {
+            k++;
+        } else if (q.contains("exists{")) {
+            k++;
+        }
+        if (q.contains("minus{")) {
+            k++;
+        }
+        if (q.contains("groupby")) {
+            k++;
+        }
+        if (q.contains("having")) {
+            k++;
+        }
+        if (q.contains("count(")) {
+            k++;
+        }
+        if (q.contains("min(")) {
+            k++;
+        }
+        if (q.contains("max(")) {
+            k++;
+        }
+        if (q.contains("sum(")) {
+            k++;
+        }
+        if (q.contains("avg(")) {
+            k++;
+        }
+        return k;
     }
 
 }

@@ -3,7 +3,6 @@ package system.components;
 import java.util.ArrayList;
 import java.util.HashSet;
 import offLine.kg_explorer.explorer.Database;
-import offLine.kg_explorer.explorer.Explorer;
 import offLine.kg_explorer.model.ListOfPredicates;
 import offLine.kg_explorer.model.Predicate;
 import offLine.kg_explorer.model.PredicateContext;
@@ -24,7 +23,10 @@ public class Predicate_Extractor {
     int counter = 0;
     public static KnowledgeGraph kg;
     public static String endpoint;
-    public static ArrayList<VariableSet> predicatesVariableSet = new ArrayList<>();;
+    public static ArrayList<VariableSet> predicatesVariableSet_entity = new ArrayList<>();
+    public static ArrayList<VariableSet> predicatesVariableSet_number = new ArrayList<>();
+    public static ArrayList<VariableSet> predicatesVariableSet_date = new ArrayList<>();
+
     public static ArrayList<VariableSet> predicatesTriplesVarSets;
     public static ArrayList<Graph> result = new ArrayList<>();
     protected ArrayList<Predicate> predicateList = new ArrayList<>();
@@ -32,87 +34,108 @@ public class Predicate_Extractor {
     public Predicate_Extractor() {
         kg = KG_Settings.knowledgeGraph;
     }
-    
-    
-    
+
     public static void main(String[] args) {
         Predicate_Extractor extractor = new Predicate_Extractor();
-        extractor.storeAllPredicates();
+        extractor.exploreAllPredicates();
     }
 
-    public void storeAllPredicates()
-    {
-         ListOfPredicates predicats;
-        int offset = 10000;
+    public void exploreAllPredicates() {
+        ListOfPredicates predicats;
+        int offset = 1000;
         int from = 0;
         boolean firstIteration = true;
-//        System.out.println("RiverMouth Context");
-//        System.out.println("=========================\n\n\n\n");
-//        dBpediaExplorer.getPredicatesContext("dbo:riverMouth");
-//        System.out.println("=========================\n\n\n\n");
 
-        predicats = explore(from, offset);
+        predicats = getLexiconLHS(from, offset);
         predicats.printHeader();
         predicats.print();
-
-//        do {
-//            predicats = dBpediaExplorer.explore(from, offset);
-//            if (firstIteration) {
-//                predicats.printHeader();
-//            }
-//            predicats.print();
-//            from += offset;
-//            firstIteration = false;
-//            System.gc(); //force Java garbage collection 
-//        } while (predicats.getPredicates().size() > 0);
-
-
-    
     }
-    
-    public ListOfPredicates explore(int from, int length) {
-        predicateList.clear();
 
-        int predicatesSizeOld = 0;
-        int predicatesSizeNew = 1;
+    public ListOfPredicates getLexiconLHS(int from, int length) {
 
-        do {
-            predicatesSizeOld = predicatesVariableSet.size();
-            getPredicateList(from, length);
-            predicatesSizeNew = predicatesVariableSet.size();
-            from += length;
-            System.out.println("Predicates size = " + predicatesSizeNew);
-            System.out.println(predicatesVariableSet.toString());
-        } while (predicatesSizeNew > predicatesSizeOld);
-        System.out.println("Predicates size = " + predicatesSizeNew);
-        System.out.println(predicatesVariableSet.toString());
+        predicatesVariableSet_entity = fillPredicatesURI_EntityObjects(from, length);
+        predicatesVariableSet_number = fillPredicatesURI_NumberObjects(from, length);
+        predicatesVariableSet_date = fillPredicatesURI_DateObjects(from, length);
 
+        //get predicates LHS (e.g., uri, label, contexts)
         int i = 0;
         Predicate predicateObject = new Predicate(KG_Settings.explorer);
         ArrayList<PredicateContext> contexts;
         ListOfPredicates predicates = new ListOfPredicates(predicateList);
 
-        for (VariableSet predicate : predicatesVariableSet) {
+        for (VariableSet predicate : predicatesVariableSet_entity) {
             System.out.println("###################" + ++counter + ": New Predicate: " + predicate.toString().trim() + " ################### ");
 
             String uri = predicate.toString().trim();
-            String predi = removePrefix(predicate.toString().trim());
-            String lab = getPredicateLabel(predicate.toString().trim());
+            String predi = KG_Settings.explorer.removePrefix(predicate.toString().trim());
+            String lab = getPredicateLabel(uri);
+            contexts = getPredicatesContext_EntityObjects("<" + uri + ">");
 
-            contexts = getPredicatesContext("<" + predicate.toString().trim() + ">");
             for (PredicateContext context : contexts) {
                 predicateObject = new Predicate(KG_Settings.explorer);
                 predicateObject.setPredicateURI(uri);
                 predicateObject.setPredicate(predi);
                 predicateObject.setLabel(lab);
 
-//                predicateObject.setTripleExamples(getOneTripleExample(predicate.toString().trim(),
-//                        context.getSubjectType(), context.getObjectType(), predicateObject.getLabel(), numberOfNLExamples));
                 predicateObject.setPredicateContext(context);
                 predicateObject.print();
                 predicates.getPredicates().add(predicateObject);
                 try {
-                    //Database.storePredicates(predicateObject);
+                    Database.storePredicates(predicateObject);
+                } catch (Exception e) {
+                    System.out.println("XXXXXXXXXX NOT SOTRED XXXXXXXXXXXXX");
+                }
+            }
+
+        }
+
+        //numbers
+        for (VariableSet predicate : predicatesVariableSet_number) {
+            System.out.println("###################" + ++counter + ": New Predicate: " + predicate.toString().trim() + " ################### ");
+
+            String uri = predicate.toString().trim();
+            String predi = KG_Settings.explorer.removePrefix(predicate.toString().trim());
+            String lab = getPredicateLabel(uri);
+            contexts = getPredicatesContext_NumberObjects("<" + uri + ">");
+
+            for (PredicateContext context : contexts) {
+                predicateObject = new Predicate(KG_Settings.explorer);
+                predicateObject.setPredicateURI(uri);
+                predicateObject.setPredicate(predi);
+                predicateObject.setLabel(lab);
+
+                predicateObject.setPredicateContext(context);
+                predicateObject.print();
+                predicates.getPredicates().add(predicateObject);
+                try {
+                    Database.storePredicates(predicateObject);
+                } catch (Exception e) {
+                    System.out.println("XXXXXXXXXX NOT SOTRED XXXXXXXXXXXXX");
+                }
+            }
+
+        }
+
+        //dates
+        for (VariableSet predicate : predicatesVariableSet_date) {
+            System.out.println("###################" + ++counter + ": New Predicate: " + predicate.toString().trim() + " ################### ");
+
+            String uri = predicate.toString().trim();
+            String predi = KG_Settings.explorer.removePrefix(predicate.toString().trim());
+            String lab = getPredicateLabel(uri);
+            contexts = getPredicatesContext_DateObjects("<" + uri + ">");
+
+            for (PredicateContext context : contexts) {
+                predicateObject = new Predicate(KG_Settings.explorer);
+                predicateObject.setPredicateURI(uri);
+                predicateObject.setPredicate(predi);
+                predicateObject.setLabel(lab);
+
+                predicateObject.setPredicateContext(context);
+                predicateObject.print();
+                predicates.getPredicates().add(predicateObject);
+                try {
+                    Database.storePredicates(predicateObject);
                 } catch (Exception e) {
                     System.out.println("XXXXXXXXXX NOT SOTRED XXXXXXXXXXXXX");
                 }
@@ -124,34 +147,131 @@ public class Predicate_Extractor {
         return predicates;
     }
 
-    private void getPredicateList(int from, int length) {
+    public ArrayList<VariableSet> fillPredicatesURI_EntityObjects(int from, int length) {
+        ArrayList<VariableSet> predicatesVariableSet = new ArrayList<>();
+        predicateList.clear();
+
+        int predicatesSizeOld = 0;
+        int predicatesSizeNew = 1;
+
+        //get predicates URI from KG
+        do {
+            predicatesSizeOld = predicatesVariableSet.size();
+            predicatesVariableSet.addAll(getPredicateList_EntityObjects(from, length));
+
+            predicatesSizeNew = predicatesVariableSet.size();
+            from += length;
+            System.out.println("Predicates size = " + predicatesSizeNew);
+            System.out.println(predicatesVariableSet.toString());
+        } while (predicatesSizeNew > predicatesSizeOld);
+        System.out.println("Predicates size = " + predicatesSizeNew);
+        System.out.println(predicatesVariableSet.toString());
+
+        return predicatesVariableSet;
+    }
+
+    public ArrayList<VariableSet> fillPredicatesURI_NumberObjects(int from, int length) {
+        ArrayList<VariableSet> predicatesVariableSet = new ArrayList<>();
+        predicateList.clear();
+
+        int predicatesSizeOld = 0;
+        int predicatesSizeNew = 1;
+
+        //get predicates URI from KG
+        do {
+            predicatesSizeOld = predicatesVariableSet.size();
+            predicatesVariableSet.addAll(getPredicateList_NumberObjects(from, length));
+
+            predicatesSizeNew = predicatesVariableSet.size();
+            from += length;
+            System.out.println("Predicates size = " + predicatesSizeNew);
+            System.out.println(predicatesVariableSet.toString());
+        } while (predicatesSizeNew > predicatesSizeOld);
+        System.out.println("Predicates size = " + predicatesSizeNew);
+        System.out.println(predicatesVariableSet.toString());
+
+        return predicatesVariableSet;
+    }
+
+    public ArrayList<VariableSet> fillPredicatesURI_DateObjects(int from, int length) {
+        ArrayList<VariableSet> predicatesVariableSet = new ArrayList<>();
+        predicateList.clear();
+
+        int predicatesSizeOld = 0;
+        int predicatesSizeNew = 1;
+
+        //get predicates URI from KG
+        do {
+            predicatesSizeOld = predicatesVariableSet.size();
+            predicatesVariableSet.addAll(getPredicateList_DateObjects(from, length));
+
+            predicatesSizeNew = predicatesVariableSet.size();
+            from += length;
+            System.out.println("Predicates size = " + predicatesSizeNew);
+            System.out.println(predicatesVariableSet.toString());
+        } while (predicatesSizeNew > predicatesSizeOld);
+        System.out.println("Predicates size = " + predicatesSizeNew);
+        System.out.println(predicatesVariableSet.toString());
+
+        return predicatesVariableSet;
+    }
+
+    private ArrayList<VariableSet> getPredicateList_EntityObjects(int from, int length) {
+        ArrayList<VariableSet> predicatesVariableSet = new ArrayList<>();
+
         //get predicates where the object is entity
         String unwantedPropertiesString = kg.getUnwantedPropertiesString();
         String query = "SELECT DISTINCT ?p WHERE { "
                 + "?s ?p ?o. ?o ?t ?l. " //Get only if ?o is entity
-                //                + "?s ?p ?o. "
                 + " FILTER (?p NOT IN(" + unwantedPropertiesString + "))."
-                //                + " FILTER strstarts(str(?p ), str(dbo:)). "  //NOT working, system return nothing
                 + "} LIMIT " + length + " OFFSET " + from;
         predicatesVariableSet.addAll(kg.runQuery(query));
 
         //Remove duplicates
         predicatesVariableSet = new ArrayList<>(new HashSet<>(predicatesVariableSet));
+        return predicatesVariableSet;
+    }
+
+    private ArrayList<VariableSet> getPredicateList_NumberObjects(int from, int length) {
+        ArrayList<VariableSet> predicatesVariableSet = new ArrayList<>();
+
+        predicateList.clear();
+
+        //get predicates where the object is entity
+        String unwantedPropertiesString = kg.getUnwantedPropertiesString();
 
         //get predicates where the object is number
-        query = "SELECT DISTINCT ?p WHERE { "
-                + "?s ?p ?o. ?s ?t ?l. "
-                //                + "?s ?p ?o. "
-                + " FILTER isNumeric(?o)."
+        String query = "select ?p where {\n"
+                + "  ?p a owl:DatatypeProperty.\n"
+                + "     {?p rdfs:range xsd:integer} UNION {?p rdfs:range xsd:float}UNION {?p rdfs:range xsd:double}UNION {?p rdfs:range xsd:decimal}.\n"
                 + " FILTER (?p NOT IN(" + unwantedPropertiesString + "))."
                 + "} LIMIT " + length + " OFFSET " + from;
         predicatesVariableSet.addAll(kg.runQuery(query));
 
         //Remove duplicates
         predicatesVariableSet = new ArrayList<>(new HashSet<>(predicatesVariableSet));
+        return predicatesVariableSet;
+    }
 
-        //get predicates where the object is date
-        //..
+    private ArrayList<VariableSet> getPredicateList_DateObjects(int from, int length) {
+        ArrayList<VariableSet> predicatesVariableSet = new ArrayList<>();
+
+        predicateList.clear();
+
+        //get predicates where the object is entity
+        String unwantedPropertiesString = kg.getUnwantedPropertiesString();
+
+        //get predicates where the object is number
+        String query = "select ?p where {\n"
+                + "  ?p a owl:DatatypeProperty ;\n"
+                + "     rdfs:range xsd:date .\n"
+                + " FILTER (?p NOT IN(" + unwantedPropertiesString + "))."
+                + "} LIMIT " + length + " OFFSET " + from;
+        predicatesVariableSet.addAll(kg.runQuery(query));
+
+        //Remove duplicates
+        predicatesVariableSet = new ArrayList<>(new HashSet<>(predicatesVariableSet));
+        return predicatesVariableSet;
     }
 
     public static String getPredicateLabel(String predicate) {
@@ -217,54 +337,95 @@ public class Predicate_Extractor {
         String query = "";
         ArrayList<PredicateTripleExample> predicateTriples = predicateTriples = new ArrayList<>();
         try {
-//            query = "SELECT DISTINCT ?s ?o WHERE { ?s <" + predicate.trim() + "> ?o . ?o ?t ?l. } LIMIT " + (noOfExamples - 1); //only those with entity object
-            query = "SELECT DISTINCT ?s ?o WHERE { \n"
-                    + "?s <" + predicate.trim() + "> ?o .\n"
-                    + "?s rdf:type <" + sType + ">. \n"
-                    + "?o rdf:type <" + oType + ">. \n"
-                    + "\n"
-                    + "\n"
-                    + "    FILTER NOT EXISTS {\n"
-                    + "      ?s rdf:type ?type1 .\n"
-                    + "      ?type1 rdfs:subClassOf <" + sType + ">.\n"
-                    + "      FILTER NOT EXISTS {\n"
-                    + "         ?type1 owl:equivalentClass <" + sType + ">.\n"
-                    + "      }\n"
-                    + "    }.\n"
-                    + "    FILTER EXISTS {\n"
-                    + "      <" + sType + "> rdfs:subClassOf ?superType1 .\n"
-                    + "      ?s rdf:type ?superType1 .\n"
-                    + "    }.\n"
-                    + "\n"
-                    + "\n"
-                    + "\n"
-                    + "    FILTER NOT EXISTS {\n"
-                    + "      ?o rdf:type ?type2 .\n"
-                    + "      ?type2 rdfs:subClassOf <" + oType + ">.\n"
-                    + "      FILTER NOT EXISTS {\n"
-                    + "         ?type2 owl:equivalentClass <" + oType + ">.\n"
-                    + "      }\n"
-                    + "    }.\n"
-                    + "    FILTER EXISTS {\n"
-                    + "      <" + oType + "> rdfs:subClassOf ?superType2 .\n"
-                    + "      ?o rdf:type ?superType2 .\n"
-                    + "    }.\n"
-                    + "\n"
-                    + "\n"
-                    //Get only s and o with only one predicate between them /////// NOT WORKING ?! Why ///////
-                    //                    + "    FILTER NOT EXISTS {\n"
-                    //                    + "      ?s ?pp ?o .\n"
-                    //                    + "      FILTER(?pp = <" + predicate.trim() + ">).\n"
-                    //                    + "    }.\n"
-                    + "\n"
-                    + "\n"
-                    + "\n"
-                    //Get only dbpedia types
-                    + "  FILTER strstarts(str(<" + sType + ">  ), str(dbo:)).\n"
-                    + "  FILTER strstarts(str(<" + oType + "> ), str(dbo:)).\n"
-                    + "\n"
-                    + "\n"
-                    + "} LIMIT " + noOfExamples;
+            if (oType.equals("Number")) {
+                query = "SELECT DISTINCT ?s ?o WHERE { \n"
+                        + "?s <" + predicate.trim() + "> ?o .\n"
+                        + "?s rdf:type <" + sType + ">. \n"
+                        + "\n"
+                        + "    FILTER NOT EXISTS {\n"
+                        + "      ?s rdf:type ?type1 .\n"
+                        + "      ?type1 rdfs:subClassOf <" + sType + ">.\n"
+                        + "      FILTER NOT EXISTS {\n"
+                        + "         ?type1 owl:equivalentClass <" + sType + ">.\n"
+                        + "      }\n"
+                        + "    }.\n"
+                        + "    FILTER EXISTS {\n"
+                        + "      <" + sType + "> rdfs:subClassOf ?superType1 .\n"
+                        + "      ?s rdf:type ?superType1 .\n"
+                        + "    }.\n"
+                        + "\n"
+                        + "\n"
+                        //Get only dbpedia types
+                        + "  FILTER strstarts(str(<" + sType + ">  ), str(dbo:)).\n"
+                        + "FILTER isNumeric(?o)."
+                        + "\n"
+                        + "\n"
+                        + "} LIMIT " + noOfExamples;
+            } else if (oType.equals("Date")) {
+                query = "SELECT DISTINCT ?s ?o WHERE { \n"
+                        + "?s <" + predicate.trim() + "> ?o .\n"
+                        + "?s rdf:type <" + sType + ">. \n"
+                        + "\n"
+                        + "    FILTER NOT EXISTS {\n"
+                        + "      ?s rdf:type ?type1 .\n"
+                        + "      ?type1 rdfs:subClassOf <" + sType + ">.\n"
+                        + "      FILTER NOT EXISTS {\n"
+                        + "         ?type1 owl:equivalentClass <" + sType + ">.\n"
+                        + "      }\n"
+                        + "    }.\n"
+                        + "    FILTER EXISTS {\n"
+                        + "      <" + sType + "> rdfs:subClassOf ?superType1 .\n"
+                        + "      ?s rdf:type ?superType1 .\n"
+                        + "    }.\n"
+                        + "\n"
+                        + "\n"
+                        //Get only dbpedia types
+                        + "  FILTER strstarts(str(<" + sType + ">  ), str(dbo:)).\n"
+                        + " FILTER (datatype(?o) = xsd:dateTime ). \n"
+                        + "\n"
+                        + "\n"
+                        + "} LIMIT " + noOfExamples;
+            } else {
+                query = "SELECT DISTINCT ?s ?o WHERE { \n"
+                        + "?s <" + predicate.trim() + "> ?o .\n"
+                        + "?s rdf:type <" + sType + ">. \n"
+                        + "?o rdf:type <" + oType + ">. \n"
+                        + "\n"
+                        + "\n"
+                        + "    FILTER NOT EXISTS {\n"
+                        + "      ?s rdf:type ?type1 .\n"
+                        + "      ?type1 rdfs:subClassOf <" + sType + ">.\n"
+                        + "      FILTER NOT EXISTS {\n"
+                        + "         ?type1 owl:equivalentClass <" + sType + ">.\n"
+                        + "      }\n"
+                        + "    }.\n"
+                        + "    FILTER EXISTS {\n"
+                        + "      <" + sType + "> rdfs:subClassOf ?superType1 .\n"
+                        + "      ?s rdf:type ?superType1 .\n"
+                        + "    }.\n"
+                        + "\n"
+                        + "\n"
+                        + "\n"
+                        + "    FILTER NOT EXISTS {\n"
+                        + "      ?o rdf:type ?type2 .\n"
+                        + "      ?type2 rdfs:subClassOf <" + oType + ">.\n"
+                        + "      FILTER NOT EXISTS {\n"
+                        + "         ?type2 owl:equivalentClass <" + oType + ">.\n"
+                        + "      }\n"
+                        + "    }.\n"
+                        + "    FILTER EXISTS {\n"
+                        + "      <" + oType + "> rdfs:subClassOf ?superType2 .\n"
+                        + "      ?o rdf:type ?superType2 .\n"
+                        + "    }.\n"
+                        + "\n"
+                        + "\n"
+                        //Get only dbpedia types
+                        + "  FILTER strstarts(str(<" + sType + ">  ), str(dbo:)).\n"
+                        + "  FILTER strstarts(str(<" + oType + "> ), str(dbo:)).\n"
+                        + "\n"
+                        + "\n"
+                        + "} LIMIT " + noOfExamples;
+            }
             predicatesTriplesVarSets = kg.runQuery(query);
             if (predicatesTriplesVarSets.size() > noOfExamples) {
                 predicatesTriplesVarSets = new ArrayList<>(predicatesTriplesVarSets.subList(0, noOfExamples));
@@ -272,7 +433,7 @@ public class Predicate_Extractor {
             for (VariableSet predicate1 : predicatesTriplesVarSets) {
                 String s = predicate1.getVariables().get(0).toString();
                 String o = predicate1.getVariables().get(1).toString();
-                PredicateTripleExample predicateTriple = new PredicateTripleExample("<" + s + ">", "<" + o + ">", removePrefix(s), removePrefix(o), lable, KG_Settings.explorer);
+                PredicateTripleExample predicateTriple = new PredicateTripleExample("<" + s + ">", "<" + o + ">", KG_Settings.explorer.removePrefix(s), KG_Settings.explorer.removePrefix(o), lable, KG_Settings.explorer);
                 predicateTriples.add(predicateTriple);
                 //To speed up the system. break after one VP.
 //                if(predicateTriple.getNlsSuggestionsObjects().size()>=1)
@@ -284,7 +445,7 @@ public class Predicate_Extractor {
         }
     }
 
-    public static ArrayList<PredicateContext> getPredicatesContext(String predicateURI) {
+    public static ArrayList<PredicateContext> getPredicatesContext_EntityObjects(String predicateURI) {
         String unwantedPropertiesString = kg.getUnwantedPropertiesString();
         long weight = 0;
         String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
@@ -324,8 +485,8 @@ public class Predicate_Extractor {
                 + "  FILTER (strstarts(str(?s_type ), str(dbo:))).\n"
                 + "  FILTER (strstarts(str(?o_type ), str(dbo:))).\n"
                 //You can filter out types like (agent, ....)
-//                + "  FILTER (?s_type NOT IN (dbo:Agent, dbo:Settlement)).\n"
-//                + "  FILTER (?o_type NOT IN (dbo:Agent, dbo:Settlement)).\n"
+                //                + "  FILTER (?s_type NOT IN (dbo:Agent, dbo:Settlement)).\n"
+                //                + "  FILTER (?o_type NOT IN (dbo:Agent, dbo:Settlement)).\n"
                 + "} GROUP BY ?s_type  ?o_type "
                 + "  ORDER By (str(?s_type))\n";
         predicatesTriplesVarSets = kg.runQuery(query);
@@ -337,6 +498,106 @@ public class Predicate_Extractor {
             String stype = predicate.getVariables().get(0).getValueWithPrefix();
             String otype = predicate.getVariables().get(1).getValueWithPrefix();
             String weightString = predicate.getVariables().get(2).getValueWithPrefix();
+//            System.out.println("stype:" + stype + ",  " + "otype:" + otype);
+//            weight = getPredicateWeight(predicateURI.replace("<", "").replace(">", ""), stype, otype);
+            weight = Long.parseLong(weightString);
+            predicateContexts.add(new PredicateContext(stype, otype, weight));
+//            System.out.println(predicate.toString());
+        }
+        System.out.println("Predicate Context list size before filteration: " + predicateContexts.size());
+        predicateContexts = filterOutNoisyContexts(predicateContexts);
+        System.out.println("Predicate Context list size after filteration: " + predicateContexts.size());
+        return predicateContexts;
+
+    }
+
+    public static ArrayList<PredicateContext> getPredicatesContext_NumberObjects(String predicateURI) {
+        String unwantedPropertiesString = kg.getUnwantedPropertiesString();
+        long weight = 0;
+        String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+                + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+                + "PREFIX owl: <http://www.w3.org/2002/07/owl#> \n"
+                + "PREFIX schema: <http://schema.org/> \n"
+                + " \n"
+                + "SELECT DISTINCT ?s_type  (count(?s) as ?count)\n"
+                //                + "SELECT DISTINCT SAMPLE(?s) SAMPLE(?o) ?s_type    ?o_type \n"
+                + "WHERE{\n"
+                + "?s      " + predicateURI + "      ?o.\n"
+                + "?s      rdf:type              ?s_type.\n"
+                + "    FILTER NOT EXISTS {\n"
+                + "      ?s rdf:type ?type1 .\n"
+                + "      ?type1 rdfs:subClassOf ?s_type.\n"
+                + "      FILTER NOT EXISTS {\n"
+                + "         ?type1 owl:equivalentClass ?s_type.\n"
+                + "      }\n"
+                + "    }.\n"
+                + "    FILTER EXISTS {\n"
+                + "      ?s_type rdfs:subClassOf ?superType1 .\n"
+                + "      ?s rdf:type ?superType1 .\n"
+                + "    }.\n"
+                + "\n"
+                + "  FILTER (strstarts(str(?s_type ), str(dbo:))).\n"
+                + "} GROUP BY ?s_type "
+                + "  ORDER By (str(?s_type))\n";
+        predicatesTriplesVarSets = kg.runQuery(query);
+        //remove duplicates as sometimes Distinct does not work in the KGMS
+        predicatesTriplesVarSets = new ArrayList<>(new HashSet<>(predicatesTriplesVarSets));
+
+        ArrayList<PredicateContext> predicateContexts = new ArrayList<>();
+        for (VariableSet predicate : predicatesTriplesVarSets) {
+            String stype = predicate.getVariables().get(0).getValueWithPrefix();
+            String otype = "Number";
+            String weightString = predicate.getVariables().get(1).getValueWithPrefix();
+//            System.out.println("stype:" + stype + ",  " + "otype:" + otype);
+//            weight = getPredicateWeight(predicateURI.replace("<", "").replace(">", ""), stype, otype);
+            weight = Long.parseLong(weightString);
+            predicateContexts.add(new PredicateContext(stype, otype, weight));
+//            System.out.println(predicate.toString());
+        }
+        System.out.println("Predicate Context list size before filteration: " + predicateContexts.size());
+        predicateContexts = filterOutNoisyContexts(predicateContexts);
+        System.out.println("Predicate Context list size after filteration: " + predicateContexts.size());
+        return predicateContexts;
+
+    }
+
+    public static ArrayList<PredicateContext> getPredicatesContext_DateObjects(String predicateURI) {
+        String unwantedPropertiesString = kg.getUnwantedPropertiesString();
+        long weight = 0;
+        String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+                + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+                + "PREFIX owl: <http://www.w3.org/2002/07/owl#> \n"
+                + "PREFIX schema: <http://schema.org/> \n"
+                + " \n"
+                + "SELECT DISTINCT ?s_type  (count(?s) as ?count)\n"
+                //                + "SELECT DISTINCT SAMPLE(?s) SAMPLE(?o) ?s_type    ?o_type \n"
+                + "WHERE{\n"
+                + "?s      " + predicateURI + "      ?o.\n"
+                + "?s      rdf:type              ?s_type.\n"
+                + "    FILTER NOT EXISTS {\n"
+                + "      ?s rdf:type ?type1 .\n"
+                + "      ?type1 rdfs:subClassOf ?s_type.\n"
+                + "      FILTER NOT EXISTS {\n"
+                + "         ?type1 owl:equivalentClass ?s_type.\n"
+                + "      }\n"
+                + "    }.\n"
+                + "    FILTER EXISTS {\n"
+                + "      ?s_type rdfs:subClassOf ?superType1 .\n"
+                + "      ?s rdf:type ?superType1 .\n"
+                + "    }.\n"
+                + "\n"
+                + "  FILTER (strstarts(str(?s_type ), str(dbo:))).\n"
+                + "} GROUP BY ?s_type "
+                + "  ORDER By (str(?s_type))\n";
+        predicatesTriplesVarSets = kg.runQuery(query);
+        //remove duplicates as sometimes Distinct does not work in the KGMS
+        predicatesTriplesVarSets = new ArrayList<>(new HashSet<>(predicatesTriplesVarSets));
+
+        ArrayList<PredicateContext> predicateContexts = new ArrayList<>();
+        for (VariableSet predicate : predicatesTriplesVarSets) {
+            String stype = predicate.getVariables().get(0).getValueWithPrefix();
+            String otype = "Date";
+            String weightString = predicate.getVariables().get(1).getValueWithPrefix();
 //            System.out.println("stype:" + stype + ",  " + "otype:" + otype);
 //            weight = getPredicateWeight(predicateURI.replace("<", "").replace(">", ""), stype, otype);
             weight = Long.parseLong(weightString);
@@ -366,31 +627,6 @@ public class Predicate_Extractor {
             }
         }
         return newContexts;
-    }
-
-    public String removePrefix(String node) {
-        node = node.replace("http://dbpedia.org/resource/", "")
-                .replace("http://dbpedia.org/ontology/", "")
-                .replace("http://dbpedia.org/property/", "")
-                .replace("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "type")
-                .replace("<", "")
-                .replace("http://dbpedia.org/class/yago/", "yago:")
-                .replace("http://umbel.org/umbel/rc/", "umbel:")
-                .replace("http://www.w3.org/ns/prov", "")
-                .replace("http://www.w3.org/2002/07/owl", "")
-                .replace("http://www.w3.org/2000/01/rdf-schema", "")
-                .replace("http://www.w3.org/1999/02/22-rdf-syntax-ns", "")
-                .replace("ttp://xmlns.com/foaf/0.1/", "")
-                .replace("ttp://www.w3.org/2004/02/skos/", "")
-                .replace("http://purl.org/dc/terms/", "")
-                .replace("http://purl.org/dc/elements/1.1/", "")
-                .replace("http://www.w3.org/2003/01/geo/wgs84 pos", "")
-                .replace("http://en.wikipedia.org/", "")
-                .replace("http://purl.org/linguistics/gold/", "")
-                //.replace("","")
-                .replace(">", "")
-                .trim().replace('_', ' ');
-        return node;
     }
 
 }
