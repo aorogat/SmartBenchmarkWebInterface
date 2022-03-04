@@ -1,7 +1,7 @@
 package offLine.kg_explorer.ontology;
 
 import offLine.kg_explorer.explorer.SPARQL;
-import settings.KG_Settings;
+import settings.Settings;
 
 public class KGOntology 
 {
@@ -15,7 +15,7 @@ public class KGOntology
     
     public static String getType(String node)
     {
-        return SPARQL.getType(settings.KG_Settings.explorer, node);
+        return SPARQL.getType(settings.Settings.explorer, node);
 //        if(node.equals("Baltic Sea"))
 //            return "place";
 //        else if(node.equals("Bräkneån"))
@@ -43,7 +43,7 @@ public class KGOntology
         if(parent.equals(child))
             return true;
         else 
-            if(SPARQL.isASubtypeOf(KG_Settings.explorer, child, parent))
+            if(SPARQL.isASubtypeOf(Settings.explorer, child, parent))
                 return true;
         else
                 return false;

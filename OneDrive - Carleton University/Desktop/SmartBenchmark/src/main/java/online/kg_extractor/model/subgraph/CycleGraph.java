@@ -2,11 +2,11 @@ package online.kg_extractor.model.subgraph;
 
 import java.util.ArrayList;
 import offLine.kg_explorer.explorer.SPARQL;
-import online.kg_extractor.knowledgegraph.KnowledgeGraph;
+import offLine.kg_explorer.explorer.KnowledgeGraph;
 import online.kg_extractor.model.TriplePattern;
 import online.kg_extractor.model.Variable;
 import online.kg_extractor.model.VariableSet;
-import settings.KG_Settings;
+import settings.Settings;
 
 /**
  *
@@ -21,7 +21,7 @@ public class CycleGraph { //Only support paths of length 1
 
     //Constructors
     public CycleGraph() {
-        
+
     }
 
     public CycleGraph(TriplePattern path_1, TriplePattern path_2) {
@@ -44,7 +44,7 @@ public class CycleGraph { //Only support paths of length 1
 
         ArrayList<VariableSet> queryResult;
         ArrayList<CycleGraph> result = new ArrayList<>();
-        seedType = SPARQL.getType(KG_Settings.explorer, seed);
+        seedType = SPARQL.getType(Settings.explorer, seed);
 
         //Assume the star as follow S0--P1.1--P1.2 .. --On.m  
         //                          S0--P2.1--P2.2 .. --On.m
@@ -57,12 +57,15 @@ public class CycleGraph { //Only support paths of length 1
         vars += " " + "?p1 ?p2 ?o";
         triples += "\n\t <" + seed + "> ?p1 ?o.";
         triples += "\n\t <" + seed + "> ?p2 ?o.";
-        filter += "\n\t FILTER strstarts(str(?p1), str(dbo:)).";
-        filter += "\n\t FILTER strstarts(str(?p2), str(dbo:)).";
+        if (Settings.requiredTypePrefix != null && !"".equals(Settings.requiredTypePrefix)) {
+            filter += "\n\t FILTER strstarts(str(?p1), str(" + Settings.requiredTypePrefix + ")).";
+            filter += "\n\t FILTER strstarts(str(?p2), str(" + Settings.requiredTypePrefix + ")).";
+        }
+
         filter += "\n\t FILTER (?p1!=?p2). \n";
 
         unwantedPropertiesString = knowledgeGraph.getUnwantedPropertiesString();
-        
+
         filter += "\n\t FILTER (?p1 NOT IN(" + unwantedPropertiesString + ")). ";
         filter += "\n\t FILTER (?p2 NOT IN(" + unwantedPropertiesString + ")). ";
 
@@ -87,11 +90,13 @@ public class CycleGraph { //Only support paths of length 1
             CycleGraph c = new CycleGraph(path_1, path_2);
             boolean found = false;
             for (CycleGraph ci : result) {
-                if(isGraphEqualTo(c, ci))
+                if (isGraphEqualTo(c, ci)) {
                     found = true;
+                }
             }
-            if(!found)
+            if (!found) {
                 result.add(c);
+            }
 
         }
 
@@ -104,19 +109,17 @@ public class CycleGraph { //Only support paths of length 1
 
         return s + "\n";
     }
-    
-    
+
     public static boolean isGraphEqualTo(CycleGraph c1, CycleGraph c2) {
-        if(c1.path_1.getPredicate().getValueWithPrefix().equals(c2.path_2.getPredicate().getValueWithPrefix()) &&
-            c1.path_2.getPredicate().getValueWithPrefix().equals(c2.path_1.getPredicate().getValueWithPrefix())    )
+        if (c1.path_1.getPredicate().getValueWithPrefix().equals(c2.path_2.getPredicate().getValueWithPrefix())
+                && c1.path_2.getPredicate().getValueWithPrefix().equals(c2.path_1.getPredicate().getValueWithPrefix())) {
             return true;
-        else if(c1.path_1.getPredicate().getValueWithPrefix().equals(c2.path_1.getPredicate().getValueWithPrefix()) &&
-            c1.path_2.getPredicate().getValueWithPrefix().equals(c2.path_2.getPredicate().getValueWithPrefix())    )
+        } else if (c1.path_1.getPredicate().getValueWithPrefix().equals(c2.path_1.getPredicate().getValueWithPrefix())
+                && c1.path_2.getPredicate().getValueWithPrefix().equals(c2.path_2.getPredicate().getValueWithPrefix())) {
             return true;
+        }
         return false;
     }
-    
-    
 
     public TriplePattern getPath_1() {
         return path_1;
@@ -150,7 +153,4 @@ public class CycleGraph { //Only support paths of length 1
         this.unwantedPropertiesString = unwantedPropertiesString;
     }
 
-    
-    
-    
 }

@@ -7,7 +7,7 @@ import online.kg_extractor.model.TriplePattern;
 import online.kg_extractor.model.subgraph.ChainGraph;
 import offLine.scrapping.model.PredicateNLRepresentation;
 import offLine.scrapping.model.PredicatesLexicon;
-import settings.KG_Settings;
+import settings.Settings;
 
 public class ChainQuestion {
 
@@ -78,8 +78,8 @@ public class ChainQuestion {
         S0_type_withPrefix = chainGraph.getChain().get(0).getS_type();
         O0_type_withPrefix = chainGraph.getChain().get(0).getO_type();
 
-        somethingElse = SPARQL.getSimilarEntity(KG_Settings.explorer, S0_withPrefix, this.S0_type_withPrefix);
-        somethingElseWithoutPrefix = KG_Settings.explorer.removePrefix(somethingElse);
+        somethingElse = SPARQL.getSimilarEntity(Settings.explorer, S0_withPrefix, this.S0_type_withPrefix);
+        somethingElseWithoutPrefix = Settings.explorer.removePrefix(somethingElse);
 
         predicateNL_for_P0 = PredicatesLexicon.getPredicateNL(P0_withPrefix, S0_type_withPrefix, O0_type_withPrefix);
 
@@ -181,8 +181,8 @@ public class ChainQuestion {
         S0_type_withPrefix = chainGraph.getChain().get(length).getO_type(); //Swap
         O0_type_withPrefix = chainGraph.getChain().get(length).getS_type(); //Swap
 
-        somethingElse = SPARQL.getSimilarEntity(KG_Settings.explorer, S0_withPrefix, this.S0_type_withPrefix);
-        somethingElseWithoutPrefix = KG_Settings.explorer.removePrefix(somethingElse);
+        somethingElse = SPARQL.getSimilarEntity(Settings.explorer, S0_withPrefix, this.S0_type_withPrefix);
+        somethingElseWithoutPrefix = Settings.explorer.removePrefix(somethingElse);
 
         predicateNL_for_P0 = PredicatesLexicon.getPredicateNL(P0_withPrefix, O0_type_withPrefix, S0_type_withPrefix); //Swap
 
@@ -269,13 +269,13 @@ public class ChainQuestion {
         generateQuestionAsk_Wrong();
 
         // generateCountQuery(); //Not possible here  (Require a type branch)
-        if (KGOntology.isSubtypeOf(S0_type_withPrefix, KG_Settings.Person)) {
+        if (KGOntology.isSubtypeOf(S0_type_withPrefix, Settings.Person)) {
             generateQuestionSELECT_e_of_type_Person();
-        } else if (KGOntology.isSubtypeOf(S0_type_withPrefix, KG_Settings.Place)) {
+        } else if (KGOntology.isSubtypeOf(S0_type_withPrefix, Settings.Place)) {
             generateQuestionSELECT_e_of_type_Place();
-        } else if (KGOntology.isSubtypeOf(S0_type_withPrefix, KG_Settings.Date)) {
+        } else if (KGOntology.isSubtypeOf(S0_type_withPrefix, Settings.Date)) {
             generateQuestionSELECT_e_of_type_Date();
-        } else if (KGOntology.isSubtypeOf(S0_type_withPrefix, KG_Settings.Number)) {
+        } else if (KGOntology.isSubtypeOf(S0_type_withPrefix, Settings.Number)) {
             generateQuestionSELECT_e_of_type_Number();
         } else {
             generateQuestionSELECT_e_of_type_Entity();
@@ -285,11 +285,11 @@ public class ChainQuestion {
     public String generateSELECTQuery() {
         String triples = query_GP_triples.replaceFirst("<" + S0_withPrefix + ">", "?Seed");
 
-        if (KG_Settings.Triple_NP_Direction == KG_Settings.LABEL_NP_SO) {
+        if (Settings.Triple_NP_Direction == Settings.LABEL_NP_SO) {
             for (int i = 0; i < chainGraph.getChain().size() - 1; i++) {
                 triples = triples.replace("<" + chainGraph.getChain().get(i).getSubject().getValueWithPrefix() + ">", "?S" + i);
             }
-        } else if (KG_Settings.Triple_NP_Direction == KG_Settings.LABEL_NP_OS) {
+        } else if (Settings.Triple_NP_Direction == Settings.LABEL_NP_OS) {
             for (int i = chainGraph.getChain().size() - 1; i >= 0; i--) {
                 triples = triples.replace("<" + chainGraph.getChain().get(i).getObject().getValueWithPrefix() + ">", "?S" + i);
             }
@@ -306,11 +306,11 @@ public class ChainQuestion {
 
         String triples = query_GP_triples.replaceFirst("<" + chainGraph.getChain().get(0).getSubject().getValueWithPrefix() + ">", "?Seed");
 
-        if (KG_Settings.Triple_NP_Direction == KG_Settings.LABEL_NP_SO) {
+        if (Settings.Triple_NP_Direction == Settings.LABEL_NP_SO) {
             for (int i = 0; i < chainGraph.getChain().size() - 1; i++) {
                 triples = triples.replace("<" + chainGraph.getChain().get(i).getSubject().getValueWithPrefix() + ">", "?S" + i);
             }
-        } else if (KG_Settings.Triple_NP_Direction == KG_Settings.LABEL_NP_OS) {
+        } else if (Settings.Triple_NP_Direction == Settings.LABEL_NP_OS) {
             for (int i = chainGraph.getChain().size() - 1; i >= 0; i--) {
                 triples = triples.replace("<" + chainGraph.getChain().get(i).getObject().getValueWithPrefix() + ">", "?S" + i);
             }
@@ -327,11 +327,11 @@ public class ChainQuestion {
 
         String triples = query_GP_triples;
 
-        if (KG_Settings.Triple_NP_Direction == KG_Settings.LABEL_NP_SO) {
+        if (Settings.Triple_NP_Direction == Settings.LABEL_NP_SO) {
             for (int i = 1; i < chainGraph.getChain().size() - 1; i++) {
                 triples = triples.replace("<" + chainGraph.getChain().get(i).getSubject().getValueWithPrefix() + ">", "?S" + i);
             }
-        } else if (KG_Settings.Triple_NP_Direction == KG_Settings.LABEL_NP_OS) {
+        } else if (Settings.Triple_NP_Direction == Settings.LABEL_NP_OS) {
             for (int i = chainGraph.getChain().size() - 2; i >= 0; i--) {
                 triples = triples.replace("<" + chainGraph.getChain().get(i).getObject().getValueWithPrefix() + ">", "?S" + i);
             }
@@ -348,11 +348,11 @@ public class ChainQuestion {
 
         String triples = query_GP_triples;
 
-        if (KG_Settings.Triple_NP_Direction == KG_Settings.LABEL_NP_SO) {
+        if (Settings.Triple_NP_Direction == Settings.LABEL_NP_SO) {
             for (int i = 1; i < chainGraph.getChain().size() - 1; i++) {
                 triples = triples.replace("<" + chainGraph.getChain().get(i).getSubject().getValueWithPrefix() + ">", "?S" + i);
             }
-        } else if (KG_Settings.Triple_NP_Direction == KG_Settings.LABEL_NP_OS) {
+        } else if (Settings.Triple_NP_Direction == Settings.LABEL_NP_OS) {
             for (int i = chainGraph.getChain().size() - 2; i >= 0; i--) {
                 triples = triples.replace("<" + chainGraph.getChain().get(i).getObject().getValueWithPrefix() + ">", "?S" + i);
             }

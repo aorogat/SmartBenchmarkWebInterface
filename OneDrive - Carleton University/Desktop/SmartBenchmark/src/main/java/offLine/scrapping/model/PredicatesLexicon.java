@@ -2,12 +2,15 @@ package offLine.scrapping.model;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import offLine.kg_explorer.explorer.Database;
+import database.Database;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import offLine.kg_explorer.explorer.Explorer;
 import offLine.kg_explorer.model.Predicate;
 import offLine.kg_explorer.model.PredicateContext;
 import offLine.kg_explorer.ontology.KGOntology;
-import settings.KG_Settings;
+import settings.Settings;
+import system.components.Predicate_Representation_Extractor;
 
 public class PredicatesLexicon {
 
@@ -59,29 +62,29 @@ public class PredicatesLexicon {
                 return p;
             }
         }
-
+        
+//        Predicate predicate1 = new Predicate(Settings.explorer);
+//        predicate1.setLabel(predicate);
+//        predicate1.setPredicate(predicate);
+//        predicate1.setPredicateURI(predicate);
+//        predicate1.setPredicateContext(new PredicateContext(S_type, O_type, 0));
+//        Predicate_Representation_Extractor.fill_from_Labels_VP_and_NP_S_O(predicate1);
 //        try {
-//            String label = KG_Settings.explorer.removePrefix(predicate);
-//            Predicate p = new Predicate(KG_Settings.explorer);
-//            p.setPredicateURI(predicate);
-//            p.setLabel(label);
-//            p.setPredicateContext(new PredicateContext(S_type, O_type, 0));
-//            if (label.endsWith(" of")) {
-//                if (KG_Settings.Triple_NP_Direction == KG_Settings.LABEL_NP_SO) {
-//                    Database.storePredicates_NP("NP_S_O", new Predicate(KG_Settings.explorer), predicate, 99, 1, 1, 1);
-//                    return new PredicateNLRepresentation(predicate, S_type, O_type, label, null, null, null);
-//                } else {
-//                    Database.storePredicates_NP("NP_O_S", p, predicate, 99, 1, 1, 1);
-//                    return new PredicateNLRepresentation(predicate, S_type, O_type, null, null, label, null);
-//                }
-//            } else {
-//                Database.storePredicates_VP("VP_S_O", p, predicate, 100, 1, 1, 1);
-//                return new PredicateNLRepresentation(predicate, S_type, O_type, null, label, null, null);
-//            }
+//            Database.populateLexicon();
 //        } catch (IOException ex) {
-//            ex.printStackTrace();
+//            Logger.getLogger(PredicatesLexicon.class.getName()).log(Level.SEVERE, null, ex);
 //        }
-
+//        predicatesNL = Database.getPredicatesNLRepresentationLexicon();
+//        for (PredicateNLRepresentation p : predicatesNL) {
+//            if (p.getPredicate() == null) {
+//                continue;
+//            }
+//            if (p.getPredicate().equals(predicate)
+//                    && S_type.equals(p.getSubject_type())
+//                    && O_type.equals(p.getObject_type())) {
+//                return p;
+//            }
+//        }
         return null;
     }
 

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.StringTokenizer;
 import online.kg_extractor.model.VariableSet;
-import settings.KG_Settings;
+import settings.Settings;
 
 public class GeneratedQuestion {
 
@@ -62,7 +62,7 @@ public class GeneratedQuestion {
     public GeneratedQuestion(String seed_withPrefix, String seedType_withPrefix, String questionString, String query, String graphString, int noOfTriples, String QuestionType, String ShapeType) {
         this.seed_withPrefix = seed_withPrefix;
         this.seedType_withPrefix = seedType_withPrefix;
-        this.questionString = questionString.replace("(", "").replace(")", "").replace("  ", " ").replace(" , ", ", ");
+        this.questionString = questionString.replace("(", "").replace(")", "").replace("  ", " ").replace(" , ", ", ").replace(" ,", ", ");
         this.query = query;
         this.graphString = graphString;
         this.noOfTriples = noOfTriples;
@@ -70,8 +70,8 @@ public class GeneratedQuestion {
         this.ShapeType = ShapeType;
         
         try {
-            ArrayList<VariableSet> answersVar = KG_Settings.knowledgeGraph.runQuery(query);
-            if (answersVar.size() > KG_Settings.maxAnswerCardinalityAllowed) {
+            ArrayList<VariableSet> answersVar = Settings.knowledgeGraph.runQuery(query);
+            if (answersVar.size() > Settings.maxAnswerCardinalityAllowed) {
                 System.out.println("Very long cardinality");
                 return;
             }
@@ -124,8 +124,14 @@ public class GeneratedQuestion {
 
     public void print() {
         
-        if(answerCardinality<=0) return;
+        if(answerCardinality<=0){ 
+            System.out.println(query);
+            System.out.println("NO ANSWER");
+            return;
+        }
 //        System.out.println("=================================== Question Start ==========================================");
+        System.out.println("Seed with prefix: " + seed_withPrefix);
+        System.out.println("Seed type with prefix: " + seedType_withPrefix);
         System.out.println(graphString);
         System.out.println(query);
         System.out.print("\033[1;35m");//MAGENTA Color
@@ -215,13 +221,25 @@ public class GeneratedQuestion {
         this.noOfTokens = noOfTokens;
     }
 
+    
+    
+    public int getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(int keywords) {
+        this.keywords = keywords;
+    }
+
     public double getQustionComplexity() {
         return questionComplexity;
     }
 
-    public void setQustionComplexity(double qustionComplexity) {
-        this.questionComplexity = qustionComplexity;
+    public void setQustionComplexity(double questionComplexity) {
+        this.questionComplexity = questionComplexity;
     }
+    
+    
 
     private int get_K_length() {
         int k = 0;

@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import offLine.kg_explorer.explorer.Explorer;
 import offLine.kg_explorer.explorer.SPARQL;
+import settings.Settings;
 
 /**
  *
  * @author aorogat
  */
 public class Predicate {
+
     private String predicateURI;
     private String predicate; //without prefix
     private String label;
@@ -19,18 +21,17 @@ public class Predicate {
     private String NLPattern; //replicate for each predicate
     //Predicate Context
     private PredicateContext predicateContext;
-    
+
     public Predicate(Explorer explorer) {
         this.explorer = explorer;
     }
-    
+
     @Override
-    public String toString()
-    {
-        return predicateURI + "\t" + label + "\t" + weight + "\t" 
-                + predicateContext.getSubjectType() + "\t" 
-                + predicateContext.getObjectType() + "\t" 
-                + predicateContext.getWeight()+ "\t" ;
+    public String toString() {
+        return predicateURI + "\t" + label + "\t" + weight + "\t"
+                + predicateContext.getSubjectType() + "\t"
+                + predicateContext.getObjectType() + "\t"
+                + predicateContext.getWeight() + "\t";
     }
 
     public String getPredicateURI() {
@@ -50,11 +51,13 @@ public class Predicate {
     }
 
     public String getLabel() {
-        return label;
+        return  label;
+
+//        return label;
     }
 
     public void setLabel(String label) {
-        this.label = label;
+        this.label = Settings.explorer.removePrefix(label);
     }
 
     public long getWeight() {
@@ -83,14 +86,12 @@ public class Predicate {
         this.predicateContext = predicateContext;
     }
 
-    
-    public void print()
-    {
+    public void print() {
         String format = "%-10s%-25s%-35s%-35s%-35s%-100s%n";
-            System.out.format(format, "\t"+getPredicateContext().getWeight(), "\t"+getPredicateURI(), 
-                    "\t"+getLabel(), "\t"+getPredicateContext().getSubjectType(),"\t"+getPredicateContext().getObjectType(),
-                    "\t"+getTripleExamples().toString());
-        
+        System.out.format(format, "\t" + getPredicateContext().getWeight(), "\t" + getPredicateURI(),
+                "\t" + getLabel(), "\t" + getPredicateContext().getSubjectType(), "\t" + getPredicateContext().getObjectType(),
+                "\t" + getTripleExamples().toString());
+
     }
 
     public String getNLPattern() {
@@ -100,8 +101,5 @@ public class Predicate {
     public void setNLPattern(String NLPattern) {
         this.NLPattern = NLPattern;
     }
-    
-    
-    
-    
+
 }

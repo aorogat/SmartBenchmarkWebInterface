@@ -9,7 +9,8 @@ import online.kg_extractor.model.TriplePattern;
 import online.kg_extractor.model.subgraph.StarGraph;
 import offLine.scrapping.model.PredicateNLRepresentation;
 import offLine.scrapping.model.PredicatesLexicon;
-import settings.KG_Settings;
+import online.nl_generation.chunking.BasicNLP_FromPython;
+import settings.Settings;
 
 public class StarQuestion {
 
@@ -31,10 +32,10 @@ public class StarQuestion {
     public StarQuestion(StarGraph starGraph) {
         this.starGraph = starGraph;
 
-        somethingElse = SPARQL.getSimilarEntity(KG_Settings.explorer, starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type());
-        somethingElseWithoutPrefix = KG_Settings.explorer.removePrefix(somethingElse);
+        somethingElse = SPARQL.getSimilarEntity(Settings.explorer, starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type());
+        somethingElseWithoutPrefix = Settings.explorer.removePrefix(somethingElse);
 
-        T = KG_Settings.explorer.removePrefix(starGraph.getSeedType()).toLowerCase();
+        T = Settings.explorer.removePrefix(starGraph.getSeedType()).toLowerCase();
 
         Map<String, HashSet<String>> starPredicates = new HashMap<>();
 
@@ -42,7 +43,13 @@ public class StarQuestion {
         for (TriplePattern triple : starGraph.getStar()) {
             String p = triple.getPredicate().getValue();
             String s = triple.getSubject().getValue();
-            String o = triple.getObject().getValue();
+            String o = null;
+            if(triple.getO_type().equals(Settings.Number) ||
+                    triple.getO_type().equals(Settings.Date) ||
+                    triple.getO_type().equals(Settings.Literal))
+                o = triple.getObject().getValueWithPrefix();
+            else
+                o = triple.getObject().getValue();
 
             if (!starPredicates.containsKey(p)) {
                 HashSet<String> objects = new HashSet<>();
@@ -203,7 +210,7 @@ public class StarQuestion {
         if (FCs != null) {
             String whichQuestion = selectWhichQuestions(coordinatingConjunction).replaceFirst("Which", "Is " + somethingElseWithoutPrefix.toLowerCase().replace(T.toLowerCase(), ""))
                     .replace(FCs, FCs);
-            String question = whichQuestion;
+            String question = whichQuestion.replace("whose", "its");;
             String askQuery = askQuery_false_answer(starGraph, coordinatingConjunction);
                         allPossibleQuestions.add(new GeneratedQuestion(starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type(), question, askQuery, starGraph.toString(), starGraph.getStar().size()+1, GeneratedQuestion.QT_YES_NO_IS, GeneratedQuestion.SH_STAR));
 
@@ -237,7 +244,7 @@ public class StarQuestion {
             String selectQuery = selectQuery(starGraph, coordinatingConjunction);
             allPossibleQuestions.add(new GeneratedQuestion(starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type(), question, selectQuery, starGraph.toString(), starGraph.getStar().size()+1, GeneratedQuestion.QT_WHICH, GeneratedQuestion.SH_STAR));
 
-            question = whichQuestion.replaceFirst("Which " + T.trim(), "What are the " + T + "s that");
+            question = whichQuestion.replaceFirst("Which " + T.trim(), "What are the " +  BasicNLP_FromPython.nounPlural(T) + " ");
             allPossibleQuestions.add(new GeneratedQuestion(starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type(), question, selectQuery, starGraph.toString(), starGraph.getStar().size()+1, GeneratedQuestion.QT_WHAT, GeneratedQuestion.SH_STAR));
             
             
@@ -271,7 +278,7 @@ public class StarQuestion {
         }
 
         if (FCs != null) {
-            String whichQuestion = "Which " + T + FCs + "?";
+            String whichQuestion = "Which " + BasicNLP_FromPython.nounPlural(T) + FCs + "?";
             return whichQuestion;
         }
         return null;
@@ -383,8 +390,8 @@ public class StarQuestion {
                     FCs_Representation.add(" " + O + " " + p_OS_VP);
                 } else if (predicateNL.getPredicate_o_s_NP() != null) {
                     String p_OS_NP = PhraseRepresentationProcessing.NP_only(predicateNL.getPredicate_o_s_NP());
-                    if (SPARQL.isASubtypeOf(KG_Settings.explorer, starGraph.getSeedType(), KG_Settings.Person)) {
-                        FCs_Representation.add(" his/her " + p_OS_NP + " is " + O);
+                    if (SPARQL.isASubtypeOf(Settings.explorer, starGraph.getSeedType(), Settings.Person)) {
+                        FCs_Representation.add(" their " + p_OS_NP + " is " + O);
                     } else {
                         FCs_Representation.add(" whose " + p_OS_NP + " is " + O);
                     }

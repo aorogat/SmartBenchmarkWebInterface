@@ -6,7 +6,7 @@ import offLine.kg_explorer.ontology.KGOntology;
 import offLine.scrapping.model.PredicateNLRepresentation;
 import offLine.scrapping.model.PredicatesLexicon;
 import online.kg_extractor.model.subgraph.CycleGraph;
-import settings.KG_Settings;
+import settings.Settings;
 
 /**
  *
@@ -40,8 +40,8 @@ public class CycleGeneralQuestion {
 
         seed_type_withPrefix = cycleGraph.getPath_1().getS_type();
 
-        somethingElse = SPARQL.getSimilarEntity(KG_Settings.explorer, cycleGraph.getPath_1().getSubject().getValueWithPrefix(), cycleGraph.getPath_1().getS_type());
-        somethingElseWithoutPrefix = KG_Settings.explorer.removePrefix(somethingElse);
+        somethingElse = SPARQL.getSimilarEntity(Settings.explorer, cycleGraph.getPath_1().getSubject().getValueWithPrefix(), cycleGraph.getPath_1().getS_type());
+        somethingElseWithoutPrefix = Settings.explorer.removePrefix(somethingElse);
 
     }
     
@@ -131,7 +131,7 @@ public class CycleGeneralQuestion {
     public String selectWh_Questions(String coordinatingConjunction, String phrase) {
         String FCs = "";
         if (direction == FORWARD) {
-            if (KGOntology.isSubtypeOf(seed_type_withPrefix, KG_Settings.Person)) {
+            if (KGOntology.isSubtypeOf(seed_type_withPrefix, Settings.Person)) {
                 if (phrase.equals("NP") || phrase.equals("VP")) {
                     FCs = factConstraints_toString_VP_forward(cycleGraph, coordinatingConjunction);
                     if (FCs == null || FCs.contains("null")) {
@@ -139,7 +139,7 @@ public class CycleGeneralQuestion {
                     }
                     return "Who " + FCs + "?";
                 }
-            } else if (KGOntology.isSubtypeOf(seed_type_withPrefix, KG_Settings.Place)) {
+            } else if (KGOntology.isSubtypeOf(seed_type_withPrefix, Settings.Place)) {
                 if (phrase.equals("NP")) {
                     FCs = factConstraints_toString_NP_forward(cycleGraph, coordinatingConjunction);
                     if (FCs == null || FCs.contains("null")) {
@@ -154,7 +154,7 @@ public class CycleGeneralQuestion {
                     }
                     return "Where " + FCs + "?";
                 }
-            } else if (KGOntology.isSubtypeOf(seed_type_withPrefix, KG_Settings.Date)) {
+            } else if (KGOntology.isSubtypeOf(seed_type_withPrefix, Settings.Date)) {
                 if (phrase.equals("NP")) {
                     FCs = factConstraints_toString_NP_forward(cycleGraph, coordinatingConjunction);
 
@@ -170,7 +170,7 @@ public class CycleGeneralQuestion {
                     }
                     return "When " + FCs + "?";
                 }
-            } else if (KGOntology.isSubtypeOf(seed_type_withPrefix, KG_Settings.Number)) {
+            } else if (KGOntology.isSubtypeOf(seed_type_withPrefix, Settings.Number)) {
                 if (phrase.equals("NP")) {
                     FCs = factConstraints_toString_NP_forward(cycleGraph, coordinatingConjunction);
 
@@ -189,8 +189,8 @@ public class CycleGeneralQuestion {
             }
 
         } else if (direction == BACKWARD) {
-            String O_type = SPARQL.getType(KG_Settings.explorer, cycleGraph.getPath_1().getObject().getValueWithPrefix());
-            if (KGOntology.isSubtypeOf(O_type, KG_Settings.Person)) {
+            String O_type = SPARQL.getType(Settings.explorer, cycleGraph.getPath_1().getObject().getValueWithPrefix());
+            if (KGOntology.isSubtypeOf(O_type, Settings.Person)) {
                 if (phrase.equals("NP") || phrase.equals("VP")) {
 
                     FCs = factConstraints_toString_VP_reverse(cycleGraph, coordinatingConjunction);
@@ -200,7 +200,7 @@ public class CycleGeneralQuestion {
                     }
                     return "Who " + FCs + "?";
                 }
-            } else if (KGOntology.isSubtypeOf(O_type, KG_Settings.Place)) {
+            } else if (KGOntology.isSubtypeOf(O_type, Settings.Place)) {
                 if (phrase.equals("NP")) {
 
                     FCs = factConstraints_toString_NP_revers(cycleGraph, coordinatingConjunction);
@@ -218,7 +218,7 @@ public class CycleGeneralQuestion {
                     }
                     return "Where " + FCs + "?";
                 }
-            } else if (KGOntology.isSubtypeOf(O_type, KG_Settings.Date)) {
+            } else if (KGOntology.isSubtypeOf(O_type, Settings.Date)) {
                 if (phrase.equals("NP")) {
 
                     FCs = factConstraints_toString_NP_revers(cycleGraph, coordinatingConjunction);
@@ -236,7 +236,7 @@ public class CycleGeneralQuestion {
                     }
                     return "When " + FCs + "?";
                 }
-            } else if (KGOntology.isSubtypeOf(O_type, KG_Settings.Number)) {
+            } else if (KGOntology.isSubtypeOf(O_type, Settings.Number)) {
                 if (phrase.equals("NP")) {
 
                     FCs = factConstraints_toString_NP_revers(cycleGraph, coordinatingConjunction);
@@ -284,7 +284,7 @@ public class CycleGeneralQuestion {
             String p2_SO_VP = predicateNL_Path2.getPredicate_s_O_VP();
             String p2_OS_VP = predicateNL_Path2.getPredicate_o_s_VP();
             String reflexive = "";
-            if(SPARQL.isASubtypeOf(KG_Settings.explorer, cycleGraph.getPath_1().getO_type(), KG_Settings.Person))
+            if(SPARQL.isASubtypeOf(Settings.explorer, cycleGraph.getPath_1().getO_type(), Settings.Person))
                 reflexive = "him/herself";
             else
                 reflexive = "itself";
@@ -320,7 +320,7 @@ public class CycleGeneralQuestion {
             
             String p2_SO_VP = predicateNL_Path2.getPredicate_s_O_VP();
             String reflexive = "";
-            if(SPARQL.isASubtypeOf(KG_Settings.explorer, cycleGraph.getPath_1().getO_type(), KG_Settings.Person))
+            if(SPARQL.isASubtypeOf(Settings.explorer, cycleGraph.getPath_1().getO_type(), Settings.Person))
                 reflexive = "him/herself";
             else
                 reflexive = "itself";

@@ -5,7 +5,9 @@ import offLine.kg_explorer.explorer.SPARQL;
 import offLine.kg_explorer.model.PredicateContext;
 import offLine.scrapping.model.PredicateNLRepresentation;
 import offLine.scrapping.model.PredicatesLexicon;
-import settings.KG_Settings;
+import settings.Settings;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 /**
  *
@@ -41,10 +43,12 @@ public class TriplePattern {
             for (PredicateNLRepresentation predicateNLRepresentation : predicatesNL) {
                 if (possibleContext.getSubjectType().equals(predicateNLRepresentation.getSubject_type())
                         && possibleContext.getObjectType().equals(predicateNLRepresentation.getObject_type())) {
-                    if(this.s_type == null)
+                    if (this.s_type == null) {
                         this.s_type = possibleContext.getSubjectType();
-                    if(this.o_type == null)
+                    }
+                    if (this.o_type == null) {
                         this.o_type = possibleContext.getObjectType();
+                    }
                     break;
                 }
             }
@@ -55,15 +59,15 @@ public class TriplePattern {
             return;
         }
 
-        if (o_type.equals(KG_Settings.Number)) {
-            s_type_without_prefix = KG_Settings.explorer.removePrefix(s_type);
-            o_type_without_prefix = KG_Settings.Number;
-        } else if (o_type.equals(KG_Settings.Date)) {
-            s_type_without_prefix = KG_Settings.explorer.removePrefix(s_type);
-            o_type_without_prefix = KG_Settings.Date;
+        if (o_type.equals(Settings.Number)) {
+            s_type_without_prefix = Settings.explorer.removePrefix(s_type);
+            o_type_without_prefix = Settings.Number;
+        } else if (o_type.equals(Settings.Date)) {
+            s_type_without_prefix = Settings.explorer.removePrefix(s_type);
+            o_type_without_prefix = Settings.Date;
         } else {
-            s_type_without_prefix = KG_Settings.explorer.removePrefix(s_type);
-            o_type_without_prefix = KG_Settings.explorer.removePrefix(o_type);
+            s_type_without_prefix = Settings.explorer.removePrefix(s_type);
+            o_type_without_prefix = Settings.explorer.removePrefix(o_type);
         }
     }
 
@@ -73,15 +77,18 @@ public class TriplePattern {
         this.predicate = predicate;
         this.s_type = s_type;
         this.o_type = o_type;
-        if (o_type.equals(KG_Settings.Number)) {
-            s_type_without_prefix = KG_Settings.explorer.removePrefix(s_type);
-            o_type_without_prefix = KG_Settings.Number;
-        } else if (o_type.equals(KG_Settings.Date)) {
-            s_type_without_prefix = KG_Settings.explorer.removePrefix(s_type);
-            o_type_without_prefix = KG_Settings.Date;
+        if (o_type.equals(Settings.Number)) {
+            s_type_without_prefix = Settings.explorer.removePrefix(s_type);
+            o_type_without_prefix = Settings.Number;
+        } else if (o_type.equals(Settings.Date)) {
+            s_type_without_prefix = Settings.explorer.removePrefix(s_type);
+            o_type_without_prefix = Settings.Date;
+        } else if (o_type.equals(Settings.Literal)) {
+            s_type_without_prefix = Settings.explorer.removePrefix(s_type);
+            o_type_without_prefix = Settings.Literal;
         } else {
-            s_type_without_prefix = KG_Settings.explorer.removePrefix(s_type);
-            o_type_without_prefix = KG_Settings.explorer.removePrefix(o_type);
+            s_type_without_prefix = Settings.explorer.removePrefix(s_type);
+            o_type_without_prefix = Settings.explorer.removePrefix(o_type);
         }
     }
 
@@ -133,7 +140,7 @@ public class TriplePattern {
         if (s_type == null || o_type == null || o_type_without_prefix == null || s_type_without_prefix == null) {
             return null;
         }
-        if (o_type_without_prefix.equals(KG_Settings.Number) || o_type_without_prefix.equals(KG_Settings.Date)) {
+        if (o_type_without_prefix.equals(Settings.Number) || o_type_without_prefix.equals(Settings.Date) || o_type_without_prefix.equals(Settings.Literal)) {
             s = subject.getValue() + "[" + s_type_without_prefix + "]" + " ____" + predicate.getValue() + "____ " + object.getValueWithPrefix() + "[" + o_type_without_prefix + "]";
         } else {
             s = subject.getValue() + "[" + s_type_without_prefix + "]" + " ____" + predicate.getValue() + "____ " + object.getValue() + "[" + o_type_without_prefix + "]";
@@ -162,8 +169,38 @@ public class TriplePattern {
         } else {
             o = object + "";
         }
-        String s = "<" + subject + ">\t<" + predicate + ">\t" + o + "";
+        String s = "<" + subject + ">\t<" + predicate + ">\t" + o + " ";
+        if (o_type.equals(Settings.Literal)) {
+            s = "<" + subject + ">\t<" + predicate + ">\t\"" + o + "\" ";
+        }
+        if (o_type.equals(Settings.Date) || isValidDate(o)) {
+            s = "<" + subject + ">\t<" + predicate + ">\t\"" + o + "\"^^xsd:dateTime ";
+        }
+        
+        if (o_type.equals(Settings.Number) || isNumeric(o)) {
+            s = "<" + subject + ">\t<" + predicate + ">\t" + o;
+        }
         return s;
+    }
+
+    public static boolean isValidDate(String inDate) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        dateFormat.setLenient(false);
+        try {
+            dateFormat.parse(inDate.trim());
+        } catch (ParseException pe) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean isNumeric(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     public String getS_type_without_prefix() {

@@ -2,12 +2,12 @@ package online.kg_extractor.model.subgraph;
 
 import java.util.ArrayList;
 import offLine.kg_explorer.explorer.SPARQL;
-import online.kg_extractor.knowledgegraph.KnowledgeGraph;
+import offLine.kg_explorer.explorer.KnowledgeGraph;
 import online.kg_extractor.model.NodeType;
 import online.kg_extractor.model.TriplePattern;
 import online.kg_extractor.model.Variable;
 import online.kg_extractor.model.VariableSet;
-import settings.KG_Settings;
+import settings.Settings;
 
 /**
  *
@@ -41,7 +41,7 @@ public class StarGraph extends Graph {
 
         ArrayList<VariableSet> queryResult;
         ArrayList<StarGraph> result = new ArrayList<>();
-        seedType = SPARQL.getType(KG_Settings.explorer, seed);
+        seedType = SPARQL.getType(Settings.explorer, seed);
 
         //Assume the star as follow S0--P0--O0  
         //                          S0--P1--O1
@@ -60,8 +60,9 @@ public class StarGraph extends Graph {
             String[] unwantedPropertiesList = knowledgeGraph.getUnwantedProperties();
             String unwantedPropertiesString = knowledgeGraph.getUnwantedPropertiesString();
             filter += "FILTER (?p" + i + " NOT IN(" + unwantedPropertiesString + ")). ";
-
-            filter += "FILTER strstarts(str(?p" + i + " ), str(dbo:)). ";
+            if (Settings.requiredTypePrefix != null && !"".equals(Settings.requiredTypePrefix)) {
+                filter += "FILTER strstarts(str(?p" + i + " ), str(" + Settings.requiredTypePrefix + ")). ";
+            }
 
             //Objects not equal each other
             for (int j = 0; j < i; j++) {
@@ -103,12 +104,17 @@ public class StarGraph extends Graph {
                     triplePattern = new TriplePattern(
                             new Variable("?so", seed, "URI"),
                             queryResult1.getVariables().get(i + 1),
-                            queryResult1.getVariables().get(i), SPARQL.getType(KG_Settings.explorer, seed), KG_Settings.Number);
+                            queryResult1.getVariables().get(i), SPARQL.getType(Settings.explorer, seed), Settings.Number);
                 } else if (endsType[o_index] == NodeType.DATE) {
                     triplePattern = new TriplePattern(
                             new Variable("?so", seed, "URI"),
                             queryResult1.getVariables().get(i + 1),
-                            queryResult1.getVariables().get(i), SPARQL.getType(KG_Settings.explorer, seed), KG_Settings.Date);
+                            queryResult1.getVariables().get(i), SPARQL.getType(Settings.explorer, seed), Settings.Date);
+                }else if (endsType[o_index] == NodeType.LITERAL) {
+                    triplePattern = new TriplePattern(
+                            new Variable("?so", seed, "URI"),
+                            queryResult1.getVariables().get(i + 1),
+                            queryResult1.getVariables().get(i), SPARQL.getType(Settings.explorer, seed), Settings.Literal);
                 } else {
                     triplePattern = new TriplePattern(
                             new Variable("?so", seed, "URI"),
@@ -133,10 +139,6 @@ public class StarGraph extends Graph {
         return result;
     }
 
-    
-    
-    
-    
     public ArrayList<StarGraph> generate_SUBJECT_ENTITY_All_predicates_are_the_same(
             KnowledgeGraph knowledgeGraph, String seed,
             int[] endsType,
@@ -147,7 +149,7 @@ public class StarGraph extends Graph {
 
         ArrayList<VariableSet> queryResult;
         ArrayList<StarGraph> result = new ArrayList<>();
-        seedType = SPARQL.getType(KG_Settings.explorer, seed);
+        seedType = SPARQL.getType(Settings.explorer, seed);
 
         //Assume the star as follow S0--P0--O0  
         //                          S0--P1--O1
@@ -166,14 +168,15 @@ public class StarGraph extends Graph {
             String[] unwantedPropertiesList = knowledgeGraph.getUnwantedProperties();
             String unwantedPropertiesString = knowledgeGraph.getUnwantedPropertiesString();
             filter += "FILTER (?p" + i + " NOT IN(" + unwantedPropertiesString + ")). ";
-
-            filter += "FILTER strstarts(str(?p" + i + " ), str(dbo:)). ";
+            if (Settings.requiredTypePrefix != null && !"".equals(Settings.requiredTypePrefix)) {
+                filter += "FILTER strstarts(str(?p" + i + " ), str(" + Settings.requiredTypePrefix + ")). ";
+            }
 
             //Objects not equal each other
             for (int j = 0; j < i; j++) {
                 filter += "FILTER (?o" + i + "!=?o" + j + "). ";
             }
-            
+
             //Predicates equal each other
             for (int j = 0; j < i; j++) {
                 filter += "FILTER (?p" + i + "=?p" + j + "). ";
@@ -214,12 +217,12 @@ public class StarGraph extends Graph {
                     triplePattern = new TriplePattern(
                             new Variable("?so", seed, "URI"),
                             queryResult1.getVariables().get(i + 1),
-                            queryResult1.getVariables().get(i), SPARQL.getType(KG_Settings.explorer, seed), KG_Settings.Number);
+                            queryResult1.getVariables().get(i), SPARQL.getType(Settings.explorer, seed), Settings.Number);
                 } else if (endsType[o_index] == NodeType.DATE) {
                     triplePattern = new TriplePattern(
                             new Variable("?so", seed, "URI"),
                             queryResult1.getVariables().get(i + 1),
-                            queryResult1.getVariables().get(i), SPARQL.getType(KG_Settings.explorer, seed), KG_Settings.Date);
+                            queryResult1.getVariables().get(i), SPARQL.getType(Settings.explorer, seed), Settings.Date);
                 } else {
                     triplePattern = new TriplePattern(
                             new Variable("?so", seed, "URI"),
@@ -243,10 +246,9 @@ public class StarGraph extends Graph {
 
         return result;
     }
-    
-    
+
     public String toString() {
-        String s = star.get(0).getSubject().getValue() + " ____ " + "type" + " ____ " + KG_Settings.explorer.removePrefix(seedType);
+        String s = star.get(0).getSubject().getValue() + " ____ " + "type" + " ____ " + Settings.explorer.removePrefix(seedType);
         for (int i = 0; i < star.size(); i++) {
             s += "\n" + star.get(i).toString();
         }

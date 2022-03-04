@@ -6,7 +6,7 @@ import offLine.kg_explorer.ontology.KGOntology;
 import online.kg_extractor.model.subgraph.SingleEdgeGraph;
 import offLine.scrapping.model.PredicateNLRepresentation;
 import offLine.scrapping.model.PredicatesLexicon;
-import settings.KG_Settings;
+import settings.Settings;
 
 public class SingleEdgeQuestion {
 
@@ -59,15 +59,16 @@ public class SingleEdgeQuestion {
         P_withPrefix = singleEdgeGraph.getTriplePattern().getPredicate().getValueWithPrefix();
         O_withPrefix = singleEdgeGraph.getTriplePattern().getObject().getValueWithPrefix();
 
-        if (singleEdgeGraph.getTriplePattern().getO_type().equals(KG_Settings.Number)
-                || singleEdgeGraph.getTriplePattern().getO_type().equals(KG_Settings.Date)) {
+        if (singleEdgeGraph.getTriplePattern().getO_type().equals(Settings.Number)
+                || singleEdgeGraph.getTriplePattern().getO_type().equals(Settings.Date)
+                || singleEdgeGraph.getTriplePattern().getO_type().equals(Settings.Literal)) {
             O = singleEdgeGraph.getTriplePattern().getObject().getValueWithPrefix();
-            somethingElse = SPARQL.getSimilarEntity(KG_Settings.explorer, S_withPrefix, this.S_type_withPrefix);
-            somethingElseWithoutPrefix = KG_Settings.explorer.removePrefix(somethingElse);
+            somethingElse = SPARQL.getSimilarEntity(Settings.explorer, S_withPrefix, this.S_type_withPrefix);
+            somethingElseWithoutPrefix = Settings.explorer.removePrefix(somethingElse);
         } else {
             O = singleEdgeGraph.getTriplePattern().getObject().getValue();
-            somethingElse = SPARQL.getSimilarEntity(KG_Settings.explorer, S_withPrefix, this.S_type_withPrefix);
-            somethingElseWithoutPrefix = KG_Settings.explorer.removePrefix(somethingElse);
+            somethingElse = SPARQL.getSimilarEntity(Settings.explorer, S_withPrefix, this.S_type_withPrefix);
+            somethingElseWithoutPrefix = Settings.explorer.removePrefix(somethingElse);
         }
 
         PredicateNLRepresentation predicateNL = PredicatesLexicon.getPredicateNL(P_withPrefix, S_type_withPrefix, O_type_withPrefix);
@@ -106,16 +107,17 @@ public class SingleEdgeQuestion {
         P_withPrefix = singleEdgeGraph.getTriplePattern().getPredicate().getValueWithPrefix();
         S_withPrefix = singleEdgeGraph.getTriplePattern().getObject().getValueWithPrefix();
 
-        if (singleEdgeGraph.getTriplePattern().getO_type().equals(KG_Settings.Number)
-                || singleEdgeGraph.getTriplePattern().getO_type().equals(KG_Settings.Date)) {
+        if (singleEdgeGraph.getTriplePattern().getO_type().equals(Settings.Number)
+                || singleEdgeGraph.getTriplePattern().getO_type().equals(Settings.Date)
+                || singleEdgeGraph.getTriplePattern().getO_type().equals(Settings.Literal)) {
             S = singleEdgeGraph.getTriplePattern().getObject().getValueWithPrefix();
 
         } else {
             S = singleEdgeGraph.getTriplePattern().getObject().getValue();
         }
 
-        somethingElse = SPARQL.getSimilarEntity(KG_Settings.explorer, S_withPrefix, this.S_type_withPrefix);
-        somethingElseWithoutPrefix = KG_Settings.explorer.removePrefix(somethingElse);
+        somethingElse = SPARQL.getSimilarEntity(Settings.explorer, S_withPrefix, this.S_type_withPrefix);
+        somethingElseWithoutPrefix = Settings.explorer.removePrefix(somethingElse);
 
         PredicateNLRepresentation predicateNL = PredicatesLexicon.getPredicateNL(P_withPrefix, S_type_withPrefix, O_type_withPrefix); //except this one
 
@@ -157,13 +159,13 @@ public class SingleEdgeQuestion {
         generateQuestionAsk_Correct();
         generateQuestionAsk_Wrong();
 
-        if (KGOntology.isSubtypeOf(S_type_withPrefix, KG_Settings.Person)) {
+        if (KGOntology.isSubtypeOf(S_type_withPrefix, Settings.Person)) {
             generateQuestionSELECT_e_of_type_Person();
-        } else if (KGOntology.isSubtypeOf(S_type_withPrefix, KG_Settings.Place)) {
+        } else if (KGOntology.isSubtypeOf(S_type_withPrefix, Settings.Place)) {
             generateQuestionSELECT_e_of_type_Place();
-        } else if (KGOntology.isSubtypeOf(S_type_withPrefix, KG_Settings.Date)) {
+        } else if (KGOntology.isSubtypeOf(S_type_withPrefix, Settings.Date)) {
             generateQuestionSELECT_e_of_type_Date();
-        } else if (KGOntology.isSubtypeOf(S_type_withPrefix, KG_Settings.Number)) {
+        } else if (KGOntology.isSubtypeOf(S_type_withPrefix, Settings.Number)) {
             generateQuestionSELECT_e_of_type_Number();
         } else {
             generateQuestionSELECT_e_of_type_Entity();
@@ -173,8 +175,8 @@ public class SingleEdgeQuestion {
 
     public String generateSELECTQuery() {
         String triple = "";
-        if (S_type_withPrefix.equals(KG_Settings.Number) || S_type_withPrefix.equals(KG_Settings.Date)) {
-            triple = singleEdgeGraph.getTriplePattern().toQueryTriplePattern().replace(S_withPrefix, "?Seed") + " .";
+        if (S_type_withPrefix.equals(Settings.Number) || S_type_withPrefix.equals(Settings.Date) || S_type_withPrefix.equals(Settings.Literal)) {
+            triple = singleEdgeGraph.getTriplePattern().toQueryTriplePattern().replaceAll("\\b" + S_withPrefix + "\\b", "?Seed") + " .";
         } else {
             triple = singleEdgeGraph.getTriplePattern().toQueryTriplePattern().replace("<" + S_withPrefix + ">", "?Seed") + " .";
         }
@@ -183,8 +185,8 @@ public class SingleEdgeQuestion {
 
     public String generateCountQuery() {
         String triple = "";
-        if (S_type_withPrefix.equals(KG_Settings.Number) || S_type_withPrefix.equals(KG_Settings.Date)) {
-            triple = singleEdgeGraph.getTriplePattern().toQueryTriplePattern().replace(S_withPrefix, "?Seed") + " .";
+        if (S_type_withPrefix.equals(Settings.Number) || S_type_withPrefix.equals(Settings.Date) || S_type_withPrefix.equals(Settings.Literal)) {
+            triple = singleEdgeGraph.getTriplePattern().toQueryTriplePattern().replaceAll("\\b" + S_withPrefix + "\\b", "?Seed") + " .";
         } else {
             triple = singleEdgeGraph.getTriplePattern().toQueryTriplePattern().replace("<" + S_withPrefix + ">", "?Seed") + " .";
         }
@@ -202,6 +204,11 @@ public class SingleEdgeQuestion {
         }
         String triple = singleEdgeGraph.getTriplePattern().toQueryTriplePattern();
         if (triple != null) {
+            if (S_type_withPrefix.equals(Settings.Number) || S_type_withPrefix.equals(Settings.Date) || S_type_withPrefix.equals(Settings.Literal)) {
+                triple = triple.replace("\\b" + S_withPrefix + "\\b", somethingElse) + " .";
+            } else {
+                triple = triple.replace(S_withPrefix, somethingElse) + " .";
+            }
             triple = triple.replace(S_withPrefix, somethingElse) + " .";
             return "ASK WHERE{\n\t" + triple + "\n}";
         }

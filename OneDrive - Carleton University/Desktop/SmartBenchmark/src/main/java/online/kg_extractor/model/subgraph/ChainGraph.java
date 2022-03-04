@@ -2,10 +2,11 @@ package online.kg_extractor.model.subgraph;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import online.kg_extractor.knowledgegraph.KnowledgeGraph;
+import offLine.kg_explorer.explorer.KnowledgeGraph;
 import online.kg_extractor.model.NodeType;
 import online.kg_extractor.model.TriplePattern;
 import online.kg_extractor.model.VariableSet;
+import settings.Settings;
 
 /**
  *
@@ -62,19 +63,24 @@ public class ChainGraph extends Graph {
         //Predicate not in the unwanted list of the current KG
         String[] unwantedPropertiesList = knowledgeGraph.getUnwantedProperties();
         String unwantedPropertiesString = knowledgeGraph.getUnwantedPropertiesString();
-            if(endType==NodeType.TYPE)
-                unwantedPropertiesString = unwantedPropertiesString.replace("rdf:type,","");
+        if (endType == NodeType.TYPE) {
+            unwantedPropertiesString = unwantedPropertiesString.replace("rdf:type,", "");
+        }
         for (int i = 0; i < chainLength; i++) {
             filter += "FILTER (?p" + (i + 1) + " NOT IN(" + unwantedPropertiesString + ")). ";
-            if(endType==NodeType.TYPE && (i+1)==chainLength) break;
-            filter += "FILTER strstarts(str(?p" + (i + 1) + " ), str(dbo:)). ";
+            if (endType == NodeType.TYPE && (i + 1) == chainLength) {
+                break;
+            }
+            if (Settings.requiredTypePrefix != null && !"".equals(Settings.requiredTypePrefix)) {
+                filter += "FILTER strstarts(str(?p" + (i + 1) + " ), str(" + Settings.requiredTypePrefix + ")). ";
+            }
         }
 
         for (int i = 0; i < chainLength; i++) {
             vars += "?o" + i + " " + "?p" + (i + 1) + " " + "?o" + (i + 1) + " ";
             triples += "?o" + i + " " + "?p" + (i + 1) + " " + "?o" + (i + 1) + " . ";
             lastVar = "?o" + (i + 1);
-            lastPredicate = "?p" + (i + 1); 
+            lastPredicate = "?p" + (i + 1);
             filter += "FILTER NOT EXISTS { ?o" + i + "  ?p" + (i + 1) + " ?t" + (i + 1) + ". FILTER(?t" + (i + 1) + " != ?o" + (i + 1) + ")}. ";
             if (uniqueProperties) {
                 filter += "FILTER NOT EXISTS { ?o" + i + "  ?p" + (i + 1) + " ?m" + (i + 1) + ". FILTER(?m" + (i + 1) + " != ?o" + (i + 1) + ")}. ";
@@ -97,8 +103,7 @@ public class ChainGraph extends Graph {
             filter += "FILTER isLiteral(" + lastVar + "). ";
         } else if (endType == NodeType.DATE) {
             filter += "FILTER ( datatype(" + lastVar + ") = xsd:dateTime ). ";
-        }
-        else if (endType == NodeType.TYPE) {
+        } else if (endType == NodeType.TYPE) {
             filter += "FILTER (" + lastPredicate + " = rdf:type). ";
         }
 

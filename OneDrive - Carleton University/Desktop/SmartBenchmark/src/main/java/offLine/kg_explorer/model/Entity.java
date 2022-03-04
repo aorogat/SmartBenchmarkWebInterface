@@ -2,6 +2,7 @@ package offLine.kg_explorer.model;
 
 import offLine.kg_explorer.explorer.DBpediaExplorer;
 import offLine.kg_explorer.explorer.Explorer;
+import settings.Settings;
 
 /**
  *
@@ -16,7 +17,7 @@ public class Entity {
         //run a quern on the KG of the explorer to get the entity type
         String kgFilteration = "";
         if (explorer instanceof DBpediaExplorer) 
-            kgFilteration = "FILTER strstarts(str(?directType), str(dbo:))";
+            kgFilteration = "FILTER strstarts(str(?directType), str("+Settings.requiredTypePrefix+"))";
             
         String query = "";
         try {
@@ -40,7 +41,7 @@ public class Entity {
                     + "    }.\n"
                     + "    " + kgFilteration + "\n"
                     + "  }";
-            //query = "SELECT ?type WHERE { " + entity + " rdf:type ?type. FILTER strstarts(str(?type), str(dbo:))}";
+            //query = "SELECT ?type WHERE { " + entity + " rdf:type ?type. FILTER strstarts(str(?type), str("+Settings.requiredTypePrefix+"))}";
             explorer.predicatesTriplesVarSets = explorer.kg.runQuery(query);
             return explorer.removePrefix(explorer.predicatesTriplesVarSets.get(0).getVariables().get(0).toString());
         } catch (Exception e) {

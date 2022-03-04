@@ -1,7 +1,7 @@
 package test;
 
 import java.util.ArrayList;
-import online.kg_extractor.knowledgegraph.DBpedia;
+import offLine.kg_explorer.explorer.DBpedia;
 import online.kg_extractor.model.TriplePattern;
 import online.kg_extractor.model.Variable;
 import online.kg_extractor.model.VariableSet;

@@ -1,6 +1,6 @@
 package online.kg_extractor.model;
 
-import settings.KG_Settings;
+import settings.Settings;
 
 /**
  *
@@ -39,9 +39,9 @@ public class Variable {
     }
 
     public String getValue() {
-        if(value.equals(KG_Settings.Number)||value.equals(KG_Settings.Date))
+        if(value.equals(Settings.Number)||value.equals(Settings.Date)||value.equals(Settings.Literal))
             return value;
-        return KG_Settings.explorer.removePrefix(value);
+        return Settings.explorer.removePrefix(value);
     }
 
     public void setValue(String value) {

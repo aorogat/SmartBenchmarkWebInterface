@@ -5,7 +5,7 @@ import offLine.kg_explorer.explorer.SPARQL;
 import offLine.scrapping.model.PredicateNLRepresentation;
 import offLine.scrapping.model.PredicatesLexicon;
 import online.kg_extractor.model.subgraph.StarGraph;
-import settings.KG_Settings;
+import settings.Settings;
 
 /**
  *
@@ -20,7 +20,7 @@ public class StarSetQuestion {
 
     public StarSetQuestion(StarGraph starGraph, String T_prefix) {
         this.starGraph = starGraph;
-        this.T = KG_Settings.explorer.removePrefix(T_prefix);
+        this.T = Settings.explorer.removePrefix(T_prefix);
         this.T_withprefix = T_prefix;
         String P = starGraph.getStar().get(0).getPredicate().getValue();
         String P_withPrefix = starGraph.getStar().get(0).getPredicate().getValueWithPrefix();
@@ -28,20 +28,26 @@ public class StarSetQuestion {
         String S = starGraph.getStar().get(0).getSubject().getValue();
         String S_withPrefix = starGraph.getStar().get(0).getSubject().getValueWithPrefix();
 
-        String O = starGraph.getStar().get(0).getObject().getValue();
-        String O_withPrefix = starGraph.getStar().get(0).getObject().getValueWithPrefix();
+        
 
         String S_Type = starGraph.getStar().get(0).getS_type_without_prefix();
         String S_Type_withPrefix = starGraph.getStar().get(0).getS_type();
 
         String O_Type = starGraph.getStar().get(0).getO_type_without_prefix();
         String O_Type_withPrefix = starGraph.getStar().get(0).getO_type();
+        
+        String O = null;
+        if(O_Type.equals(Settings.Number) || O_Type.equals(Settings.Date) || O_Type.equals(Settings.Literal))
+            O = starGraph.getStar().get(0).getObject().getValueWithPrefix();
+        else 
+            O = starGraph.getStar().get(0).getObject().getValue();
+        String O_withPrefix = starGraph.getStar().get(0).getObject().getValueWithPrefix();
 
         String compareEntityTop_withPrefix = SPARQL.getTopEntity(T_withprefix, P_withPrefix, true);
         String compareEntityDown_withPrefix = SPARQL.getTopEntity(T_withprefix, P_withPrefix, false);
 
-        String compareEntityDown = KG_Settings.explorer.removePrefix(compareEntityDown_withPrefix);
-        String compareEntityTop = KG_Settings.explorer.removePrefix(compareEntityTop_withPrefix);
+        String compareEntityDown = Settings.explorer.removePrefix(compareEntityDown_withPrefix);
+        String compareEntityTop = Settings.explorer.removePrefix(compareEntityTop_withPrefix);
 
         PredicateNLRepresentation predicateNL = PredicatesLexicon.getPredicateNL(P_withPrefix, S_Type_withPrefix, O_Type_withPrefix);
         if (predicateNL == null) {
@@ -57,11 +63,11 @@ public class StarSetQuestion {
         String greaterNL = "";
         String equalNL = "";
 
-        if (O_Type_withPrefix.equals(KG_Settings.Date)) {
+        if (O_Type_withPrefix.equals(Settings.Date)) {
             lessNL = "before";
             greaterNL = "after";
             equalNL = "as the same time as";
-        } else if (O_Type_withPrefix.equals(KG_Settings.Number)) {
+        } else if (O_Type_withPrefix.equals(Settings.Number)) {
             lessNL = "less than";
             greaterNL = "greater than";
             equalNL = "equals";
@@ -150,7 +156,7 @@ public class StarSetQuestion {
         //Modefied Question - first after
         query = null;
         question = null;
-        if (O_Type_withPrefix.equals(KG_Settings.Number)) {
+        if (O_Type_withPrefix.equals(Settings.Number)) {
             if (so_NP != null) {
                 so_NP = so_NP.replaceAll("\\(.*\\)", "");
                 question = "Which " + T + " after " + compareEntityTop + " has the most " + so_NP.trim() + "?";
@@ -179,7 +185,7 @@ public class StarSetQuestion {
         //Modefied Question - second after
         query = null;
         question = null;
-        if (O_Type_withPrefix.equals(KG_Settings.Number)) {
+        if (O_Type_withPrefix.equals(Settings.Number)) {
             if (so_NP != null) {
                 so_NP = so_NP.replaceAll("\\(.*\\)", "");
                 question = "Which " + T + " after " + compareEntityTop + " has the second most " + so_NP.trim() + "?";

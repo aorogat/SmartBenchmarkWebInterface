@@ -14,7 +14,7 @@ import online.nl_generation.Benchmark;
  */
 public class BenchmarkJsonWritter {
 
-    public static void save(Benchmark benchmark) {
+    public static void save(Benchmark benchmark, String benchmarkName) {
 //        JSONArray jsonArray = new JSONArray();
 //        int j = 0;
 //        SortedMap<String, Object> json = new TreeMap<>();
@@ -29,9 +29,9 @@ public class BenchmarkJsonWritter {
 
             // Writing to a file   
             ObjectWriter writer = mapper.writer(new DefaultPrettyPrinter());
-            Scanner in = new Scanner(System.in);
-            System.out.print("Enter benchmark name: ");
-            String benchmarkName = in.nextLine();
+//            Scanner in = new Scanner(System.in);
+//            System.out.print("Enter benchmark name: ");
+//            String benchmarkName = in.nextLine();
                     
             writer.writeValue(new File(benchmarkName + ".json"), benchmark.generatedBenchmark);
             

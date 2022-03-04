@@ -1,7 +1,7 @@
 package online.kg_extractor.model.subgraph;
 
 import java.util.ArrayList;
-import online.kg_extractor.knowledgegraph.KnowledgeGraph;
+import offLine.kg_explorer.explorer.KnowledgeGraph;
 import online.kg_extractor.model.TriplePattern;
 
 /**

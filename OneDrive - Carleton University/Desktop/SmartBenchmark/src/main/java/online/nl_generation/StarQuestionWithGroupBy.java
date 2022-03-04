@@ -7,7 +7,7 @@ import java.util.Map;
 import online.kg_extractor.model.TriplePattern;
 import online.kg_extractor.model.subgraph.StarGraph;
 import online.nl_generation.chunking.BasicNLP_FromPython;
-import settings.KG_Settings;
+import settings.Settings;
 
 public class StarQuestionWithGroupBy {
 
@@ -24,7 +24,7 @@ public class StarQuestionWithGroupBy {
 
     public StarQuestionWithGroupBy(StarGraph starGraph) {
         this.starGraph = starGraph;
-        T = KG_Settings.explorer.removePrefix(starGraph.getSeedType()).toLowerCase();
+        T = Settings.explorer.removePrefix(starGraph.getSeedType()).toLowerCase();
 
         Map<String, HashSet<String>> starPredicates = new HashMap<>();
 
@@ -45,7 +45,7 @@ public class StarQuestionWithGroupBy {
             o_type = triple.getO_type_without_prefix();
         }
         if (starPredicates.size() == 1 && starPredicates.get(p).size() >= 2) {
-            T = KG_Settings.explorer.removePrefix(starGraph.getSeedType()).toLowerCase();
+            T = Settings.explorer.removePrefix(starGraph.getSeedType()).toLowerCase();
             String question = "Which " + T + " has at least 2 " + BasicNLP_FromPython.nounPlural(p.toLowerCase()) + "?";
             String query = selectQuery(starGraph, 2, true);
             allPossibleQuestions.add(new GeneratedQuestion(starGraph.getStar().get(0).getSubject().getValueWithPrefix(), starGraph.getStar().get(0).getS_type(), question, query, starGraph.toString(), 2, GeneratedQuestion.QT_HOW_MANY, GeneratedQuestion.SH_STAR));

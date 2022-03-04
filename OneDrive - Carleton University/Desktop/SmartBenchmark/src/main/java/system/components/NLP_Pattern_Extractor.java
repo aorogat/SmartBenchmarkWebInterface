@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import offLine.kg_explorer.explorer.DBpediaExplorer;
-import offLine.kg_explorer.explorer.Database;
+import database.Database;
 import offLine.kg_explorer.explorer.Explorer;
 import offLine.kg_explorer.model.Predicate;
 import offLine.kg_explorer.model.PredicateTripleExample;
-import settings.KG_Settings;
+import settings.Settings;
 
 /**
  *
@@ -20,9 +20,10 @@ public class NLP_Pattern_Extractor {
     
     
     public static void main(String[] args) throws SQLException {
-//        String dbpediaURL = "https://dbpedia.org/sparql";
-//        Explorer explorer = KG_Settings.explorer;
-//        
+        extractNLPPatterns();
+    }
+    
+    public static void extractNLPPatterns(){
         Predicate_Extractor extractor = new Predicate_Extractor();
         ArrayList<Predicate> predicates = Database.getPredicates();
         int i = 0;

@@ -3,7 +3,7 @@ package offLine.kg_explorer.model;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import offLine.kg_explorer.explorer.Database;
+import database.Database;
 import offLine.kg_explorer.explorer.Explorer;
 import offLine.scrapping.wikipedia.NLP;
 import offLine.scrapping.wikipedia.Wikipedia;
