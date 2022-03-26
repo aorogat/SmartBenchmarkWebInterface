@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:pa="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pp="http://java.sun.com/jsf/passthrough">
+    <p:tab title="Benchmark">
+        <div style="display: inline-block; vertical-align: top;">
+
+
+        </div>
+        
+        <h:form>
+            <h:panelGroup id="allQuestionsPanel">
+                <div>
+
+
+                            <p:panel id="allQuestions">
+                                <table border="0">
+                                    <tr>
+                                        <td >
+                                            <p:dataTable var="qs" value="#{mainBean.benchmark.generatedBenchmark}" 
+                                                         scrollable="true" scrollHeight="700"
+                                                         >
+                                                
+                                                
+                                                <p:column headerText="Graph">
+                                                    <pre style="font-size: 12px;">
+                                                        <h:outputText value="#{qs.graphString}" >                                                     
+                                                        </h:outputText>
+                                                    </pre>
+                                                </p:column>
+                                                
+                                                <p:column headerText="Question" width="40%">
+                                                    <h:outputText  style="font-size: 12px; font-style: italic; font-weight: bold;" 
+                                                                   value="#{qs.questionString}" escape="false"/>
+                                                    <pre style="font-size: 10px;"><h:outputText value="#{qs.query}" /></pre>
+
+                                                    <span style="font-size: 12px; color: #008fa1;" >
+                                                        <b>Properties: </b>
+                                                        (
+                                                        <h:outputText value="Shape: #{qs.shapeType}" /> - 
+                                                        <h:outputText value="Triples: #{qs.noOfTriples}" /> - 
+                                                        <h:outputText value="QT: #{qs.questionType}" /> - 
+                                                        <h:outputText value="Tokens: #{qs.noOfTokens}" /> -
+                                                        <h:outputText value="Keyworks: #{qs.keywords}" /> - 
+                                                        <h:outputText value="Complexity: #{qs.qustionComplexity}" /> 
+                                                        )
+                                                    </span>
+                                                </p:column>
+
+                                                <p:column headerText="Correct  Answer" width="20%">
+                                                    <b style="font-size: 12px;">List size: </b>
+                                                    <h:outputText  style="font-size: 12px;" value="#{qs.answerCardinality}"/>
+                                                    <div style="overflow-y: scroll; max-height: 200px;">
+                                                        <ui:repeat value="#{qs.answers}" var="g">
+                                                            <h:outputText style="display: inline-block;
+                                                                          opacity: 0.5;
+                                                                          color: #00529b;
+                                                                          background-color: #bde5f8;
+                                                                          font-size: 12px;
+                                                                          border: 1px solid;
+                                                                          width: 100%;
+                                                                          margin: 2px;
+                                                                          padding: 2px 5px;" value="#{g}"/>
+                                                        </ui:repeat>
+                                                    </div>
+                                                </p:column>
+
+
+                                            </p:dataTable>
+                                        </td>
+                                        
+                                    </tr>
+                                </table>
+                            </p:panel>
+
+
+                </div>
+            </h:panelGroup>
+        </h:form>
+
+    </p:tab>	
+</ui:composition>

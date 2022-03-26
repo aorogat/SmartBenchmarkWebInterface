@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:pa="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pp="http://java.sun.com/jsf/passthrough">
+    <p:tab title="Comaprison">
+        <div>
+
+            <div class="inner-form">
+                <div class="inner-form">
+                    <p:tabView>
+
+                        <p:tab title="Keywords Analysis">
+                            <p:chart type="bar" model="#{mainBean.barChartMode_keywords}"  
+                                     style="width:800px; height:250px;
+                                     display: inline-block; font-family: monospace;"/>
+                        </p:tab>
+
+                        <p:tab title="Shape Analysis">
+                            <p:chart type="bar" model="#{mainBean.barChartMode_Shape}"  
+                                     style="width:600px; height:250px;
+                                     display: inline-block; font-family: monospace;"/>
+                        </p:tab>
+                        
+                        <p:tab title="NLQ Analysis">
+                            <p:chart type="bar" model="#{mainBean.barChartMode_NLQ}"  
+                                     style="width:800px; height:250px;
+                                     display: inline-block; font-family: monospace;"/>
+                        </p:tab>
+                       
+                    </p:tabView>
+
+                    <hr/>
+                </div>
+            </div>
+        </div>
+
+    </p:tab>	
+</ui:composition>

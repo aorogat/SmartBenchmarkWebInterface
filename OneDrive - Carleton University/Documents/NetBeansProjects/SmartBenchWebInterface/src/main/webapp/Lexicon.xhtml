@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:pa="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pp="http://java.sun.com/jsf/passthrough">
+    <p:tab title="Benchmark">
+        <div style="display: inline-block; vertical-align: top;">
+
+
+        </div>
+        
+        <h:form>
+            <h:panelGroup id="allQuestionsPanel">
+                <div>
+
+
+                            <p:panel id="allQuestions">
+                                <table border="0">
+                                    <tr>
+                                        <td>
+                                            <p:dataTable var="qs" value="#{mainBean.lexicon.predicatesNL}" 
+                                                         scrollable="true" scrollHeight="300"
+                                                         >
+                                                
+                                                
+                                                <p:column headerText="Predicate" style="width: 35%;">
+                                                    <span style="font-size: 12px; height: 50px; text-align: right; overflow-x: hidden;">
+                                                        <h:outputText value="#{qs.predicate}"/> <br/>
+                                                        Subject: <h:outputText value="#{qs.subject_type}"/> <br/>
+                                                        Object: <h:outputText value="#{qs.object_type}"/> <br/>
+                                                    </span>
+                                                </p:column>
+                                                
+                                                <p:column headerText="P_VP_SO">
+                                                    <span style="font-size: 12px; height: 50px;">
+                                                        <h:outputText value="#{qs.predicate_s_O_VP}" >                                                      
+                                                        </h:outputText>
+                                                    </span>
+                                                </p:column>
+                                                
+                                                <p:column headerText="P_NP_SO">
+                                                    <span style="font-size: 12px; height: 50px;">
+                                                        <h:outputText value="#{qs.predicate_s_O_NP}" >                                                      
+                                                        </h:outputText>
+                                                    </span>
+                                                </p:column>
+                                                
+                                                <p:column headerText="P_VP_OS">
+                                                    <span style="font-size: 12px; height: 50px;">
+                                                        <h:outputText value="#{qs.predicate_o_s_VP}" >                                                      
+                                                        </h:outputText>
+                                                    </span>
+                                                </p:column>
+                                                
+                                                <p:column headerText="P_NP_OS">
+                                                    <span style="font-size: 12px; height: 50px;">
+                                                        <h:outputText value="#{qs.predicate_o_s_NP}" >                                                      
+                                                        </h:outputText>
+                                                    </span>
+                                                </p:column>
+                                                
+                                            </p:dataTable>
+                                        </td>
+                                        
+                                    </tr>
+                                </table>
+                            </p:panel>
+
+
+                </div>
+            </h:panelGroup>
+        </h:form>
+
+    </p:tab>	
+</ui:composition>
